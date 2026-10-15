@@ -6,7 +6,7 @@
 
 @section('sidebar')
     <x-nav-link :active="true" :href="route('admin.dashboard')">Dashboard</x-nav-link>
-    <span class="block rounded-md px-3 py-2 text-sm text-slate-400">Data Koperasi (F2)</span>
+    <x-nav-link :href="route('admin.koperasi.index')">Data Koperasi</x-nav-link>
     <span class="block rounded-md px-3 py-2 text-sm text-slate-400">Verifikasi (F5)</span>
 @endsection
 

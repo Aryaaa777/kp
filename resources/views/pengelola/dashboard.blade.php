@@ -6,9 +6,7 @@
 
 @section('sidebar')
     <x-nav-link :active="true" :href="route('pengelola.dashboard')">Dashboard</x-nav-link>
-    @if ($user->koperasi_id)
-        <x-nav-link :href="route('koperasi.show', ['koperasi' => $user->koperasi_id])">Ringkasan Koperasi</x-nav-link>
-    @endif
+    <x-nav-link :href="route('pengelola.profil')">Profil Koperasi</x-nav-link>
     <span class="block rounded-md px-3 py-2 text-sm text-slate-400">Pengajuan (F5)</span>
 @endsection
 
@@ -22,8 +20,8 @@
         <div class="rounded-lg border border-slate-200 bg-white p-5">
             <p class="text-sm text-slate-500">Koperasi tertaut</p>
             <p class="mt-2">
-                @if ($user->koperasi_id)
-                    <x-badge color="blue">ID Koperasi: {{ $user->koperasi_id }}</x-badge>
+                @if ($cooperative)
+                    <x-badge color="blue">{{ $cooperative->nama }}</x-badge>
                 @else
                     <x-badge color="amber">Belum tertaut</x-badge>
                 @endif
@@ -37,13 +35,14 @@
         </div>
     </div>
 
-    @if (! $user->koperasi_id)
+    @if (! $cooperative)
         <x-alert type="warning" class="mt-6">
             Akun Anda belum ditautkan ke koperasi mana pun. Silakan hubungi admin dinas.
         </x-alert>
     @else
         <x-alert type="info" class="mt-6">
-            Pengisian dan pengajuan data koperasi akan tersedia pada fase berikutnya.
+            Lihat <a href="{{ route('pengelola.profil') }}" class="font-medium underline">Profil Koperasi</a> untuk
+            data resmi koperasi Anda. Pengajuan perubahan akan tersedia pada fase verifikasi (F5).
         </x-alert>
     @endif
 @endsection

@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         return view('pengelola.dashboard', [
             'user' => $request->user(),
+            'cooperative' => $request->user()->koperasi,
         ]);
     }
 }

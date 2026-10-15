@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -40,6 +41,24 @@ class User extends Authenticatable
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * Koperasi yang tertaut pada akun pengelola (BR-017: satu akun = satu koperasi untuk MVP).
+     *
+     * @return BelongsTo<Cooperative, $this>
+     */
+    public function koperasi(): BelongsTo
+    {
+        return $this->belongsTo(Cooperative::class, 'koperasi_id');
+    }
+
+    /**
+     * Apakah akun sudah tertaut ke koperasi.
+     */
+    public function hasKoperasi(): bool
+    {
+        return $this->koperasi_id !== null;
     }
 
     /**

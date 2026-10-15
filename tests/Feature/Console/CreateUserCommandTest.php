@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Console;
 
+use App\Models\Cooperative;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -43,18 +44,49 @@ class CreateUserCommandTest extends TestCase
 
     public function test_it_prompts_for_koperasi_when_creating_a_pengelola(): void
     {
+        $cooperative = Cooperative::factory()->create();
+
         $this->artisan('user:create')
             ->expectsQuestion('Nama pengguna', 'Dedi')
             ->expectsQuestion('Email pengguna', 'dedi@example.test')
             ->expectsQuestion('Peran', 'pengelola_koperasi')
             ->expectsQuestion('Password (minimal 8 karakter)', 'rahasia-kuat')
-            ->expectsQuestion('ID koperasi (boleh dikosongkan)', '5')
+            ->expectsQuestion('ID koperasi (boleh dikosongkan)', (string) $cooperative->id)
             ->assertSuccessful();
 
         $user = User::where('email', 'dedi@example.test')->first();
 
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('pengelola_koperasi'));
-        $this->assertSame(5, $user->koperasi_id);
+        $this->assertSame($cooperative->id, $user->koperasi_id);
+    }
+
+    public function test_it_rejects_an_unknown_koperasi_id(): void
+    {
+        $this->artisan('user:create')
+            ->expectsQuestion('Nama pengguna', 'Dedi')
+            ->expectsQuestion('Email pengguna', 'dedi@example.test')
+            ->expectsQuestion('Peran', 'pengelola_koperasi')
+            ->expectsQuestion('Password (minimal 8 karakter)', 'rahasia-kuat')
+            ->expectsQuestion('ID koperasi (boleh dikosongkan)', '99999')
+            ->assertExitCode(1);
+
+        $this->assertDatabaseMissing('users', ['email' => 'dedi@example.test']);
+    }
+
+    public function test_it_allows_a_pengelola_without_koperasi(): void
+    {
+        $this->artisan('user:create')
+            ->expectsQuestion('Nama pengguna', 'Dedi')
+            ->expectsQuestion('Email pengguna', 'dedi@example.test')
+            ->expectsQuestion('Peran', 'pengelola_koperasi')
+            ->expectsQuestion('Password (minimal 8 karakter)', 'rahasia-kuat')
+            ->expectsQuestion('ID koperasi (boleh dikosongkan)', '')
+            ->assertSuccessful();
+
+        $user = User::where('email', 'dedi@example.test')->first();
+
+        $this->assertNotNull($user);
+        $this->assertNull($user->koperasi_id);
     }
 }

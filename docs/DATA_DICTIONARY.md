@@ -33,7 +33,7 @@ Akun internal (Admin Dinas & Pengelola Koperasi).
 | email | VARCHAR(150) | NN | UK | Login identitas |
 | password | VARCHAR(255) | NN | | **Hash**, bukan plaintext |
 | phone | VARCHAR(30) | NULL | | Kontak |
-| koperasi_id | BIGINT UNSIGNED | NULL | FK → cooperatives.id | Pengelola terhubung 1 koperasi (MVP). *Diimplementasikan F1 tanpa constraint FK; constraint ditambahkan pada migrasi F2 ketika tabel `cooperatives` dibuat.* |
+| koperasi_id | BIGINT UNSIGNED | NULL | FK → cooperatives.id, `ON DELETE SET NULL` | Pengelola terhubung 1 koperasi (MVP). *Kolom dibuat F1; constraint FK ditambahkan pada migrasi F2 `2026_10_16_100003` (`nullOnDelete`).* |
 | region_id | BIGINT UNSIGNED | NULL | FK → regions.id, IDX | Untuk pembatasan wilayah (FASE-2) |
 | status | ENUM('active','inactive') | NN | IDX, default 'active' | Akun nonaktif tidak bisa login |
 | email_verified_at | TIMESTAMP | NULL | | |
@@ -90,6 +90,7 @@ Referensi wilayah (provinsi → kabupaten/kota → kecamatan → desa).
 
 **Index:** `code` (unique), `parent_id`, `type`.
 **Catatan:** isi via `RegionSeeder` dari sumber resmi. Jawa Barat: 1 provinsi + kabupaten/kota. **[NEEDS CONFIRMATION]** sumber & kedalaman data.
+**Status F2:** tabel dibuat (migrasi `2026_10_16_100001`) tetapi **belum di-seed** karena sumber & format kode wilayah (Q-012) belum dikonfirmasi. Tidak ada data wilayah yang dikarang.
 
 ---
 
@@ -100,23 +101,29 @@ Referensi wilayah (provinsi → kabupaten/kota → kecamatan → desa).
 | id | BIGINT UNSIGNED | NN | PK | Identitas sistem unik (BR-001) |
 | nama | VARCHAR(200) | NN | IDX | Nama koperasi |
 | slug | VARCHAR(220) | NN | UK | Untuk URL publik |
-| nomor_identitas | VARCHAR(100) | NN | UK | Nomor resmi (format **[NEEDS CONFIRMATION]**, BR-002) |
+| nomor_identitas | VARCHAR(100) | NN | UK³ | Nomor resmi (format **[NEEDS CONFIRMATION]**, BR-002) |
 | jenis_koperasi | VARCHAR(100) | NN | IDX | Enum dari konfirmasi dinas **[NEEDS CONFIRMATION]** |
 | bentuk_koperasi | VARCHAR(100) | NULL | | |
 | tanggal_berdiri | DATE | NULL | | |
-| region_id | BIGINT UNSIGNED | NN | FK → regions.id, IDX | Kabupaten/kota |
+| region_id | BIGINT UNSIGNED | NULL¹ | FK → regions.id, IDX | Kabupaten/kota |
 | alamat | TEXT | NULL | | |
 | telephone | VARCHAR(30) | NULL | | Kontak utama |
 | email | VARCHAR(150) | NULL | | Kontak utama |
 | website | VARCHAR(200) | NULL | | |
-| status_verifikasi | ENUM('draft','submitted','under_review','needs_revision','approved','rejected','archived') | NN | IDX, default 'draft' | Status data resmi |
+| status_verifikasi | ENUM('draft','submitted','under_review','needs_revision','approved','rejected','archived') | NN | IDX, default 'draft' | Status data resmi ⁴ |
 | is_published | BOOLEAN | NN | IDX, default 0 | Opt-in publikasi (BR-016) |
 | published_at | TIMESTAMP | NULL | | |
 | published_by | BIGINT UNSIGNED | NULL | FK → users.id | |
 | created_by | BIGINT UNSIGNED | NULL | FK → users.id | |
 | updated_by | BIGINT UNSIGNED | NULL | FK → users.id | |
+| archived_reason | TEXT | NULL | | ² Alasan pengarsipan (FR-043) |
 | created_at / updated_at | TIMESTAMP | NULL | | |
 | deleted_at | TIMESTAMP | NULL | | Soft delete (BR-011) |
+
+¹ **Sementara** dibuat `NULL` pada F2 karena referensi wilayah belum tersedia (Q-012). Dinaikkan menjadi `NN` setelah wilayah di-seed.
+² **Sementara** ditambahkan agar alasan arsip tersimpan sebelum `activity_logs` dibuat pada F5.
+³ Keunikan berlaku **termasuk data terarsip** (soft delete). Ini **asumsi sementara [ASUMSI]** berbasis BR-019, **belum** dikonfirmasi dinas; sejalan dengan indeks unik pada database dan validasi aplikasi.
+⁴ Pada F2 nilai `archived` **tidak** dapat dipilih lewat form; hanya tercapai melalui aksi arsip (FR-043) yang sekaligus soft delete. Penjaga matriks transisi resmi (PRD §12.2) menyusul pada F5.
 
 **Index:** `nomor_identitas` (unique), `slug` (unique), `region_id`, `jenis_koperasi`, `is_published`, `status_verifikasi`.
 **Relasi:** belongsTo `regions`; hasMany licenses, documents, health_assessments, governance_records, assets, member_histories, officers, submissions, contacts.

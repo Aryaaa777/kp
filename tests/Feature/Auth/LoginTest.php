@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Cooperative;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -31,7 +32,8 @@ class LoginTest extends TestCase
 
     public function test_pengelola_is_redirected_to_pengelola_dashboard_after_login(): void
     {
-        $user = User::factory()->pengelola(7)->create(['password' => 'rahasia-panjang']);
+        $cooperative = Cooperative::factory()->create();
+        $user = User::factory()->pengelola($cooperative->id)->create(['password' => 'rahasia-panjang']);
 
         $this->post('/login', ['email' => $user->email, 'password' => 'rahasia-panjang'])
             ->assertRedirect(route('dashboard'));

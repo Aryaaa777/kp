@@ -47,11 +47,17 @@ class CreateUserCommand extends Command
             'email' => $email,
             'password' => $password,
             'role' => $roleName,
+            'koperasi_id' => $koperasiId,
         ], [
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'in:admin_dinas,pengelola_koperasi'],
+            // Tautan akun–koperasi harus menunjuk koperasi yang benar-benar ada (BR-017).
+            'koperasi_id' => ['nullable', 'integer', 'exists:cooperatives,id'],
+        ], [
+            'koperasi_id.exists' => 'Koperasi dengan ID tersebut tidak ditemukan. Kosongkan bila belum dikaitkan.',
+            'koperasi_id.integer' => 'ID koperasi harus berupa angka.',
         ]);
 
         if ($validator->fails()) {

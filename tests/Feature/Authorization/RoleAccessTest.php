@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Authorization;
 
+use App\Models\Cooperative;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -22,7 +23,8 @@ class RoleAccessTest extends TestCase
 
     public function test_pengelola_cannot_access_admin_area(): void
     {
-        $user = User::factory()->pengelola(1)->create();
+        $cooperative = Cooperative::factory()->create();
+        $user = User::factory()->pengelola($cooperative->id)->create();
 
         $this->actingAs($user)->get('/admin/dashboard')->assertForbidden();
     }
@@ -43,7 +45,8 @@ class RoleAccessTest extends TestCase
 
     public function test_pengelola_can_access_pengelola_dashboard(): void
     {
-        $user = User::factory()->pengelola(1)->create();
+        $cooperative = Cooperative::factory()->create();
+        $user = User::factory()->pengelola($cooperative->id)->create();
 
         $this->actingAs($user)->get('/koperasi/dashboard')->assertOk();
     }
