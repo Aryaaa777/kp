@@ -166,6 +166,16 @@ class Cooperative extends Model
     }
 
     /**
+     * Susunan pengurus koperasi (FR-120/121).
+     *
+     * @return HasMany<Officer, $this>
+     */
+    public function officers(): HasMany
+    {
+        return $this->hasMany(Officer::class);
+    }
+
+    /**
      * Label status dalam bahasa Indonesia.
      */
     public function statusLabel(): string

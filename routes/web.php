@@ -4,10 +4,12 @@ use App\Http\Controllers\Admin\CooperativeController as AdminCooperativeControll
 use App\Http\Controllers\Admin\CooperativeLicenseController as AdminCooperativeLicenseController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
+use App\Http\Controllers\Admin\OfficerController as AdminOfficerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\Pengelola\DashboardController as PengelolaDashboardController;
+use App\Http\Controllers\Pengelola\PengurusController as PengelolaPengurusController;
 use App\Http\Controllers\Pengelola\PerizinanController as PengelolaPerizinanController;
 use App\Http\Controllers\Pengelola\ProfilKoperasiController;
 use Illuminate\Support\Facades\Route;
@@ -81,6 +83,17 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         // Arsip dokumen (soft delete).
         Route::delete('/dokumen/{document}', [AdminDocumentController::class, 'destroy'])->name('dokumen.destroy');
+
+        // Pengurus per koperasi (F4 PARTIAL). Route bersarang + scoped binding.
+        Route::prefix('koperasi/{cooperative}')->name('koperasi.pengurus.')->scopeBindings()->group(function () {
+            Route::get('/pengurus', [AdminOfficerController::class, 'index'])->name('index');
+            Route::get('/pengurus/create', [AdminOfficerController::class, 'create'])->name('create');
+            Route::post('/pengurus', [AdminOfficerController::class, 'store'])->name('store');
+            Route::get('/pengurus/{officer}', [AdminOfficerController::class, 'show'])->name('show');
+            Route::get('/pengurus/{officer}/edit', [AdminOfficerController::class, 'edit'])->name('edit');
+            Route::put('/pengurus/{officer}', [AdminOfficerController::class, 'update'])->name('update');
+            Route::delete('/pengurus/{officer}', [AdminOfficerController::class, 'destroy'])->name('destroy');
+        });
     });
 
     /*
@@ -95,5 +108,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         // Perizinan & dokumen koperasi sendiri (FR-071) — hanya baca.
         Route::get('/izin', [PengelolaPerizinanController::class, 'index'])->name('izin.index');
         Route::get('/izin/{license}', [PengelolaPerizinanController::class, 'show'])->name('izin.show');
+
+        // Pengurus koperasi sendiri (F4 PARTIAL) — hanya baca di F4.
+        Route::get('/pengurus', [PengelolaPengurusController::class, 'index'])->name('pengurus.index');
+        Route::get('/pengurus/{officer}', [PengelolaPengurusController::class, 'show'])->name('pengurus.show');
     });
 });

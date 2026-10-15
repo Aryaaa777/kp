@@ -102,9 +102,61 @@ teknis yang sengaja dibuat mudah diubah.
 - Data contoh untuk demonstrasi dibuat eksplisit: `php artisan db:seed --class=DemoSeeder` — menolak berjalan pada `APP_ENV=production`, tidak membuat akun, dan idempoten.
 - Data contoh diberi penanda jelas (`nomor_identitas` berawalan `DEMO-`).
 
+---
+
 ## 6. Referensi migrasi F3
 
 | Migrasi | Isi |
 | --- | --- |
 | `2026_10_16_110001_create_cooperative_licenses_table.php` | Tabel `cooperative_licenses` (unik `cooperative_id`+`license_type`+`nomor`, soft delete). |
 | `2026_10_16_110002_create_documents_table.php` | Tabel `documents` (polimorfik, FK ke koperasi/pengunggah, soft delete). |
+
+---
+
+## 7. Keputusan sementara pada implementasi F4 PARTIAL (pengurus koperasi)
+
+| # | Keputusan | Alasan | Cara menyesuaikan nanti |
+| --- | --- | --- | --- |
+| F4-1 | **Hanya modul Officers diimplementasikan** pada F4 PARTIAL (FR-120/121) | Q-010 (periodisitas tahunan/semesteran/bulanan) belum terjawab — menunggu konfirmasi dinas untuk modul kesehatan, tata kelola, aset, dan anggota | Implementasi modul lain setelah Q-010 terjawab |
+| F4-2 | Periode jabatan pengurus memakai date range (`period_start`, `period_end`) bukan `period_year` | Pengurus dapat menjabat lintas tahun dan multiple jabatan simultan; tidak tergantung Q-010 | — |
+| F4-3 | Pengelola **read-only** untuk pengurus di F4 (hanya view/show) | Workflow pengajuan (F5) belum tersedia; konsisten dengan pola F2/F3 | Buka write access via workflow pengajuan pada F5 |
+| F4-4 | `identity_number` pengurus dimasking dengan helper `maskedIdentityNumber()` | NFR-SEC-015: data pribadi tidak dipublikasikan; format: `3201****0123` | — |
+| F4-5 | Soft delete untuk pengurus (riwayat jabatan tetap terjaga) | BR-011: pengarsipan bukan penghapusan permanen | — |
+| F4-6 | Tidak ada unique constraint pada periode jabatan pengurus | Satu koperasi dapat memiliki multiple pengurus dengan jabatan dan periode yang berbeda atau tumpang tindih | — |
+
+### 7.1 Batasan otorisasi F4
+
+- Admin: akses penuh CRUD semua pengurus semua koperasi.
+- Pengelola: read-only (view/show) pengurus koperasinya sendiri; tidak dapat create/update/delete (workflow F5 nanti).
+- Route bersarang `admin/koperasi/{cooperative}/pengurus/{officer}` memakai **scoped binding** → pengurus koperasi lain → **404**.
+- `OfficerPolicy` memastikan isolasi: pengelola koperasi A tidak dapat melihat pengurus koperasi B.
+- `identity_number` tidak bocor: masked di UI admin, tidak ditampilkan ke pengelola/publik.
+
+---
+
+## 8. Referensi migrasi F4 PARTIAL
+
+| Migrasi | Isi |
+| --- | --- |
+| `2026_10_16_022847_create_officers_table.php` | Tabel `officers` (nama, jabatan, `identity_number` nullable, `period_start`/`period_end`, `is_active`, soft delete). |
+
+---
+
+## 9. Status F4 & Modul yang Menunggu Konfirmasi Q-010
+
+**Status implementasi F4:**
+- ✅ **Officers (FR-120/121)**: Selesai 100% (tidak tergantung Q-010)
+- ⏳ **Health Assessments (FR-080/081)**: Menunggu Q-010
+- ⏳ **Governance Records (FR-090/091)**: Menunggu Q-010
+- ⏳ **Cooperative Assets (FR-100/101)**: Menunggu Q-010
+- ⏳ **Member Histories (FR-110/111)**: Menunggu Q-010
+
+**Q-010 (P1 - Penting):** Periodisitas data (tahunan/semesteran/bulanan)?
+- Mempengaruhi kolom `period` dan unique constraint pada 4 modul di atas.
+- Tanpa jawaban Q-010, tidak dapat menentukan:
+  - ENUM values untuk `period` (semester_1/semester_2/Q1/monthly_01/dll.)
+  - Unique constraint: `(cooperative_id, period_year)` vs `(cooperative_id, period_year, period)`
+  - Form input: dropdown semester/triwulan/bulan
+  - UI label: "Tahun 2024" vs "Semester I 2024"
+
+**Estimasi implementasi sisa F4 setelah Q-010 terjawab:** ~4-5 hari kerja.

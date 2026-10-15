@@ -83,6 +83,19 @@
         </div>
     </div>
 
+    <div class="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-sm font-semibold text-slate-900">Susunan Pengurus</h2>
+                <p class="mt-1 text-sm text-slate-600">Data pengurus koperasi dan periode jabatan.</p>
+            </div>
+            <a href="{{ route('admin.koperasi.pengurus.index', $cooperative) }}"
+                class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                Kelola Pengurus
+            </a>
+        </div>
+    </div>
+
     <div class="mt-6 rounded-lg border border-red-200 bg-red-50/50 p-5">
         <h2 class="text-sm font-semibold text-red-800">Arsipkan koperasi</h2>
         <p class="mt-1 text-sm text-red-700">
