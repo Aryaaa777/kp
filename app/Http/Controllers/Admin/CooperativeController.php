@@ -96,7 +96,7 @@ class CooperativeController extends Controller
     {
         Gate::authorize('view', $cooperative);
 
-        $cooperative->load(['region', 'creator', 'updater']);
+        $cooperative->load(['region', 'creator', 'updater'])->loadCount('licenses');
 
         return view('admin.koperasi.show', [
             'cooperative' => $cooperative,

@@ -112,6 +112,20 @@ Peran yang tersedia: `admin_dinas`, `pengelola_koperasi`, dan `masyarakat`.
 `masyarakat` adalah peran konteks publik (akses tanpa login) dan tidak ditautkan
 ke akun login, sesuai PRD §8.
 
+### Data demo (opsional, opt-in)
+
+Untuk demonstrasi/pengujian manual modul perizinan & dokumen tersedia seeder data contoh yang
+**tidak** berjalan otomatis:
+
+```powershell
+php artisan db:seed --class=DemoSeeder
+```
+
+- `php artisan db:seed` tetap hanya meng-seed data **referensi** (peran); `DemoSeeder` **tidak** terdaftar di `DatabaseSeeder`.
+- Seeder menolak berjalan bila `APP_ENV=production`.
+- Tidak membuat akun; dokumen contoh memakai akun yang sudah ada (buat dulu dengan `user:create`).
+- Idempoten (aman dijalankan berulang); data contoh diberi penanda `DEMO-`.
+
 ## 7. Pengujian
 
 ```powershell
@@ -163,5 +177,30 @@ Font `Instrument Sans` dimuat melalui plugin fonts `laravel-vite-plugin`. Optima
 - Relasi `users.koperasi_id` → `cooperatives.id` **belum diberi foreign key** karena tabel `cooperatives` baru dibuat pada F2. Foreign key ditambahkan pada migrasi F2.
 - Belum ada (fase berikutnya): reset password (FR-004), manajemen akun via UI, CRUD koperasi, workflow verifikasi.
 - Laravel Boost **tidak** digunakan (keputusan F0 & F1). Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`.
+
+**F3 — Perizinan & Dokumen:**
+
+- Tabel `cooperative_licenses` (izin usaha & izin usaha simpan pinjam) dan `documents` (polimorfik, F3 menempel ke izin).
+- Admin: CRUD izin + verifikasi status (FR-051/061) + unggah/unduh/arsip dokumen.
+- Pengelola: **hanya baca** izin koperasinya dan **mengunduh** dokumen koperasinya (FR-071, anti-IDOR/AC-DOC-03).
+- Dokumen disimpan di **storage privat** `storage/app/private/documents/{koperasi_id}/...`; hanya dapat
+  diunduh lewat controller ber-Policy. Tidak ada symlink publik (`public/storage` tidak dibuat).
+- Seeder data demo opt-in: `php artisan db:seed --class=DemoSeeder`.
+
+**Penting — batas unggah PHP vs batas aplikasi.** Batas dokumen di aplikasi ditetapkan
+`config('koperasi.document_max_size_kb')` (5 MB). PHP sendiri punya batas `upload_max_filesize`
+(bawaan **2M**) dan `post_max_size` (bawaan **8M**). Pada banyak instalasi PHP bawaan, berkas
+> 2 MB akan ditolak PHP **sebelum** validasi Laravel berjalan (muncul pesan generik, bukan pesan
+"melebihi batas" milik aplikasi), sedangkan berkas > `post_max_size` membuat isi request kosong.
+Samakan/naikkan batas PHP minimal sebesar batas aplikasi, mis.:
+
+```ini
+; php.ini
+upload_max_filesize = 8M
+post_max_size = 12M
+```
+
+`post_max_size` harus **lebih besar** dari `upload_max_filesize`. Nilai di atas adalah contoh
+minimum agar fitur unggah 5 MB berjalan; sesuaikan dengan kebijakan ukuran dokumen dinas.
 
 Lihat `docs/IMPLEMENTATION_PLAN.md` untuk rencana fase berikutnya.

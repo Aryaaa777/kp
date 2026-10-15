@@ -7,6 +7,7 @@
 @section('sidebar')
     <x-nav-link :href="route('pengelola.dashboard')">Dashboard</x-nav-link>
     <x-nav-link :active="true" :href="route('pengelola.profil')">Profil Koperasi</x-nav-link>
+    <x-nav-link :href="route('pengelola.izin.index')">Perizinan &amp; Dokumen</x-nav-link>
 @endsection
 
 @section('content')

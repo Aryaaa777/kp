@@ -171,6 +171,8 @@ Kontak tambahan (PIC) selain kontak utama pada `cooperatives`.
 
 > **Catatan desain:** satu tabel untuk dua jenis izin (menu berbeda di UI). Jika field kedua jenis izin sangat berbeda, pisah menjadi `business_licenses` & `savings_loan_licenses`. **[NEEDS CONFIRMATION]**
 
+> **Catatan F3:** status awal `pending`; hanya aksi verifikasi admin (FR-051/061) yang mengubah `status` + `verified_by`/`verified_at` — `status` tidak dapat diisi dari form tambah/ubah. Keunikan (`cooperative_id`,`license_type`,`nomor`) berlaku **termasuk data terarsip** (soft delete), konsisten dengan indeks unik basis data — asumsi sementara **[ASUMSI]**. Kadaluarsa diidentifikasi dari `tanggal_berlaku_sampai` (belum ada transisi otomatis). Lihat `docs/DECISIONS.md` §5.
+
 ---
 
 ## 8. `documents` (dokumen pendukung, polimorfik)
@@ -195,6 +197,8 @@ Kontak tambahan (PIC) selain kontak utama pada `cooperatives`.
 **Index:** (`documentable_type`, `documentable_id`), `cooperative_id`, `category`.
 **Keamanan:** `file_path` **tidak** berada di `public/`; unduh via controller ber-Policy (NFR-SEC-009/010).
 **Validasi unggah:** whitelist ekstensi/MIME (`pdf,jpg,jpeg,png`), ukuran maks **[PROPOSED: 5 MB]**.
+
+> **Catatan F3:** `category` disimpan sebagai **teks bebas** (contoh `akta_pendirian`/`izin_usaha`/`laporan_aset`) karena taksonomi resmi belum ditetapkan. Pada F3 `documentable` baru menunjuk `cooperative_licenses`; entitas lain menyusul pada fase berikutnya. Arsip dokumen = soft delete dan berkas fisik dipertahankan (BR-011). Disk `local` → `storage/app/private/documents/{cooperative_id}/`. Lihat `docs/DECISIONS.md` §5.
 
 ---
 

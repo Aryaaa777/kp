@@ -18,4 +18,29 @@ return [
 
     'jenis_koperasi_options' => [],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dokumen pendukung (F3)
+    |--------------------------------------------------------------------------
+    |
+    | Whitelist ekstensi/MIME dan batas ukuran unggahan dokumen (FR-070, NFR-SEC-008).
+    | Batas ukuran 5 MB bersifat [PROPOSED] sesuai PRD §7.3 FR-070; sesuaikan bila
+    | dinas menetapkan kebijakan lain.
+    |
+    | Disk penyimpanan dokumen HARUS privat (bukan `public`). Lihat config/filesystems.php.
+    |
+    */
+
+    'document_disk' => 'local',
+
+    'document_allowed_extensions' => ['pdf', 'jpg', 'jpeg', 'png'],
+
+    'document_allowed_mimetypes' => [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+    ],
+
+    'document_max_size_kb' => 5120,
+
 ];

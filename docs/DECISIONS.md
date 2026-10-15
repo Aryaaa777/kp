@@ -70,3 +70,41 @@ teknis yang sengaja dibuat mudah diubah.
 | `2026_10_16_100001_create_regions_table.php` | Tabel `regions` (tanpa seeder). |
 | `2026_10_16_100002_create_cooperatives_table.php` | Tabel `cooperatives` (+ `archived_reason` sementara). |
 | `2026_10_16_100003_add_koperasi_foreign_key_to_users_table.php` | FK `users.koperasi_id` → `cooperatives.id` (`nullOnDelete`). |
+
+---
+
+## 5. Keputusan sementara pada implementasi F3 (perizinan & dokumen)
+
+| # | Keputusan | Alasan | Cara menyesuaikan nanti |
+| --- | --- | --- | --- |
+| F3-1 | Perubahan status izin **hanya** lewat aksi verifikasi (`POST .../{license}/verifikasi`) yang menetapkan `status` ∈ {`active`,`expired`,`revoked`} + `verified_by`/`verified_at`. Status awal selalu `pending`; `status` tidak dapat diisi dari form tambah/ubah. | FR-051/061: status hanya berubah oleh admin berwenang; mencegah perubahan status lewat form biasa | Sesuaikan daftar status & matriks transisi setelah prosedur resmi dikonfirmasi (Q-004) |
+| F3-2 | Izin **tidak** otomatis berubah menjadi `expired`; kadaluarsa ditandai indikator `isExpired()` dari `tanggal_berlaku_sampai` | FR-050 meminta kadaluarsa teridentifikasi dari tanggal; prosedur resmi belum dikonfirmasi (Q-004) | Tambahkan transisi otomatis bila dinas menetapkan aturannya |
+| F3-3 | Unik (`cooperative_id`,`license_type`,`nomor`) berlaku **termasuk data terarsip** (soft delete), konsisten dengan indeks unik basis data | Asumsi **[ASUMSI]** analog BR-019 | Sesuaikan bila dinas mengizinkan nomor dipakai ulang setelah arsip |
+| F3-4 | `documents.category` disimpan sebagai **teks bebas** (contoh: `akta_pendirian`,`izin_usaha`,`laporan_aset`) — bukan enum | Taksonomi kategori resmi belum ditetapkan | Ganti ke lookup/enum bila daftar resmi tersedia |
+| F3-5 | Unggah dokumen (FR-070) pada F3 **hanya admin** (FLOW-ADM-05); pengelola mengunggah lewat pengajuan (FLOW-PGL-03) pada F5 | Konsisten dengan BR-014/§12.3 dan pola F2 (pengelola read-only) | Buka jalur unggah pengelola saat workflow pengajuan (F5) tersedia |
+| F3-6 | Pengelola hanya **membaca** izin dan **mengunduh** dokumen koperasinya (FR-071, AC-DOC-03) | FR-050/060 menyebut pengelola "(usul)" yang butuh workflow F5 | Tambahkan pengajuan izin oleh pengelola pada F5 |
+| F3-7 | Arsip izin & dokumen = **soft delete**; berkas fisik dokumen tetap disimpan (tidak dihapus) | BR-011 (pengarsipan, bukan penghapusan); kebijakan retensi belum dikonfirmasi (Q-013) | Tambahkan pembersihan berkas terjadwal bila kebijakan retensi ditetapkan |
+| F3-8 | Dokumen disimpan di disk `local` (`storage/app/private/documents/{koperasi_id}/...`), tanpa symlink publik | NFR-SEC-009/010 (PRD §13.6) | — |
+| F3-9 | Tabel `documents` polimorfik, tetapi F3 baru memakai `cooperative_licenses` sebagai `documentable` | Entitas lain (aset, kesehatan, dll.) menyusul pada fase berikutnya | Tambahkan jenis `documentable` per fase |
+| F3-10 | Berkas dokumen **tidak** dihapus saat koperasi/izin diarsipkan | Menjaga bukti/jejak (BR-006, BR-011) | Sesuaikan dengan kebijakan retensi (Q-013) |
+
+### 5.1 Batasan otorisasi F3
+
+- Otorisasi **di sisi server**: middleware `role:admin_dinas`/`role:pengelola_koperasi` + Policy (`CooperativeLicensePolicy`, `DocumentPolicy`). Penyembunyian tombol/menu bukan kontrol akses.
+- Route izin bersarang `admin/koperasi/{cooperative}/izin/{license}` memakai **scoped route model binding** → izin milik koperasi lain mengembalikan **404** (menyembunyikan keberadaan resource), bukan 403.
+- Unduh dokumen memakai satu route `GET /dokumen/{document}/unduh` (middleware `auth`+`active`) dengan Policy: admin (semua) atau pengelola pemilik koperasi. Pengelola koperasi lain → **403** (AC-DOC-03).
+- Data terarsip (soft delete) tidak muncul pada daftar dan mengembalikan **404** pada detail/unduh.
+- Mass assignment dicegah: `cooperative_id`, `status`, `uploaded_by`, `file_path`, `documentable_*` ditetapkan di server, bukan dari input klien.
+
+### 5.2 Seeder data demo (opt-in)
+
+- `php artisan db:seed` **tetap** hanya meng-seed data referensi (`RoleSeeder`); seeder demo **tidak** terdaftar pada `DatabaseSeeder`.
+- Data contoh untuk demonstrasi dibuat eksplisit: `php artisan db:seed --class=DemoSeeder` — menolak berjalan pada `APP_ENV=production`, tidak membuat akun, dan idempoten.
+- Data contoh diberi penanda jelas (`nomor_identitas` berawalan `DEMO-`).
+
+## 6. Referensi migrasi F3
+
+| Migrasi | Isi |
+| --- | --- |
+| `2026_10_16_110001_create_cooperative_licenses_table.php` | Tabel `cooperative_licenses` (unik `cooperative_id`+`license_type`+`nomor`, soft delete). |
+| `2026_10_16_110002_create_documents_table.php` | Tabel `documents` (polimorfik, FK ke koperasi/pengunggah, soft delete). |

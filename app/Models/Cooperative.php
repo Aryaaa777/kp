@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -142,6 +143,26 @@ class Cooperative extends Model
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
+    }
+
+    /**
+     * Izin usaha & izin usaha simpan pinjam koperasi (FR-050/060).
+     *
+     * @return HasMany<CooperativeLicense, $this>
+     */
+    public function licenses(): HasMany
+    {
+        return $this->hasMany(CooperativeLicense::class);
+    }
+
+    /**
+     * Dokumen pendukung koperasi (FR-070).
+     *
+     * @return HasMany<Document, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
     }
 
     /**
