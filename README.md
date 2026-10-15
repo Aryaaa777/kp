@@ -31,15 +31,9 @@ You can also watch bite-sized lessons with real-world projects on [Laravel Learn
 
 ## Agentic Development
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Panduan kerja untuk agen AI pada proyek ini tersedia di [`AGENTS.md`](AGENTS.md) dan [`CLAUDE.md`](CLAUDE.md) (keduanya identik).
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Proyek ini **tidak menggunakan Laravel Boost** dan **tidak perlu memasangnya**. Ikuti panduan pada `AGENTS.md`/`CLAUDE.md` beserta dokumen di `docs/`.
 
 ## Contributing
 

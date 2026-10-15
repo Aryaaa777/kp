@@ -44,5 +44,5 @@
 | --- | --- | --- |
 | `symfony/http-foundation` v8.0.15 terpengaruh **CVE-2026-108082** (ReDoS `HeaderUtils::split()` via header `Cache-Control`) | BELUM DIPERBAIKI | Patch tersedia di v8.1.7+, **tetapi v8.1.9 mensyaratkan PHP >= 8.4.1** sedangkan lingkungan ini PHP 8.4.0. Perbaikan: naikkan PHP ke >= 8.4.1, lalu `composer update symfony/http-foundation`. |
 | `php artisan db:show` gagal di MariaDB 10.4 (XAMPP) karena tabel `performance_schema.session_status` tidak tersedia | Diketahui | Bukan kegagalan koneksi. Gunakan `migrate:status` / query langsung sebagai gantinya. |
-| Laravel Boost (lihat `AGENTS.md`) | Sengaja ditunda | Tidak diinstal selama F0 untuk menghindari dependency tambahan di luar scope F0. Dapat dipertimbangkan pada fase berikutnya atas persetujuan pemilik proyek. |
+| Laravel Boost | Tidak digunakan | Keputusan proyek: Boost tidak dipakai. Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`; jangan dijalankan kecuali diputuskan lain oleh pemilik proyek. |
 | Paket autentikasi | Tidak digunakan | F1 memakai session guard bawaan Laravel. Tidak ada paket autentikasi eksternal yang ditambahkan. |

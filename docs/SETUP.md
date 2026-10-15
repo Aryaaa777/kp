@@ -162,6 +162,6 @@ Font `Instrument Sans` dimuat melalui plugin fonts `laravel-vite-plugin`. Optima
 - Semua pemeriksaan hak akses dilakukan **di server**, bukan sekadar menyembunyikan menu.
 - Relasi `users.koperasi_id` → `cooperatives.id` **belum diberi foreign key** karena tabel `cooperatives` baru dibuat pada F2. Foreign key ditambahkan pada migrasi F2.
 - Belum ada (fase berikutnya): reset password (FR-004), manajemen akun via UI, CRUD koperasi, workflow verifikasi.
-- Laravel Boost (disebut pada `AGENTS.md`) sengaja **tidak** diinstal (keputusan F0 & F1).
+- Laravel Boost **tidak** digunakan (keputusan F0 & F1). Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`.
 
 Lihat `docs/IMPLEMENTATION_PLAN.md` untuk rencana fase berikutnya.
