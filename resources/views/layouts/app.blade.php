@@ -16,7 +16,17 @@
                     <span class="text-sm font-semibold text-slate-900 sm:text-base">{{ config('app.name') }}</span>
                 </a>
                 <nav class="hidden items-center gap-4 text-sm text-slate-600 sm:flex">
-                    <a href="{{ url('/') }}" class="hover:text-emerald-700">Beranda</a>
+                    <a href="{{ route('home') }}" class="hover:text-emerald-700">Beranda</a>
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="hover:text-emerald-700">Dashboard</a>
+                        <span class="text-slate-400">{{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Keluar</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">Masuk</a>
+                    @endauth
                 </nav>
             </div>
         </header>

@@ -15,6 +15,14 @@
                 Platform terpusat untuk pendataan, pemutakhiran, verifikasi, dan pemantauan data koperasi
                 di lingkungan Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat.
             </p>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ route('login') }}"
+                    class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Masuk ke sistem
+                </a>
+            </div>
+
             <p class="mt-2 text-sm text-slate-500">
                 Halaman ini merupakan fondasi teknis. Modul aplikasi akan dibangun pada fase berikutnya sesuai
                 <span class="font-medium text-slate-700">docs/PRD.md</span> dan

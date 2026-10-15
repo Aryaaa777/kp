@@ -33,7 +33,7 @@ Akun internal (Admin Dinas & Pengelola Koperasi).
 | email | VARCHAR(150) | NN | UK | Login identitas |
 | password | VARCHAR(255) | NN | | **Hash**, bukan plaintext |
 | phone | VARCHAR(30) | NULL | | Kontak |
-| koperasi_id | BIGINT UNSIGNED | NULL | FK → cooperatives.id | Pengelola terhubung 1 koperasi (MVP) |
+| koperasi_id | BIGINT UNSIGNED | NULL | FK → cooperatives.id | Pengelola terhubung 1 koperasi (MVP). *Diimplementasikan F1 tanpa constraint FK; constraint ditambahkan pada migrasi F2 ketika tabel `cooperatives` dibuat.* |
 | region_id | BIGINT UNSIGNED | NULL | FK → regions.id, IDX | Untuk pembatasan wilayah (FASE-2) |
 | status | ENUM('active','inactive') | NN | IDX, default 'active' | Akun nonaktif tidak bisa login |
 | email_verified_at | TIMESTAMP | NULL | | |
