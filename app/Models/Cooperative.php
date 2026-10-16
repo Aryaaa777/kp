@@ -176,6 +176,56 @@ class Cooperative extends Model
     }
 
     /**
+     * Penilaian kesehatan koperasi (FR-080/081).
+     *
+     * @return HasMany<HealthAssessment, $this>
+     */
+    public function healthAssessments(): HasMany
+    {
+        return $this->hasMany(HealthAssessment::class);
+    }
+
+    /**
+     * Data tata kelola koperasi (FR-090).
+     *
+     * @return HasMany<GovernanceRecord, $this>
+     */
+    public function governanceRecords(): HasMany
+    {
+        return $this->hasMany(GovernanceRecord::class);
+    }
+
+    /**
+     * Aset koperasi per periode (FR-100/101).
+     *
+     * @return HasMany<CooperativeAsset, $this>
+     */
+    public function assets(): HasMany
+    {
+        return $this->hasMany(CooperativeAsset::class);
+    }
+
+    /**
+     * Riwayat keanggotaan koperasi (FR-110/111).
+     *
+     * @return HasMany<MemberHistory, $this>
+     */
+    public function memberHistories(): HasMany
+    {
+        return $this->hasMany(MemberHistory::class);
+    }
+
+    /**
+     * Pengajuan perubahan data resmi (FR-140…143).
+     *
+     * @return HasMany<Submission, $this>
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class);
+    }
+
+    /**
      * Label status dalam bahasa Indonesia.
      */
     public function statusLabel(): string

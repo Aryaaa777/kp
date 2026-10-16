@@ -96,6 +96,28 @@
         </div>
     </div>
 
+    @php
+        $periodikModules = [
+            ['title' => 'Penilaian Kesehatan', 'desc' => 'Catatan penilaian kesehatan per periode (FR-080/081).', 'route' => 'admin.koperasi.kesehatan.index'],
+            ['title' => 'Data Tata Kelola', 'desc' => 'Catatan tata kelola per periode (FR-090).', 'route' => 'admin.koperasi.tata-kelola.index'],
+            ['title' => 'Aset Koperasi', 'desc' => 'Snapshot aset koperasi per periode (FR-100/101).', 'route' => 'admin.koperasi.aset.index'],
+            ['title' => 'Riwayat Keanggotaan', 'desc' => 'Catatan perubahan keanggotaan (FR-110/111).', 'route' => 'admin.koperasi.anggota.index'],
+        ];
+    @endphp
+
+    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+        @foreach ($periodikModules as $module)
+            <div class="rounded-lg border border-slate-200 bg-white p-5">
+                <h2 class="text-sm font-semibold text-slate-900">{{ $module['title'] }}</h2>
+                <p class="mt-1 text-sm text-slate-600">{{ $module['desc'] }}</p>
+                <a href="{{ route($module['route'], $cooperative) }}"
+                    class="mt-3 inline-block rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Kelola
+                </a>
+            </div>
+        @endforeach
+    </div>
+
     <div class="mt-6 rounded-lg border border-red-200 bg-red-50/50 p-5">
         <h2 class="text-sm font-semibold text-red-800">Arsipkan koperasi</h2>
         <p class="mt-1 text-sm text-red-700">

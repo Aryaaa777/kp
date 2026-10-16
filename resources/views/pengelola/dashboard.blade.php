@@ -8,7 +8,13 @@
     <x-nav-link :active="true" :href="route('pengelola.dashboard')">Dashboard</x-nav-link>
     <x-nav-link :href="route('pengelola.profil')">Profil Koperasi</x-nav-link>
     <x-nav-link :href="route('pengelola.izin.index')">Perizinan &amp; Dokumen</x-nav-link>
-    <span class="block rounded-md px-3 py-2 text-sm text-slate-400">Pengajuan (F5)</span>
+    <x-nav-link :href="route('pengelola.pengurus.index')">Pengurus</x-nav-link>
+    <x-nav-link :href="route('pengelola.kesehatan.index')">Kesehatan</x-nav-link>
+    <x-nav-link :href="route('pengelola.tata-kelola.index')">Tata Kelola</x-nav-link>
+    <x-nav-link :href="route('pengelola.aset.index')">Aset</x-nav-link>
+    <x-nav-link :href="route('pengelola.anggota.index')">Anggota</x-nav-link>
+    <x-nav-link :href="route('pengelola.pengajuan.index')">Pengajuan</x-nav-link>
+    <x-nav-link :href="route('pengelola.notifikasi.index')">Pemberitahuan</x-nav-link>
 @endsection
 
 @section('content')
@@ -43,7 +49,9 @@
     @else
         <x-alert type="info" class="mt-6">
             Lihat <a href="{{ route('pengelola.profil') }}" class="font-medium underline">Profil Koperasi</a> untuk
-            data resmi koperasi Anda. Pengajuan perubahan akan tersedia pada fase verifikasi (F5).
+            data resmi koperasi Anda, atau buat
+            <a href="{{ route('pengelola.pengajuan.create') }}" class="font-medium underline">pengajuan perubahan</a>
+            yang akan diverifikasi admin dinas.
         </x-alert>
     @endif
 @endsection

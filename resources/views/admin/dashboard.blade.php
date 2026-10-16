@@ -7,7 +7,8 @@
 @section('sidebar')
     <x-nav-link :active="true" :href="route('admin.dashboard')">Dashboard</x-nav-link>
     <x-nav-link :href="route('admin.koperasi.index')">Data Koperasi</x-nav-link>
-    <span class="block rounded-md px-3 py-2 text-sm text-slate-400">Verifikasi (F5)</span>
+    <x-nav-link :href="route('admin.pengajuan.index')">Pengajuan</x-nav-link>
+    <x-nav-link :href="route('admin.audit-log.index')">Audit Log</x-nav-link>
 @endsection
 
 @section('content')
@@ -30,7 +31,8 @@
     </div>
 
     <x-alert type="info" class="mt-6">
-        Statistik dan antrian verifikasi belum tersedia. Modul koperasi, perizinan, dan verifikasi
-        dibangun pada fase berikutnya. Tidak ada data contoh yang ditampilkan.
+        Antrian verifikasi pengajuan tersedia pada menu
+        <a href="{{ route('admin.pengajuan.index') }}" class="font-medium underline">Pengajuan</a>. Statistik ringkas
+        dashboard dibangun pada fase berikutnya (F6). Tidak ada data contoh yang ditampilkan.
     </x-alert>
 @endsection

@@ -48,6 +48,10 @@
                     <x-alert type="success" class="mb-4">{{ session('status') }}</x-alert>
                 @endif
 
+                @if (session('error'))
+                    <x-alert type="danger" class="mb-4">{{ session('error') }}</x-alert>
+                @endif
+
                 @yield('content')
             </main>
         </div>

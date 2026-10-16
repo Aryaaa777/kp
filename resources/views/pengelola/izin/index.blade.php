@@ -8,6 +8,13 @@
     <x-nav-link :href="route('pengelola.dashboard')">Dashboard</x-nav-link>
     <x-nav-link :href="route('pengelola.profil')">Profil Koperasi</x-nav-link>
     <x-nav-link :active="true" :href="route('pengelola.izin.index')">Perizinan &amp; Dokumen</x-nav-link>
+    <x-nav-link :href="route('pengelola.pengurus.index')">Pengurus</x-nav-link>
+    <x-nav-link :href="route('pengelola.kesehatan.index')">Kesehatan</x-nav-link>
+    <x-nav-link :href="route('pengelola.tata-kelola.index')">Tata Kelola</x-nav-link>
+    <x-nav-link :href="route('pengelola.aset.index')">Aset</x-nav-link>
+    <x-nav-link :href="route('pengelola.anggota.index')">Anggota</x-nav-link>
+    <x-nav-link :href="route('pengelola.pengajuan.index')">Pengajuan</x-nav-link>
+    <x-nav-link :href="route('pengelola.notifikasi.index')">Pemberitahuan</x-nav-link>
 @endsection
 
 @section('content')
