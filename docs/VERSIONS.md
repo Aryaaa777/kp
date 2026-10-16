@@ -1,6 +1,8 @@
 # Catatan Versi Aktual
 
 > Dokumen ini mencatat versi yang **benar-benar terpasang** pada lingkungan pengembangan lokal saat F0 diselesaikan (15 Oktober 2026). Ini bukan target/kebijakan; ini hasil verifikasi.
+>
+> Diperbarui **16 Oktober 2026** setelah remediasi **CVE-2026-108082** (commit `6a5fe3a`): `symfony/http-foundation` v8.0.15 → **v7.4.21**. Komponen lain tidak berubah.
 
 ## Runtime & Tooling
 
@@ -30,7 +32,8 @@
 | Paket | Versi |
 | --- | --- |
 | laravel/framework | v13.36.0 |
-| symfony/http-foundation | v8.0.15 |
+| symfony/http-foundation | **v7.4.21** — dipatok langsung via constraint `^7.4.21` (remediasi CVE-2026-108082) |
+| symfony/http-kernel | v8.0.15 |
 
 ## Kesesuaian dengan PRD
 
@@ -42,7 +45,7 @@
 
 | Item | Status | Tindakan |
 | --- | --- | --- |
-| `symfony/http-foundation` v8.0.15 terpengaruh **CVE-2026-108082** (ReDoS `HeaderUtils::split()` via header `Cache-Control`) | BELUM DIPERBAIKI | Patch tersedia di v8.1.7+, **tetapi v8.1.9 mensyaratkan PHP >= 8.4.1** sedangkan lingkungan ini PHP 8.4.0. Perbaikan: naikkan PHP ke >= 8.4.1, lalu `composer update symfony/http-foundation`. |
+| `symfony/http-foundation` — **CVE-2026-108082** (ReDoS `HeaderUtils::split()` via header `Cache-Control`) | **DIPERBAIKI** (commit `6a5fe3a`) | Ditangani **tanpa menaikkan PHP**: `symfony/http-foundation` dipatok lewat constraint langsung `^7.4.21` → **v7.4.21**. Jalur v8.0.x yang terdampak tidak memiliki perbaikan; patch v8.1.7+ mensyaratkan PHP >= 8.4.1 sedangkan lingkungan ini PHP 8.4.0. `composer audit` bersih; 131 tes / 461 assertions lulus. Penyelarasan seluruh komponen Symfony (mis. ke 8.1.9+) dapat dievaluasi kembali setelah upgrade PHP yang sesuai dan pengujian. |
 | `php artisan db:show` gagal di MariaDB 10.4 (XAMPP) karena tabel `performance_schema.session_status` tidak tersedia | Diketahui | Bukan kegagalan koneksi. Gunakan `migrate:status` / query langsung sebagai gantinya. |
 | Laravel Boost | Tidak digunakan | Keputusan proyek: Boost tidak dipakai. Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`; jangan dijalankan kecuali diputuskan lain oleh pemilik proyek. |
 | Paket autentikasi | Tidak digunakan | F1 memakai session guard bawaan Laravel. Tidak ada paket autentikasi eksternal yang ditambahkan. |
