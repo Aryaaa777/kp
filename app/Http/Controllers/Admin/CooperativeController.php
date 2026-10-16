@@ -8,6 +8,7 @@ use App\Http\Requests\Cooperative\StoreCooperativeRequest;
 use App\Http\Requests\Cooperative\UpdateCooperativeRequest;
 use App\Models\Cooperative;
 use App\Models\Region;
+use App\Services\ActivityLogger;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,8 @@ use Illuminate\View\View;
  */
 class CooperativeController extends Controller
 {
+    public function __construct(private readonly ActivityLogger $logger) {}
+
     /**
      * Kolom yang boleh dipakai untuk pengurutan (whitelist — FR-160).
      *
@@ -87,6 +90,12 @@ class CooperativeController extends Controller
 
         $cooperative = Cooperative::create($data);
 
+        // Audit trail (FR-040/F2-7 dipenuhi pada F5): perubahan data induk dicatat.
+        $this->logger->log('create_cooperative', $cooperative, $request->user(), [
+            'nama' => $cooperative->nama,
+            'nomor_identitas' => $cooperative->nomor_identitas,
+        ], 'Data koperasi dibuat.');
+
         return redirect()
             ->route('admin.koperasi.show', $cooperative)
             ->with('status', 'Data koperasi berhasil ditambahkan.');
@@ -118,7 +127,19 @@ class CooperativeController extends Controller
         $data = $request->validated();
         $data['updated_by'] = $request->user()->id;
 
+        // Nilai lama untuk audit (FR-040/F2-7, FR-150).
+        $auditedFields = [
+            'nama', 'nomor_identitas', 'jenis_koperasi', 'bentuk_koperasi',
+            'tanggal_berdiri', 'alamat', 'telephone', 'email', 'website',
+        ];
+        $before = $cooperative->only($auditedFields);
+
         $cooperative->update($data);
+
+        $this->logger->log('update_cooperative', $cooperative, $request->user(), [
+            'before' => $before,
+            'after' => $cooperative->only($auditedFields),
+        ], 'Data koperasi diperbarui.');
 
         return redirect()
             ->route('admin.koperasi.show', $cooperative)
@@ -137,6 +158,10 @@ class CooperativeController extends Controller
         ]);
 
         $cooperative->delete();
+
+        $this->logger->log('archive_cooperative', $cooperative, $request->user(), [
+            'reason' => $request->validated()['archived_reason'],
+        ], 'Data koperasi diarsipkan.');
 
         return redirect()
             ->route('admin.koperasi.index')

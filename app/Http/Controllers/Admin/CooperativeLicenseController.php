@@ -9,6 +9,7 @@ use App\Http\Requests\License\VerifyCooperativeLicenseRequest;
 use App\Models\Cooperative;
 use App\Models\CooperativeLicense;
 use App\Models\Document;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -21,6 +22,8 @@ use Illuminate\View\View;
  */
 class CooperativeLicenseController extends Controller
 {
+    public function __construct(private readonly ActivityLogger $logger) {}
+
     public function index(Cooperative $cooperative): View
     {
         Gate::authorize('viewAny', CooperativeLicense::class);
@@ -113,6 +116,7 @@ class CooperativeLicenseController extends Controller
     public function verify(VerifyCooperativeLicenseRequest $request, Cooperative $cooperative, CooperativeLicense $license): RedirectResponse
     {
         $data = $request->validated();
+        $before = $license->status;
 
         $license->update([
             'status' => $data['status'],
@@ -120,6 +124,12 @@ class CooperativeLicenseController extends Controller
             'verified_by' => $request->user()->id,
             'verified_at' => now(),
         ]);
+
+        // Audit perubahan status verifikasi izin (FR-051, FR-151).
+        $this->logger->log('verify_license', $license, $request->user(), [
+            'before' => $before,
+            'after' => $license->status,
+        ], 'Status verifikasi izin diubah.');
 
         return redirect()
             ->route('admin.koperasi.izin.show', [$cooperative, $license])
