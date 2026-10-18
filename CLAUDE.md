@@ -85,6 +85,22 @@ Paket/dependency lain pun hanya ditambahkan bila ada kebutuhan teknis yang jelas
 7. **Tanpa perubahan destruktif database** — dilarang `migrate:fresh`, `migrate:rollback` massal,
    `db:wipe`, `DROP`, `TRUNCATE`, atau penghapusan data tanpa persetujuan eksplisit.
    Imigrasi lama yang sudah berjalan **tidak boleh diubah/dihapus**; buat migrasi baru.
+   - **Pengecualian sempit (bukan izin umum).** Mengubah migrasi lama hanya boleh
+     dipertimbangkan bila **semua** syarat berikut terpenuhi, **dan** pemilik proyek mencatat
+     keputusannya secara khusus:
+     1. ada cacat **terverifikasi** yang membuat **instalasi bersih gagal** pada database/versi yang
+        memang didukung proyek (mis. FK menunjuk tabel induk yang belum dibuat → `errno 150`);
+     2. tersedia **bukti reproduksi kegagalan** dan **bukti keberhasilan perbaikan** (perintah +
+        keluaran nyata), bukan dugaan;
+     3. perbaikan **sesempit mungkin**: nama/stempel waktu migrasi lama dipertahankan, dan
+        constraint/objek baru dibuat lewat **migrasi korektif baru**;
+     4. disertai **tes regresi** serta catatan di `docs/DECISIONS.md` yang menjelaskan alasan,
+        dampak pada database lama **dan** instalasi baru, serta batas pengecualiannya.
+     Pengecualian **tidak pernah** mengizinkan penghapusan data, rollback massal, `migrate:fresh`
+     terhadap database berisi data, atau perubahan database produksi secara otomatis. Dilarang
+     mengubah migrasi lama hanya untuk merapikan kode, mengubah konvensi, atau menghindari
+     pembuatan migrasi korektif. Setiap pengecualian adalah **keputusan khusus yang tercatat**
+     (lihat `docs/DECISIONS.md` §14), **bukan** izin umum untuk mengubah migrasi lama.
 8. **Tanpa secret di repositori** — `.env` tidak di-commit; gunakan `.env.example` berisi placeholder.
 9. **Tanpa dependency/paket auth eksternal** — gunakan autentikasi bawaan Laravel
    (session guard). Jangan menambahkan Breeze/Jetstream/Sanctum tanpa alasan kuat & persetujuan.

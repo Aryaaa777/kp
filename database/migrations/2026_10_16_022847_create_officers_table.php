@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Schema;
  * Implementasi F4 PARTIAL — hanya modul pengurus. Modul kesehatan, tata kelola, aset,
  * dan anggota menunggu konfirmasi Q-010 (periodisitas tahunan/semesteran/bulanan).
  *
+ * CATATAN URUTAN FK: foreign key `cooperative_id` → `cooperatives` **tidak** dibuat di sini,
+ * karena tabel `cooperatives` baru dibuat oleh migrasi `2026_10_16_100002` (timestamp lebih
+ * besar) sehingga FK inline menyebabkan `errno 150` pada instalasi dari nol (MariaDB). FK
+ * ditambahkan oleh `2026_10_16_100004_add_cooperative_foreign_key_to_officers_table`.
+ *
  * @see docs/DATA_DICTIONARY.md §13 (officers)
  * @see docs/PRD.md FR-120, FR-121
  */
@@ -22,10 +27,12 @@ return new class extends Migration
     {
         Schema::create('officers', function (Blueprint $table) {
             $table->id();
+
+            // Kolom FK koperasi (NN). Constraint `cooperative_id` → `cooperatives(id)`
+            // (ON DELETE RESTRICT) ditambahkan pada migrasi `2026_10_16_100004`, yaitu
+            // setelah tabel induk `cooperatives` dibuat (lihat catatan urutan FK di atas).
             $table->foreignId('cooperative_id')
-                ->constrained('cooperatives')
-                ->restrictOnDelete()
-                ->comment('FK koperasi (NN)');
+                ->comment('FK koperasi (NN) — constraint ditambahkan pada migrasi 100004');
             $table->string('name', 150)->comment('Nama pengurus');
             $table->string('position', 100)->comment('Jabatan');
             $table->string('identity_number', 50)->nullable()

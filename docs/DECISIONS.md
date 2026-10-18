@@ -139,6 +139,7 @@ teknis yang sengaja dibuat mudah diubah.
 | Migrasi | Isi |
 | --- | --- |
 | `2026_10_16_022847_create_officers_table.php` | Tabel `officers` (nama, jabatan, `identity_number` nullable, `period_start`/`period_end`, `is_active`, soft delete). |
+| `2026_10_16_100004_add_cooperative_foreign_key_to_officers_table.php` | FK `officers.cooperative_id` → `cooperatives.id` (`ON DELETE RESTRICT`); dipisah dari `022847` agar urutan FK benar pada MariaDB dan dilengkapi guard idempoten (lihat §13). |
 
 ---
 
@@ -266,3 +267,164 @@ teknis yang sengaja dibuat mudah diubah.
 | `2026_10_16_130005_create_notifications_table.php` | `notifications` (Laravel, in-app; FR-201). |
 
 > Seluruh migrasi F5 **belum dijalankan** pada database pengembangan (hanya diuji pada SQLite in-memory).
+
+---
+
+## 13. Guard foreign key `officers.cooperative_id` & kebijakan rollback (perbaikan F4)
+
+### 13.1 Mengapa FK officers dipisahkan ke migrasi baru
+
+Migrasi pembuatan `officers` (`2026_10_16_022847_create_officers_table.php`) memiliki stempel waktu yang
+berjalan **sebelum** `2026_10_16_100002_create_cooperatives_table.php`. FK inline `cooperative_id` →
+`cooperatives.id` karenanya menunjuk tabel induk yang belum ada → **`errno 150`** saat instalasi dari nol
+pada MariaDB/MySQL. SQLite **tidak** menegakkan keberadaan tabel induk saat `CREATE TABLE`, sehingga
+masalah hanya muncul di MariaDB (terbukti Tahap 33).
+
+Perbaikan (Tahap 34) memindahkan pembuatan constraint ke migrasi baru
+`2026_10_16_100004_add_cooperative_foreign_key_to_officers_table.php` (berjalan setelah 100002), **tanpa**
+mengubah nama/stempel waktu migrasi lama. Kolom `officers.cooperative_id` dan index-nya tetap di migrasi
+`022847`; hanya constraint FK yang dipindah. Guard menjaga idempotensi agar DB yang FK-nya sudah ada
+(mis. DB pengembangan) tidak gagal (Tahap 36/38).
+
+> Perubahan pada berkas migrasi lama itu sendiri (penghapusan FK inline) dijalankan sebagai
+> **pengecualian sempit yang tercatat** — lihat §14 (alasan, bukti, dan batasnya).
+
+### 13.2 Mengapa guard memvalidasi definisi constraint, bukan sekadar keberadaan FK
+
+Versi awal guard hanya memeriksa ada-tidaknya FK yang memuat kolom `cooperative_id`. Itu terlalu longgar:
+FK pada kolom yang sama tetapi menunjuk tabel/kolom lain, atau memakai aturan `CASCADE`/`SET NULL`, akan
+dianggap "sudah benar" sehingga skema yang salah lolos. Guard sekarang mengklasifikasikan keadaan FK
+(`classify()`) sebagai berikut.
+
+| Keadaan | Syarat | Tindakan `up()` |
+| --- | --- | --- |
+| `present` | Semua FK pada `cooperative_id` persis `→ cooperatives.id`, satu kolom, ON DELETE/ON UPDATE memblokir | Lewati penambahan (idempoten) |
+| `missing` | Tidak ada FK pada `cooperative_id` | Tambahkan FK sesuai rancangan |
+| `conflict` | Ada FK pada `cooperative_id` tetapi definisinya tidak sesuai/ambigu | **Hentikan** dengan pesan diagnostik |
+
+- Pencocokan memakai **definisi** (kolom anak, tabel & kolom referensi, aturan referensial), **bukan**
+  nama constraint — nama yang sama tidak membuktikan kepemilikan.
+- Lebih dari satu FK pada kolom yang sama diperlakukan **konservatif**: `present` hanya bila semuanya
+  sesuai; satu yang menyimpang → `conflict`.
+- `RESTRICT` dan `NO ACTION` diterima **setara** (keduanya memblokir operasi induk). MariaDB/InnoDB
+  melaporkan `RESTRICT`; SQLite melaporkan `NO ACTION` bila klausa `ON UPDATE` tidak ditulis eksplisit
+  (ditemukan saat pengujian Tahap 39). Aturan `CASCADE`/`SET NULL`/`SET DEFAULT` tetap ditolak.
+
+### 13.3 Kebijakan `down()` dan konsekuensi rollback parsial
+
+`down()` **tidak menghapus FK** (no-op). Tidak ada penanda persisten yang membedakan FK yang dibuat
+migrasi ini dari FK yang sudah ada sebelum migrasi dijalankan (mis. dibuat versi lama migrasi `officers`
+pada DB pengembangan). Karena nama constraint yang sama bukan bukti kepemilikan, penghapusan berisiko
+menghilangkan constraint lama yang bukan milik migrasi ini.
+
+| Skenario | Akibat |
+| --- | --- |
+| Rollback penuh / instalasi dari nol | FK ikut hilang saat tabel `officers` (`022847`) di-rollback. |
+| Rollback parsial (hanya migrasi ini) | FK yang benar tetap ada; `migrate` lagi → guard `present` → idempoten. |
+| DB lama (FK sudah ada sebelum 100004) | FK **tidak** disentuh. |
+
+Trade-off: `down()` tidak sepenuhnya membalik `up()`. Ini diterima demi aturan "jangan menghapus
+constraint yang mungkin bukan milik migrasi ini" (keamanan > reversibilitas ketat). Bila FK benar-benar
+perlu dilepas, lakukan manual (`ALTER TABLE officers DROP FOREIGN KEY ...`) setelah memverifikasi
+kepemilikannya.
+
+### 13.4 Batas pembuktian: tes SQLite vs pengujian MariaDB
+
+- Tes otomatis proyek berjalan pada **SQLite in-memory** (`phpunit.xml`); metadata FK-nya berbeda
+  (mis. `on_update` default `NO ACTION`, tidak menegakkan keberadaan tabel induk saat `CREATE TABLE`).
+- Karena itu: urutan migrasi diuji lewat nama berkas, logika guard (`classify()`) diuji unit dengan
+  metadata representatif, dan perilaku nyata pada MariaDB **tidak** disimpulkan dari SQLite.
+- Bukti MariaDB 10.4.32 diperoleh terpisah: instalasi dari nol berhasil (Tahap 36), definisi FK aktual
+  lewat `information_schema` (`ON DELETE/UPDATE RESTRICT`), jalur skip end-to-end dengan 0 DDL
+  (Tahap 38), dan `classify()` atas metadata asli = `present` pada `koperasi_jabar` serta
+  `koperasi_jabar_test` (Tahap 39, read-only).
+
+### 13.5 Referensi migrasi F4 (pembaruan)
+
+| Migrasi | Isi |
+| --- | --- |
+| `2026_10_16_100004_add_cooperative_foreign_key_to_officers_table.php` | FK `officers.cooperative_id` → `cooperatives.id` (`ON DELETE RESTRICT`), dipindah dari `022847`; guard idempoten + pesan konflik; `down()` no-op. |
+
+---
+
+## 14. Pengecualian terdokumentasi atas kebijakan migrasi lama — `022847` (Tahap 47)
+
+> **KEPUTUSAN KHUSUS — BUKAN IZIN UMUM.** Default `AGENTS.md` §4.7 / `CLAUDE.md` §4.7 tetap berlaku:
+> migrasi lama yang sudah dijalankan tidak boleh diubah/dihapus. Catatan ini adalah pengecualian
+> **sesempit mungkin** untuk **satu** cacat pada **satu** berkas, dengan syarat bukti yang terpenuhi.
+
+### 14.1 Masalah yang memicu pengecualian
+
+Migrasi `2026_10_16_022847_create_officers_table.php` membuat FK inline `cooperative_id` →
+`cooperatives(id)`, padahal tabel induk `cooperatives` baru dibuat oleh `2026_10_16_100002`
+(stempel waktu lebih besar). Pada instalasi bersih **MariaDB/MySQL**, `CREATE TABLE officers`
+gagal `errno 150` sehingga **instalasi dari nol tidak berfungsi**; SQLite (lingkungan tes) tidak
+menegakkan keberadaan tabel induk, sehingga cacat ini tidak terdeteksi oleh suite.
+
+### 14.2 Bukti (bukan dugaan)
+
+- **Reproduksi kegagalan:** instalasi dari nol pada MariaDB gagal `errno 150` (Tahap 33).
+- **Perbaikan sesempit mungkin:** FK dipindah ke migrasi korektif baru
+  `2026_10_16_100004_add_cooperative_foreign_key_to_officers_table.php`; nama/stempel waktu
+  `022847` dipertahankan, hanya FK inline yang dihapus (kolom & indeks tetap di `022847`).
+- **Keberhasilan perbaikan:** `php artisan migrate` dari nol pada `koperasi_jabar_test` → **22/22
+  migrasi sukses**, 25 tabel, FK `officers_cooperative_id_foreign` `ON DELETE/UPDATE RESTRICT`
+  (Tahap 36); jalur skip guard end-to-end tanpa DDL (Tahap 38); `classify()` = `present` atas
+  metadata MariaDB nyata (Tahap 39).
+- **Bukti independen (Tahap 46, MariaDB 10.4.32 / Laravel 13.36.0):** database eksperimen
+  `koperasi_jabar_dumpexp_20261019` dibangun dari nol → 22/22 migrasi, 25 tabel, 28 FK;
+  `schema:dump` menghasilkan dump 30.154 byte (SHA-256 `ED9E035B…B483A`) berisi 25 `CREATE TABLE`,
+  28 `FOREIGN KEY`, `SET FOREIGN_KEY_CHECKS=0` (tetap ada meski `--skip-comments`), dan 22 baris
+  data `migrations`; DB dikosongkan lalu dimuat via `migrate --schema-path` → **"Loading stored
+  database schemas."**, 25 tabel, 28 FK, DDL `officers`/`cooperatives` identik dengan hasil
+  migrasi penuh, 22 migrasi `batch 1`, tanpa replay.
+- **Tes regresi:** `tests/Feature/OfficerForeignKeyTest.php` (18 tes) mengunci urutan migrasi,
+  ketiadaan FK inline di `022847`, dan kebijakan guard (`present`/`missing`/`conflict`, `down()`
+  no-op).
+
+### 14.3 Keputusan
+
+Kebijakan §4.7 diperjelas dengan **klausa pengecualian sempit** (dicatat pada `AGENTS.md`/
+`CLAUDE.md` §4.7 dan berlaku sejak Tahap 47). Perubahan pada `022847` dinyatakan **patuh** sebagai
+pengecualian terdokumentasi, dengan batas berikut.
+
+### 14.4 Batas pengecualian
+
+1. Hanya untuk cacat terverifikasi yang membuat **instalasi bersih gagal** pada database/versi yang
+   didukung proyek (saat ini MariaDB/MySQL).
+2. Wajib ada bukti reproduksi **dan** bukti keberhasilan perbaikan.
+3. Perbaikan harus sesempit mungkin: nama/stempel waktu dipertahankan; objek/constraint baru dibuat
+   lewat **migrasi korektif baru**, bukan ditambahkan ke migrasi lama.
+4. Wajib disertai **tes regresi** dan catatan dampak (dokumen ini).
+5. **Tidak** mengizinkan penghapusan data, rollback massal, `migrate:fresh` pada DB berisi data,
+   atau perubahan database produksi otomatis.
+6. Tidak boleh dipakai untuk merapikan kode, mengubah konvensi, atau menghindari migrasi korektif.
+7. Setiap pengecualian baru harus dicatat sebagai keputusan khusus tersendiri — **tidak** menjadi
+   preseden otomatis.
+
+### 14.5 Dampak
+
+| Lingkungan | Dampak |
+| --- | --- |
+| Database lama yang FK-nya sudah ada (`koperasi_jabar`, `koperasi_jabar_test`) | Migrasi `100004` **no-op** (guard `present`); tidak ada DDL. `koperasi_jabar` belum mencatat `100004` (Tahap 40) → saat dijalankan hanya menambah baris migrasi, 0 DDL. |
+| Instalasi baru (MariaDB dari nol) | Berhasil 22/22; constraint FK dibuat oleh `100004` setelah `cooperatives` ada. |
+| SQLite (tes) | Perilaku tetap; tes mengunci urutan & guard, bukan perilaku MariaDB. |
+
+### 14.6 Mengapa schema dump bukan solusi utama
+
+Schema dump (diuji Tahap 46) **lebih bergantung** pada baseline yang sudah benar, kehadiran binary
+client (`mysqldump`/`mysql`) di `PATH`, dan disiplin regenerasi dump; riwayat migrasi juga tidak lagi
+membangun skema MariaDB dari nol, sehingga drift tidak terdeteksi oleh tes SQLite. Karena itu
+perbaikan migrasi (dengan pengecualian tercatat) dipilih sebagai solusi, dan schema dump **belum**
+diadopsi.
+
+### 14.7 Risiko / pekerjaan yang masih tersisa
+
+- `022847` + `100004` + tes regresi + §13/§14 **dikomit** dalam satu commit lokal
+  (`fix: resolve officers cooperative foreign key migration order`); **belum di-push** ke remote.
+- 10 migrasi pending pada `koperasi_jabar` (termasuk `100004`) belum dijalankan; keputusan menjalankan
+  ada pada pemilik.
+- Guard `conflict` **sengaja** menghentikan migrasi (bukan memperbaiki otomatis) bila menemukan FK
+  dengan definisi berbeda; skema seperti itu harus diperiksa manual.
+- Perilaku MariaDB pada instalasi dari nol dibuktikan terpisah (Tahap 36/46), bukan dari tes SQLite.
+- Pengujian konkurensi/`lockForUpdate()` pada MariaDB masih terpisah.
