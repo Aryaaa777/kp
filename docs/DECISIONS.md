@@ -142,21 +142,127 @@ teknis yang sengaja dibuat mudah diubah.
 
 ---
 
-## 9. Status F4 & Modul yang Menunggu Konfirmasi Q-010
+## 9. Status F4 — Data Periodik
 
-**Status implementasi F4:**
-- ✅ **Officers (FR-120/121)**: Selesai 100% (tidak tergantung Q-010)
-- ⏳ **Health Assessments (FR-080/081)**: Menunggu Q-010
-- ⏳ **Governance Records (FR-090/091)**: Menunggu Q-010
-- ⏳ **Cooperative Assets (FR-100/101)**: Menunggu Q-010
-- ⏳ **Member Histories (FR-110/111)**: Menunggu Q-010
+**Status implementasi F4 (semua modul):**
+- ✅ **Officers (FR-120/121)**: selesai, tidak tergantung Q-010.
+- ✅ **Health (FR-080/081)**: selesai dengan **aturan provisional** (lihat §10).
+- ✅ **Governance (FR-090/091)**: selesai dengan **aturan provisional** (§10). FR-091 (evaluasi kepatuhan otomatis) tetap FASE-2.
+- ✅ **Assets (FR-100/101)**: selesai dengan **aturan provisional** (§10).
+- ✅ **Members (FR-110/111)**: selesai dengan **aturan provisional**, berbasis kejadian (§10).
 
-**Q-010 (P1 - Penting):** Periodisitas data (tahunan/semesteran/bulanan)?
-- Mempengaruhi kolom `period` dan unique constraint pada 4 modul di atas.
-- Tanpa jawaban Q-010, tidak dapat menentukan:
-  - ENUM values untuk `period` (semester_1/semester_2/Q1/monthly_01/dll.)
-  - Unique constraint: `(cooperative_id, period_year)` vs `(cooperative_id, period_year, period)`
-  - Form input: dropdown semester/triwulan/bulan
-  - UI label: "Tahun 2024" vs "Semester I 2024"
+> **Q-010 belum dikonfirmasi.** Implementasi memakai aturan sementara agar pekerjaan tidak terhambat.
+> Aturan provisional dicatat pada §10 dan **harus ditinjau ulang** setelah dinas menjawab.
 
-**Estimasi implementasi sisa F4 setelah Q-010 terjawab:** ~4-5 hari kerja.
+---
+
+## 10. Keputusan provisional F4 — modul data periodik
+
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS.** Semua butir di bawah dapat berubah setelah Q-010 (± periodisitas),
+> Q-007 (formula penilaian kesehatan), dan definisi indikator resmi dikonfirmasi. **Tidak ada** nilai di sini
+> yang boleh dianggap sebagai ketentuan resmi dinas.
+
+| # | Keputusan provisional | Alasan | Cara menyesuaikan nanti |
+| --- | --- | --- | --- |
+| F4-7 | **Kesehatan**: periodisitas **tahunan** (`period` default `annual`) | Menunggu Q-010 | Tambah opsi semester/triwulan pada `config('koperasi.period_options')`; unique tetap (`cooperative_id`,`period_year`,`period`) |
+| F4-8 | Kesehatan: `score`/`predicate` **input manual opsional**, tanpa formula | Q-007 (formula resmi) belum ada | Tambah perhitungan resmi pada fase lanjutan |
+| F4-9 | Kesehatan: `status='final'` hanyalah **penanda internal**, bukan pengesahan resmi | Menghindari klaim klasifikasi resmi | Sesuaikan setelah prosedur resmi ditetapkan |
+| F4-10 | **Tata kelola**: periodisitas **tahunan**; `period` dibuat **NN** (draft awal menyebut NULL) | Agar unique (`cooperative_id`,`period_year`,`period`) benar-benar berlaku | Sesuaikan jika dinas menetapkan periode nullable/pilihan lain |
+| F4-11 | Tata kelola: indikator = `meeting_count` + `summary` (contoh), bukan indikator resmi | Indikator resmi belum ditetapkan | Ganti dengan indikator resmi (FR-091, FASE-2) |
+| F4-12 | **Aset**: **snapshot tahunan**; kolom tambahan `quantity`, `acquisition_date`, `condition` | Perlu struktur minimum untuk simulasi; tidak ada di draft awal | Sesuaikan dengan struktur resmi; hapus kolom yang tidak diperlukan |
+| F4-13 | Aset: taksonomi jenis belum ada → `asset_type` teks bebas (opsi saran `asset_type_options` kosong) | Menghindari taksonomi buatan | Isi `asset_type_options` bila daftar resmi tersedia |
+| F4-14 | Aset: **tanpa** integrasi akuntansi/perhitungan otomatis | Kebutuhan belum ditetapkan | Tambah bila dinas memerlukan |
+| F4-15 | **Anggota**: pencatatan **per kejadian/perubahan** (menyimpang dari draft rekap tahunan) | Periodisitas/definisi rekap belum pasti; pendekatan kejadian tidak mengunci desain | Beralih ke rekap tahunan bila dinas menetapkan; struktur draft awal dipertahankan sebagai alternatif |
+| F4-16 | Anggota: **tidak** mengumpulkan data anggota individual/NIK | Kebutuhan belum ditetapkan (minimalkan data pribadi) | Tambah hanya bila ada dasar kebutuhan resmi |
+| F4-17 | **Pengelola read-only** untuk keempat modul (hanya index/show) | Workflow pengajuan (F5) belum ada; konsisten dengan F2/F3/F4-3 | Buka write access pengelola via workflow pengajuan (F5) |
+| F4-18 | `cooperative_id` & `assessor_id`/`recorded_by` **tidak fillable**; ditetapkan server-side | Anti mass assignment/IDOR | — |
+| F4-19 | Soft delete (`deleted_at`) **ditambahkan** pada keempat tabel (draft awal tidak menyertakannya) | BR-011: data penting diarsipkan, bukan dihapus permanen; konsisten pola aplikasi | Sesuaikan dengan kebijakan retensi (Q-013) |
+| F4-20 | `period` & `status` disimpan **VARCHAR**, bukan ENUM DB | Daftar nilai belum final; menghindari migrasi destruktif untuk menambah nilai | Ubah ke ENUM/lookup setelah daftar resmi ditetapkan |
+| F4-21 | **Keunikan periode tetap berlaku untuk baris terarsip**; **tidak** memakai unique parsial | Unique parsial bergantung engine & berisiko; integritas AC-PER-01 lebih penting. Konsekuensi: periode terarsip tidak bisa dibuat ulang | Bila Q-010 menetapkan lain, sesuaikan bersama kebijakan arsip |
+| F4-22 | **Pemulihan admin** untuk kesehatan & tata kelola: route `.../{resource}/pulihkan` (`withTrashed()`), otorisasi Policy `restore()`, hanya admin, tetap scoped (anti-IDOR) | Karena baris terarsip tidak bisa dibuat ulang, perlu jalan pemulihan; hanya modul ber-unique periode yang memerlukannya | Tambah pemulihan untuk modul lain bila diperlukan |
+| F4-23 | Validasi jumlah keanggotaan disamakan Store & Update: minimal satu terisi, ≥ 0, **tidak keduanya nol**; Update memakai **nilai efektif** (request ∪ tersimpan) | Mencegah baris tanpa makna (0,0) tanpa aturan resmi baru | Sesuaikan setelah dinas menetapkan aturan resmi |
+
+### 10.1 Batasan otorisasi F4 (modul periodik)
+
+- Otorisasi **di sisi server**: middleware `role:admin_dinas`/`role:pengelola_koperasi` + Policy (`HealthAssessmentPolicy`, `GovernanceRecordPolicy`, `CooperativeAssetPolicy`, `MemberHistoryPolicy`).
+- Route admin bersarang `admin/koperasi/{cooperative}/{modul}/{resource}` memakai **scoped route model binding** → resource milik koperasi lain → **404** (anti-IDOR). Nama parameter route diselaraskan dengan nama relasi (`{healthAssessment}`→`healthAssessments()`, `{governanceRecord}`→`governanceRecords()`, `{asset}`→`assets()`, `{memberHistory}`→`memberHistories()`).
+- Pengelola hanya index/show koperasinya sendiri; mengakses data koperasi lain → **403**; menulis lewat route admin → **403** (middleware role). Penulisan hanya admin (BR-010 untuk kesehatan).
+- Guest ditolak (redirect login). Mass assignment dicegah: `cooperative_id`, `assessor_id`, `recorded_by` ditetapkan di server.
+
+### 10.2 Kebijakan arsip (soft delete) & pemulihan
+
+- `destroy` = **arsipkan** (soft delete, BR-011); tidak ada penghapusan permanen dari UI.
+- Baris terarsip **tidak** dapat diakses endpoint biasa (show/edit) maupun oleh pengelola; `withTrashed()`/`onlyTrashed()` hanya dipakai pada alur arsip/pemulihan.
+- Karena keunikan (`cooperative_id`,`period_year`,`period`) **tidak membedakan** `deleted_at`, periode terarsip tidak dapat dibuat ulang. Solusinya **memulihkan** baris terarsip melalui aksi admin (F4-22).
+- Halaman index admin menyediakan filter `?arsip=1` untuk melihat dan memulihkan baris terarsip (hanya muncul untuk aktor berwenang).
+- Aset & riwayat keanggotaan tidak memiliki unique periode, sehingga tidak memerlukan alur pemulihan khusus (baris baru tetap dapat dibuat).
+
+---
+
+## 11. Referensi migrasi F4
+
+| Migrasi | Isi |
+| --- | --- |
+| `2026_10_16_022847_create_officers_table.php` | Tabel `officers` (soft delete). |
+| `2026_10_16_120001_create_health_assessments_table.php` | `health_assessments` — unique (`cooperative_id`,`period_year`,`period`); soft delete. |
+| `2026_10_16_120002_create_governance_records_table.php` | `governance_records` — unique (`cooperative_id`,`period_year`,`period`); soft delete. |
+| `2026_10_16_120003_create_cooperative_assets_table.php` | `cooperative_assets` — snapshot tahunan; soft delete. |
+| `2026_10_16_120004_create_member_histories_table.php` | `member_histories` — berbasis kejadian; soft delete. |
+
+> Migrasi **belum dijalankan** pada database pengembangan (hanya diuji pada SQLite in-memory). Dijalankan
+> pada lingkungan pengembangan/produksi hanya setelah persetujuan.
+
+### 11.1 Seeder demo (opt-in) — modul periodik
+
+- `DemoSeeder` diperluas mengisi contoh keempat modul untuk koperasi `DEMO-KOP-0001`.
+- Tetap **opt-in** (`php artisan db:seed --class=DemoSeeder`), **idempoten**, menolak `APP_ENV=production`, tidak membuat akun, dan tidak menyentuh data koperasi milik pengguna.
+- Modul dengan FK `recorded_by` wajib (tata kelola/aset/anggota) dilewati bila belum ada akun; kesehatan tetap diisi (`assessor_id` nullable).
+- Foreign key non-fillable (`cooperative_id`, `assessor_id`, `recorded_by`, `uploaded_by`) dan `deleted_at` diisi **eksplisit** — seeder **tidak** bergantung pada `Model::unguarded()` milik perintah Artisan (mass-assignment model tetap terjaga).
+- Baris demo yang sebelumnya diarsipkan **dipulihkan** (pencarian memakai `withTrashed()`), bukan diduplikasi, sehingga seeder tetap idempoten setelah proses arsip/pemulihan.
+
+---
+
+## 12. Keputusan fase F5 — Workflow Pengajuan & Verifikasi + Audit
+
+| # | Keputusan | Alasan | Tindak lanjut |
+| --- | --- | --- | --- |
+| F5-1 | Status pengajuan memakai himpunan PRD §12.2: `draft`, `submitted`, `under_review`, `needs_revision`, `approved`, `rejected`, `archived`. | PRD §12.2, DATA_DICTIONARY §14, dan USER_FLOWS §1 konsisten. | Bila dinas menambah status, perbarui `Submission::STATUSES`/`TRANSITIONS`. |
+| F5-2 | Nama status **`needs_revision`** (bukan `revision_requested`). | Nama resmi mengikuti PRD §12.2 + DATA_DICTIONARY §14 (sumber kebenaran). Dokumen proyek sudah memakai `needs_revision`; `docs/PROMPT_PACK.md` masih memakai `revision_requested`. | Selaraskan `docs/PROMPT_PACK.md` bila perlu. |
+| F5-3 | Transisi status dijaga **di lapisan service** (`Submission::TRANSITIONS`); transisi di luar matriks → `SubmissionTransitionException`. | PRD §12.2: "Transisi di luar tabel ditolak oleh lapisan service". | Tambah tahap bila Q-004 menetapkan verifikasi berjenjang. |
+| F5-4 | Verifikasi **satu tingkat** oleh `admin_dinas` (MVP). | Q-004 belum dikonfirmasi; alur FLOW-ADM-03 tetap terpenuhi. | Tinjau ulang setelah Q-004. |
+| F5-5 | Perbaikan (`needs_revision` → `submitted`) dilakukan pada **pengajuan yang sama**; riwayat terjaga via `submission_reviews` + audit `activity_logs`. | PRD §12.2 menetapkan transisi `needs_revision → submitted` (kontrak state), sementara FR-031/FR-142 menyebut "versi pengajuan baru" (ambigu). | Bila dinas menghendaki versioning pengajuan terpisah, tambahkan relasi `parent_submission_id`. |
+| F5-6 | **Whitelist modul & field** (Q-006) bersifat sementara dan digerakkan konfigurasi: `config('koperasi.submission_modules')` + handler per modul. Saat ini hanya modul `koperasi_induk` (FR-042). | Q-006 belum dikonfirmasi; menghindari mengunci desain & menghindari klaim kewenangan pengelola yang belum resmi. | Tambah modul (izin, data periodik) setelah dinas menetapkan field yang boleh diajukan. |
+| F5-7 | Field data induk yang **tidak** boleh diajukan pengelola: `nomor_identitas`, `region_id`, `status_verifikasi`, `is_published`, `slug`. | Field otoritatif/kewenangan admin; `region_id` belum tersedia (Q-012). | Sesuaikan setelah Q-006. |
+| F5-8 | Pengajuan hanya menyimpan **field yang berubah** (`old_value` ≠ `new_value`); field yang tidak dikirim dianggap tidak diajukan. Pengajuan tanpa perubahan ditolak (`EmptySubmissionException`). | Menghindari item kosong/tak bermakna; memperjelas diff verifikasi. | — |
+| F5-9 | Penerapan ke data resmi (`approved`) dijalankan dalam **satu DB transaction**; bila `handler->apply()` gagal → rollback, status tetap `under_review`. | FR-143: "dalam transaksi DB"; mencegah setengah-terapkan. | — |
+| F5-10 | `destroy`/arsip = **status `archived` + soft delete (`deleted_at`)** dalam satu transaksi (bukan hapus permanen). Riwayat (item, review, audit) tetap tersimpan; pengajuan arsip tidak diakses melalui endpoint normal (404) dan tidak muncul di daftar default. | BR-011; diselaraskan dengan pola arsip modul lain (`cooperative`, F4). | Terminal (tidak ada restore; `SubmissionPolicy::restore` = false). Bila dinas menghendaki daftar/restore arsip, tambahkan endpoint `withTrashed`. |
+| F5-11 | Notifikasi status pengajuan: **kanal `database` saja** (in-app); ditulis saat `approved`/`needs_revision`/`rejected`. | Q-011 (kanal notifikasi) belum dikonfirmasi; MVP in-app. | Tambah email/WA setelah Q-011. |
+| F5-12 | `activity_logs` **append-only**: ditegakkan pada model (`updating`/`deleting` → `LogicException`) dan Policy (`create`/`update`/`delete` = false); tidak ada route mutasi. | NFR-SEC-012 & AC-AUD-02. | — |
+| F5-13 | Cakupan audit saat ini: workflow pengajuan (create/update/submit/start-review/approve/needs_revision/rejected/archive), CRUD+arsip data induk koperasi (memenuhi F2-7/FR-040), login (FR-151), verifikasi izin (FR-051), unduh dokumen (FR-151). | Membatasi perubahan pada modul yang sudah ditinjau; fokus aksi sensitif. | Perluas ke CRUD sensitif modul lain pada fase lanjutan bila dinas meminta. |
+| F5-14 | Admin **tidak** membuat pengajuan (hanya meninjau); pembuatan pengajuan = pengelola. | PRD §8.2 (baris "Workflow pengajuan": Admin = R/V; Pengelola = C/R miliknya). | Sesuaikan bila dinas menghendaki admin juga mengajukan. |
+| F5-15 | **Konkurensi (M1):** setiap operasi tulis membuka transaksi, mengambil ulang record dengan `lockForUpdate()`, memeriksa transisi atas status terbaru di dalam transaksi, lalu menulis dengan **conditional update** (`where status = <lama>`) sebagai penjaga optimistik. Review, perubahan data resmi, audit, dan notifikasi tidak ganda. | Mencegah dua keputusan bersamaan sama-sama berhasil; `lockForUpdate()` no-op pada SQLite sehingga lapis conditional update tetap diperlukan. | `lockForUpdate()` efektif pada MySQL/MariaDB; belum dibuktikan lewat eksekusi langsung (dev DB belum dimigrasi). |
+| F5-16 | **Defense-in-depth whitelist (M2):** `KoperasiIndukHandler::apply()` menyaring ulang nilai terhadap `fields()` tepat sebelum menulis; field tak berizin diabaikan dan dicatat sebagai `ignored_fields` pada audit. | Field sensitif (`nomor_identitas`, `region_id`, `status_verifikasi`, `is_published`, `slug`) tidak boleh diterapkan walau item disuntikkan di luar alur normal. | Jika handler baru ditambah, ikuti pola penyaringan yang sama. |
+| F5-17 | **Kegagalan notifikasi (L2):** notifikasi dikirim setelah transaksi commit; kegagalan ditangkap, dilaporkan (`report()`), dan dicatat sebagai aksi `notification_failed` — tidak membatalkan keputusan. | Keputusan yang sudah commit tidak boleh tampak gagal; kegagalan tetap dapat didiagnosis. | Belum ada retry/outbox; jangan mengklaim jaminan pengiriman ulang. |
+| F5-18 | **Target koperasi tidak tersedia (L3):** `approve` menolak (rollback) bila relasi `cooperative` tidak ada; halaman edit pengajuan mengembalikan **404** (bukan 500). | Mencegah penerapan ke target yang tidak valid dan error tak tertangani. | — |
+| F5-19 | **Unique item (L4):** `submission_items` memiliki unique `(submission_id, field)` (indeks unik ini juga memenuhi kebutuhan indeks `submission_id`). | Satu item per field per pengajuan. | Migration F5 belum dijalankan pada DB aktif; perubahan aman karena belum diterapkan. |
+| F5-20 | **Validasi alasan (L5):** `reason` di-trim sebelum validasi sehingga string hanya-spasi ditolak; nilai valid disimpan konsisten pada `submissions.reason` & `submission_reviews.note`. | AC-WF-03/BR-005. | — |
+
+### 12.1 Otorisasi & keamanan F5
+
+- Otorisasi **di sisi server**: middleware `role:admin_dinas`/`role:pengelola_koperasi` + Policy `SubmissionPolicy` (`view`, `create`, `update`, `submit`, `archive`, `review`) dan `ActivityLogPolicy` (hanya baca).
+- Isolasi antar koperasi (anti-IDOR): pengelola hanya mengakses pengajuan `cooperative_id` miliknya → pengajuan koperasi lain **403**.
+- Mass assignment: `cooperative_id`, `submitted_by` (`submissions`) dan `submission_id`, `user_id` (item/review) **tidak fillable** — ditetapkan server-side.
+- Field penerapan diambil dari handler modul (whitelist), bukan dari input mentah; disaring ulang di handler (F5-16).
+- Konkurensi (F5-15): transaksi + `lockForUpdate()` + pemeriksaan status terbaru di dalam transaksi + conditional update optimistik; notifikasi dikirim setelah commit (F5-17).
+
+### 12.2 Referensi migrasi F5
+
+| Migrasi | Isi |
+| --- | --- |
+| `2026_10_16_130001_create_submissions_table.php` | `submissions` (soft delete; status ENUM PRD §12.2). |
+| `2026_10_16_130002_create_submission_items_table.php` | `submission_items` (field, old_value, new_value; unique `submission_id` + `field`). |
+| `2026_10_16_130003_create_submission_reviews_table.php` | `submission_reviews` (append-only: hanya `created_at`). |
+| `2026_10_16_130004_create_activity_logs_table.php` | `activity_logs` (append-only). |
+| `2026_10_16_130005_create_notifications_table.php` | `notifications` (Laravel, in-app; FR-201). |
+
+> Seluruh migrasi F5 **belum dijalankan** pada database pengembangan (hanya diuji pada SQLite in-memory).

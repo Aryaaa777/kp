@@ -91,23 +91,45 @@
 **Dependensi:** F2
 **FR:** 080, 081, 090, 100, 101, 110, 111, 120, 121
 
-- [ ] Migrations: `health_assessments`, `governance_records`, `cooperative_assets`, `member_histories`, `officers`.
-- [ ] CRUD per modul dengan unique constraint periode.
-- [ ] Tampilan riwayat antar periode (tanpa menimpa).
-- [ ] Otorisasi: kesehatan = kewenangan admin (BR-010).
-- [ ] Feature test: AC-PER-01/02/03.
+- [x] Migrations: `health_assessments`, `governance_records`, `cooperative_assets`, `member_histories`, `officers`.
+- [x] CRUD per modul dengan unique constraint periode (`cooperative_id`,`period_year`,`period` untuk kesehatan & tata kelola).
+- [x] Tampilan riwayat antar periode (tanpa menimpa) + pencarian/filter/pagination.
+- [x] Otorisasi: kesehatan = kewenangan admin (BR-010); modul lain admin CRUD; pengelola **read-only** (koperasinya sendiri).
+- [x] Feature test: AC-PER-01/02/03 (tercapai saat penyelesaian F4: 189 tes hijau / 607 assertions — angka historis, **bukan** hasil suite terkini; hasil terkini pada catatan F5 di bawah).
+- [x] Seeder demo opt-in (idempoten, menolak produksi, tanpa akun) untuk keempat modul.
+
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** F4 diimplementasikan dengan asumsi sementara
+> (kesehatan/tata kelola/aset = tahunan; keanggotaan = per kejadian) agar tidak terblokir. Aturan & nilai
+> belum resmi dan **wajib ditinjau ulang** setelah Q-010 terjawab. Rincian: `docs/DECISIONS.md` §10;
+> skema: `docs/DATA_DICTIONARY.md` §9–§12.
+> **Belum dijalankan pada DB pengembangan** (migrasi hanya diuji pada SQLite in-memory). Pengelola
+> menulis via workflow pengajuan = **F5** (belum ada).
 
 ### F5 — Workflow Pengajuan & Verifikasi + Audit
 **Dependensi:** F3, F4
 **FR:** 140–143, 150, 151
 
-- [ ] Migrations: `submissions`, `submission_items`, `submission_reviews`, `activity_logs`.
-- [ ] `SubmissionService` (buat, kirim, transisi, terapkan) dengan state guard.
-- [ ] Antrian verifikasi (admin) + aksi setujui/perbaikan/tolak (alasan wajib).
-- [ ] Penerapan perubahan ke data resmi dalam **DB transaction** + simpan nilai lama.
-- [ ] Audit trail otomatis untuk aksi sensitif.
-- [ ] Notifikasi in-app status (FR-201).
-- [ ] Feature test: AC-WF-01…05, AC-AUD-01/02.
+- [x] Migrations: `submissions`, `submission_items`, `submission_reviews`, `activity_logs` (+ `notifications` Laravel untuk FR-201).
+- [x] `SubmissionService` (buat, kirim, transisi, terapkan) dengan state guard.
+- [x] Antrian verifikasi (admin) + aksi setujui/perbaikan/tolak (alasan wajib).
+- [x] Penerapan perubahan ke data resmi dalam **DB transaction** + simpan nilai lama.
+- [x] Audit trail otomatis untuk aksi sensitif.
+- [x] Notifikasi in-app status (FR-201).
+- [x] Feature test: AC-WF-01…05, AC-AUD-01/02.
+
+> **Status F5: SELESAI (menunggu peninjauan).** Migrasi `2026_10_16_130001` ... `130005`
+> (termasuk tabel `notifications` Laravel untuk FR-201) **belum dijalankan** pada DB pengembangan
+> (hanya diuji pada SQLite in-memory). Verifikasi: `php artisan test` **262 tes / 866 asersi PASS**
+> (F5: 49 tes), `pint --test` PASS, `npm run build` PASS, `composer audit` bersih.
+>
+> **Perbaikan pasca-audit (TAHAP 11):** konkurensi (lock + conditional update), whitelist defense-in-depth,
+> semantik arsip (status + soft delete), kegagalan notifikasi, target koperasi tidak tersedia, unique
+> `submission_items`, dan validasi alasan. Lihat `docs/DECISIONS.md` §12 (F5-15…F5-20).
+>
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS:** Q-004 (verifikasi **satu tingkat** oleh admin dinas),
+> Q-006 (whitelist modul/field — saat ini hanya `koperasi_induk`), Q-011 (notifikasi **in-app** saja).
+> Aksi sensitif yang diaudit saat ini: workflow pengajuan, CRUD/arsip data induk, login, verifikasi
+> izin, dan unduh dokumen. Rincian keputusan & interpretasi: `docs/DECISIONS.md` §12.
 
 ### F6 — Dashboard, Pencarian, Laporan Dasar
 **Dependensi:** F5

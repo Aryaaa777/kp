@@ -204,79 +204,107 @@ Kontak tambahan (PIC) selain kontak utama pada `cooperatives`.
 
 ## 9. `health_assessments` (hasil penilaian kesehatan)
 
+> **Status implementasi F4 (PROVISIONAL — MENUNGGU KONFIRMASI DINAS / Q-010).** Periodisitas
+> dibatasi **tahunan** untuk simulasi. Skor/predikat adalah **input manual** (tanpa formula resmi,
+> Q-007). Nilai `final` hanyalah penanda internal, **bukan** klasifikasi/pengesahan resmi.
+
 | Kolom | Tipe | Null | Constraint | Keterangan |
 | --- | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | NN | PK | |
 | cooperative_id | BIGINT UNSIGNED | NN | FK → cooperatives.id, IDX | |
 | period_year | SMALLINT UNSIGNED | NN | IDX | Tahun penilaian |
-| period | ENUM('semester_1','semester_2','annual') | NN | default 'annual' | **[NEEDS CONFIRMATION]** |
-| assessment_date | DATE | NN | | Tanggal penilaian |
-| score | DECIMAL(6,2) | NULL | | Skor total |
-| predicate | VARCHAR(50) | NULL | IDX | Predikat (mis. Sehat/Cukup Sehat) |
-| assessor_id | BIGINT UNSIGNED | NULL | FK → users.id | Penilai (admin) |
-| notes | TEXT | NULL | | |
-| status | ENUM('draft','final') | NN | default 'draft' | Hanya `final` = resmi |
+| period | VARCHAR(20) | NN | default 'annual' | **PROVISIONAL** (Dictionary awal: ENUM semester/annual). Disimpan VARCHAR agar semester/triwulan dapat ditambah tanpa migrasi destruktif — nilai dari `config('koperasi.period_options')`. |
+| assessment_date | DATE | NN | | Tanggal penilaian (≤ hari ini) |
+| score | DECIMAL(6,2) | NULL | | Skor total — **input manual**, tanpa formula resmi |
+| predicate | VARCHAR(50) | NULL | | Predikat — teks manual, **bukan** klasifikasi resmi. **Tidak** diindeks. |
+| assessor_id | BIGINT UNSIGNED | NULL | FK → users.id (`nullOnDelete`) | Penilai (admin) — diisi server-side |
+| notes | TEXT | NULL | | Catatan pendukung |
+| status | VARCHAR(20) | NN | IDX, default 'draft' | `draft`\|`final` (VARCHAR, bukan ENUM). `final` = penanda internal. |
 | created_at / updated_at | TIMESTAMP | NULL | | |
+| deleted_at | TIMESTAMP | NULL | | Soft delete (BR-011: pengarsipan) — **ditambahkan** dari draft awal |
 
-**Unique:** (`cooperative_id`, `period_year`, `period`).
-**Otorisasi:** tulis hanya admin berwenang (BR-010); pengelola read-only.
+**Index:** `period_year`, `status` (didefinisikan eksplisit di migration). FK `cooperative_id`/`assessor_id` terindeks otomatis. `predicate` **tidak** diindeks (draf awal keliru menandainya `IDX`).
+**Unique:** (`cooperative_id`, `period_year`, `period`) → AC-PER-01 (duplikat periode ditolak). **Keunikan tetap berlaku untuk baris terarsip** (unique constraint tidak membedakan `deleted_at`), sehingga periode yang diarsipkan **tidak** dapat dibuat ulang dan harus **dipulihkan** oleh admin (route `.../kesehatan/{healthAssessment}/pulihkan`, otorisasi Policy `restore`). Baris terarsip tidak dapat diakses endpoint biasa sebelum dipulihkan, tidak ditampilkan ke pengelola, dan `withTrashed()` hanya dipakai pada alur pemulihan/arsip. Lihat `docs/DECISIONS.md` §10.
+**Otorisasi:** tulis hanya admin berwenang (BR-010); pengelola read-only. Lihat `docs/DECISIONS.md` §10.
 
 ---
 
 ## 10. `governance_records` (tata kelola)
 
+> **Status implementasi F4 (PROVISIONAL — Q-010).** Periode tahunan; indikator resmi tata kelola belum
+> ditetapkan (hanya contoh `meeting_count` & `summary`).
+
 | Kolom | Tipe | Null | Constraint | Keterangan |
 | --- | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | NN | PK | |
 | cooperative_id | BIGINT UNSIGNED | NN | FK → cooperatives.id, IDX | |
 | period_year | SMALLINT UNSIGNED | NN | IDX | |
-| period | ENUM('semester_1','semester_2','annual') | NULL | | Opsional |
-| meeting_count | INT UNSIGNED | NULL | | Jumlah rapat (contoh indikator) |
-| governance_score | DECIMAL(6,2) | NULL | | Ringkasan skor (jika ada) |
+| period | VARCHAR(20) | NN | default 'annual' | **PROVISIONAL**. Dictionary awal menyebut `NULL`; diimplementasikan `NN` agar unique benar-benar berlaku (di MySQL, NULL ganda lolos unique). Lihat `docs/DECISIONS.md` §10. |
+| meeting_count | INT UNSIGNED | NULL | | Contoh indikator (bukan indikator resmi) |
+| governance_score | DECIMAL(6,2) | NULL | | Ringkasan skor (input manual) |
 | summary | TEXT | NULL | | Catatan evaluasi |
-| status | ENUM('draft','final') | NN | default 'draft' | |
-| recorded_by | BIGINT UNSIGNED | NOT NULL | FK → users.id | |
+| status | VARCHAR(20) | NN | IDX, default 'draft' | `draft`\|`final` (VARCHAR) |
+| recorded_by | BIGINT UNSIGNED | NN | FK → users.id | Diisi server-side |
 | created_at / updated_at | TIMESTAMP | NULL | | |
+| deleted_at | TIMESTAMP | NULL | | Soft delete (BR-011) — **ditambahkan** |
 
-**Unique:** (`cooperative_id`, `period_year`, `period`). **[NEEDS CONFIRMATION]** indikator tata kelola resmi.
+**Index:** `period_year`, `status` (eksplisit). FK `cooperative_id`/`recorded_by` terindeks otomatis.
+**Unique:** (`cooperative_id`, `period_year`, `period`) → keunikan tetap berlaku untuk baris terarsip; pemulihan oleh admin melalui route `.../tata-kelola/{governanceRecord}/pulihkan` (Policy `restore`, hanya admin). Lihat `docs/DECISIONS.md` §10. **[NEEDS CONFIRMATION]** indikator tata kelola resmi.
 
 ---
 
 ## 11. `cooperative_assets` (aset & periode pencatatan)
 
+> **Status implementasi F4 (PROVISIONAL — Q-010).** Snapshot **tahunan**. Kolom `quantity`,
+> `acquisition_date`, `condition` **belum** ada pada draft awal — ditambahkan sebagai struktur minimum
+> untuk simulasi. Tidak ada integrasi akuntansi/perhitungan otomatis.
+
 | Kolom | Tipe | Null | Constraint | Keterangan |
 | --- | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | NN | PK | |
 | cooperative_id | BIGINT UNSIGNED | NN | FK → cooperatives.id, IDX | |
 | period_year | SMALLINT UNSIGNED | NN | IDX | |
-| asset_type | VARCHAR(100) | NN | IDX | Jenis aset |
+| asset_type | VARCHAR(100) | NN | IDX | Jenis aset (teks bebas; taksonomi resmi belum ada — `config('koperasi.asset_type_options')` kosong = input teks) |
 | asset_name | VARCHAR(200) | NULL | | Nama detail |
-| value | DECIMAL(18,2) | NN | | Nilai (Rupiah) |
+| quantity | INT UNSIGNED | NULL | | **PROVISIONAL** (tidak ada di draft awal) |
+| value | DECIMAL(18,2) | NN | | Nilai (Rupiah, input manual) |
+| acquisition_date | DATE | NULL | | **PROVISIONAL** (tidak ada di draft awal) |
+| condition | VARCHAR(30) | NULL | | **PROVISIONAL** — nilai dari `config('koperasi.asset_condition_options')` |
 | description | TEXT | NULL | | |
-| recorded_by | BIGINT UNSIGNED | NN | FK → users.id | |
+| recorded_by | BIGINT UNSIGNED | NN | FK → users.id | Diisi server-side |
 | created_at / updated_at | TIMESTAMP | NULL | | |
+| deleted_at | TIMESTAMP | NULL | | Soft delete (BR-011) — **ditambahkan** |
 
-**Index:** `cooperative_id`, `period_year`, `asset_type`.
-**Aturan:** data periode berbeda **tidak menimpa** (BR-007). Beberapa baris per periode dimungkinkan (multi jenis aset).
+**Index:** (`cooperative_id`, `period_year`), `asset_type`.
+**Aturan:** data periode berbeda **tidak menimpa** (BR-007, AC-PER-02). Beberapa baris per periode dimungkinkan.
 
 ---
 
-## 12. `member_histories` (riwayat jumlah anggota)
+## 12. `member_histories` (riwayat keanggotaan)
+
+> **Status implementasi F4 (PROVISIONAL — Q-010) — PENYIMPANGAN dari draft awal.** Diimplementasikan
+> **berbasis kejadian/perubahan** (bukan rekap tahunan `period_year` + `member_total`/`member_active`
+> seperti draft awal). Alasan: periodisitas & definisi rekap belum dikonfirmasi; pencatatan per kejadian
+> tidak mengunci desain dan tidak memerlukan data anggota individual. **TIDAK** menyimpan data anggota
+> individual/NIK. Lihat `docs/DECISIONS.md` §10.
 
 | Kolom | Tipe | Null | Constraint | Keterangan |
 | --- | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | NN | PK | |
 | cooperative_id | BIGINT UNSIGNED | NN | FK → cooperatives.id, IDX | |
-| period_year | SMALLINT UNSIGNED | NN | IDX | |
-| member_total | INT UNSIGNED | NN | | Total anggota |
-| member_active | INT UNSIGNED | NULL | | Aktif |
-| member_joined | INT UNSIGNED | NULL | | Anggota baru |
-| member_left | INT UNSIGNED | NULL | | Keluar |
-| recorded_by | BIGINT UNSIGNED | NN | FK → users.id | |
+| event_date | DATE | NN | IDX | Tanggal kejadian/perubahan (≤ hari ini) |
+| change_type | VARCHAR(30) | NN | IDX | **PROVISIONAL** — nilai dari `config('koperasi.member_change_type_options')` (`penambahan`/`pengurangan`/`lainnya`) |
+| members_added | INT UNSIGNED | NULL | | Jumlah bertambah |
+| members_removed | INT UNSIGNED | NULL | | Jumlah berkurang |
+| notes | TEXT | NULL | | Catatan |
+| recorded_by | BIGINT UNSIGNED | NN | FK → users.id | Diisi server-side |
 | created_at / updated_at | TIMESTAMP | NULL | | |
+| deleted_at | TIMESTAMP | NULL | | Soft delete (BR-011) — **ditambahkan** |
 
-**Unique:** (`cooperative_id`, `period_year`).
-**Validasi:** nilai ≥ 0; `member_active` ≤ `member_total`.
+**Index:** (`cooperative_id`, `event_date`), `change_type`.
+**Validasi (Store & Update disamakan):** `event_date` ≤ hari ini; **minimal salah satu** dari `members_added`/`members_removed` terisi; nilai ≥ 0; **keduanya tidak boleh nol** (pasangan `0,0` ditolak). Kedua nilai boleh terisi bersamaan. Pada Update, penilaian memakai nilai efektif (request ∪ nilai tersimpan) sehingga mengosongkan salah satu tetap mempertahankan nilai lainnya. Aturan ini PROVISIONAL (kualitas data) — lihat `docs/DECISIONS.md` §10.
+**Riwayat (AC-PER-03):** daftar kejadian terurut terbaru-dulu + selisih bersih (bertambah − berkurang).
+> **Cadangan:** struktur rekap tahunan draft awal tetap dipertahankan sebagai alternatif sampai Q-010 dikonfirmasi.
 
 ---
 
@@ -333,7 +361,7 @@ Kontak tambahan (PIC) selain kontak utama pada `cooperatives`.
 | new_value | TEXT / JSON | NULL | | Nilai usulan |
 | created_at / updated_at | TIMESTAMP | NULL | | |
 
-**Index:** `submission_id`.
+**Index:** UNIQUE (`submission_id`, `field`) — satu item per field per pengajuan (sekaligus memenuhi indeks `submission_id`).
 **Peran:** menyimpan perbedaan agar data resmi tidak tertimpa sebelum approve (BR-014).
 
 ---
@@ -385,6 +413,26 @@ Kontak tambahan (PIC) selain kontak utama pada `cooperatives`.
 
 **Contoh key:** `public.show_license`, `public.show_health`, `public.show_officers`, `public.aggregate_visible`, `upload.max_size_mb`.
 **Catatan:** kebijakan publikasi global di `settings`; keputusan per koperasi di `cooperatives.is_published`.
+
+---
+
+## 19. `notifications` (notifikasi in-app — Laravel)
+
+Struktur mengikuti migrasi standar Laravel (`php artisan notifications:table`), dipakai untuk FR-201
+(kanal `database`; email/WA ditunda — Q-011).
+
+| Kolom | Tipe | Null | Constraint | Keterangan |
+| --- | --- | --- | --- | --- |
+| id | CHAR(36)/UUID | NN | PK | |
+| type | VARCHAR(255) | NN | | Kelas notifikasi |
+| notifiable_type | VARCHAR(255) | NN | IDX (morph) | Kelas penerima (mis. `App\Models\User`) |
+| notifiable_id | BIGINT UNSIGNED | NN | IDX (morph) | ID penerima |
+| data | TEXT / JSON | NN | | `submission_id`, `status`, `status_label`, `title`, `message`, `reason`, `url` |
+| read_at | TIMESTAMP | NULL | | Waktu dibaca |
+| created_at / updated_at | TIMESTAMP | NULL | | |
+
+**Index:** (`notifiable_type`,`notifiable_id`) — indeks morph bawaan migrasi Laravel. `read_at` **tidak** diindeks.
+**Catatan:** hanya penerima dapat melihat & menandai dibaca notifikasinya (server-side).
 
 ---
 

@@ -7,9 +7,9 @@
 - ✅ **F0** — Inisialisasi (commit `e6d905e`)
 - ✅ **F1** — Autentikasi & RBAC (commit `cdb447e`)
 - ✅ **F2** — Data Induk Koperasi (commit `1da75bb`)
-- ✅ **F3** — Perizinan & Dokumen (belum di-commit; menunggu persetujuan)
-- ⏳ **F4** — Data Periodik
-- ⏳ **F5** — Workflow Pengajuan & Audit
+- ✅ **F3** — Perizinan & Dokumen (sudah di-commit lokal `d495d62`; belum di-push ke `origin/main`; menunggu persetujuan)
+- ✅ **F4** — Data Periodik (implementasi & pengujian selesai; menunggu review)
+- ✅ **F5** — Workflow Pengajuan & Audit (implementasi & pengujian selesai; menunggu review)
 - ⏳ **F6** — Dashboard & Laporan
 - ⏳ **F7** — Direktori Publik
 - ⏳ **F8** — Lanjutan (Post-MVP)
@@ -52,15 +52,25 @@
 **Estimasi:** ~7 hari
 
 ### Cakupan
-- **Pengajuan perubahan** (FR-140): pengelola mengajukan perubahan data resmi (profil koperasi, izin, data periodik) → tabel `submissions` (status: `draft`/`submitted`/`under_review`/`approved`/`rejected`/`revision_requested`).
-- **Item pengajuan** (FR-141): `submission_items` (polimorfik) menyimpan perubahan per field (nilai lama → nilai baru).
+- **Pengajuan perubahan** (FR-140): pengelola mengajukan perubahan data resmi (profil koperasi, izin, data periodik) → tabel `submissions` (status: `draft`/`submitted`/`under_review`/`needs_revision`/`approved`/`rejected`/`archived` — sesuai PRD §12.2).
+- **Item pengajuan** (FR-141): `submission_items` menyimpan perubahan per field (nilai lama → nilai baru).
 - **Antrian verifikasi** (FR-142): admin melihat antrian, aksi setujui/perbaikan/tolak dengan alasan wajib → `submission_reviews`.
-- **Penerapan perubahan** (FR-143): `SubmissionService::apply()` dalam **DB transaction** (update data resmi, catat nilai lama, rekam audit).
+- **Penerapan perubahan** (FR-143): `SubmissionService` dalam **DB transaction** (update data resmi, catat nilai lama, rekam audit).
 - **Audit trail** (FR-150/151): `activity_logs` mencatat aksi sensitif (create/update/delete/verify/approve) dengan actor, target, nilai lama/baru, IP, timestamp.
 - **Notifikasi** (FR-201): status pengajuan → notifikasi in-app (tabel `notifications` Laravel).
 
+> **Status implementasi (16 Oktober 2026): SELESAI (menunggu review).** 5 migrasi
+> (`submissions`, `submission_items`, `submission_reviews`, `activity_logs`, `notifications`)
+> **belum dijalankan** pada DB pengembangan. Verifikasi: 262 tes / 866 asersi PASS (F5: 49 tes),
+> `pint --test` PASS, `npm run build` PASS, `composer audit` bersih.
+> **Perbaikan audit (TAHAP 11):** arsip = status `archived` + soft delete; konkurensi via
+> `lockForUpdate()` + conditional update; whitelist disaring ulang di handler. Rincian: `docs/DECISIONS.md` §12.
+> **Provisional:** Q-004 (verifikasi satu tingkat), Q-006 (whitelist modul — saat ini hanya
+> `koperasi_induk`), Q-011 (notifikasi in-app). Nama status resmi memakai `needs_revision`
+> (bukan `revision_requested`) sesuai PRD §12.2.
+
 ### Deliverables
-- 4 migrasi (`submissions`, `submission_items`, `submission_reviews`, `activity_logs`).
+- 5 migrasi (`submissions`, `submission_items`, `submission_reviews`, `activity_logs`, `notifications`).
 - `SubmissionService` dengan state guard (mencegah transisi tidak sah, mis. `draft` → `approved` tanpa `submitted`).
 - UI: form pengajuan (pengelola), antrian verifikasi (admin), riwayat pengajuan (pengelola).
 - Middleware audit untuk aksi sensitif (hook via event listener).

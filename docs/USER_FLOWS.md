@@ -18,6 +18,16 @@
 - **Status pengajuan:** `draft`, `submitted`, `under_review`, `needs_revision`, `approved`, `rejected`, `archived`.
 - Setiap alur menyertakan: prasyarat, langkah, hasil, kondisi gagal, dan FR terkait.
 
+> **Status F5 (16 Oktober 2026).** Alur pengajuan & verifikasi yang sudah diimplementasikan:
+> FLOW-ADM-03/04 (verifikasi serta tolak/minta perbaikan) dan FLOW-PGL-02/04/05 (mengajukan,
+> menindaklanjuti perbaikan, melihat riwayat). Status mengikuti PRD §12.2 (`needs_revision`, bukan
+> `revision_requested`). Verifikasi sementara **satu tingkat** oleh admin (Q-004) dan whitelist
+> modul/field sementara (Q-006, saat ini hanya `koperasi_induk`). Rincian: `docs/DECISIONS.md` §12.
+>
+> **Belum mencakup / belum diimplementasikan:** FLOW-ADM-09 (membuat laporan/ekspor, FR-170/171)
+> masih berada di fase **F6/F8**; FLOW-ADM-10/11/12 adalah alur **data periodik F4** (tata kelola,
+> aset, riwayat keanggotaan) — **bukan** alur pengajuan/verifikasi.
+
 ---
 
 ## 2. Flow Admin Dinas
@@ -80,6 +90,33 @@
 - **Hasil:** rekap berbasis data terverifikasi; ekspor tercatat di audit log.
 - **FR:** FR-170, FR-171, FR-151.
 
+### FLOW-ADM-10 — Mengelola data tata kelola (periodik)
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** Periode untuk sementara **tahunan**; indikator
+> (`meeting_count`, `summary`) hanyalah contoh, bukan indikator resmi.
+- **Langkah:** buka koperasi → **Tata Kelola** → Tambah → isi tahun/periode/indikator → Simpan (draft/final internal).
+- **Hasil:** catatan tersimpan per (`period_year`, `period`); satu catatan per periode (unik).
+- **Gagal:** periode duplikat → tervalidasi tolak (AC-PER-01); field wajib kosong → error dekat field.
+- **Arsip:** hapus = **soft delete** (data tidak dihapus permanen, BR-011).
+- **FR:** FR-090.
+
+### FLOW-ADM-11 — Mengelola data aset (snapshot periodik)
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** Snapshot **tahunan**; `quantity`,
+> `acquisition_date`, `condition` adalah kolom tambahan; tanpa integrasi akuntansi.
+- **Langkah:** buka koperasi → **Aset** → Tambah → pilih tahun/periode, jenis aset, nilai → Simpan.
+- **Hasil:** beberapa baris aset per periode; **periode berbeda tidak saling menimpa** (AC-PER-02).
+- **Gagal:** nilai negatif / jenis kosong / kondisi tidak dikenal → tervalidasi tolak.
+- **Arsip:** hapus = **soft delete** (BR-011).
+- **FR:** FR-100, FR-101.
+
+### FLOW-ADM-12 — Mengelola riwayat keanggotaan (per kejadian)
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** Dicatat **per kejadian/perubahan**, bukan
+> rekap tahunan. **Tidak** mengumpulkan data anggota individual/NIK.
+- **Langkah:** buka koperasi → **Riwayat Keanggotaan** → Tambah → isi tanggal, jenis perubahan, jumlah bertambah/berkurang → Simpan.
+- **Hasil:** daftar kejadian terurut terbaru-dulu + selisih bersih (AC-PER-03).
+- **Gagal:** `event_date` melebihi hari ini → tolak; kedua jumlah kosong → tolak (minimal salah satu diisi).
+- **Arsip:** hapus = **soft delete** (BR-011).
+- **FR:** FR-110, FR-111.
+
 ---
 
 ## 3. Flow Pengelola Koperasi
@@ -93,7 +130,7 @@
 
 ### FLOW-PGL-02 — Memperbarui data (mengajukan perubahan)
 - **Prasyarat:** pengelola login; koperasi terhubung.
-- **Langkah:** pilih modul (mis. Aset) → isi/ubah field yang diizinkan → simpan draft → kirim.
+- **Langkah:** pilih modul (**saat ini hanya “Data Induk Koperasi”**, `koperasi_induk`) → isi/ubah field yang diizinkan → simpan draft → kirim.
 - **Hasil:** pengajuan `submitted`; data resmi **tidak** berubah sampai approve.
 - **Gagal:** field terlarang → ditolak; validasi → error dekat field.
 - **FR:** FR-042, FR-140, FR-100, BR-009, BR-014.
@@ -105,16 +142,27 @@
 - **FR:** FR-070, FR-071.
 
 ### FLOW-PGL-04 — Menindaklanjuti permintaan perbaikan
-- **Prasyarat:** ada pengajuan `needs_revision`/`rejected`.
-- **Langkah:** buka daftar perbaikan → baca alasan → perbaiki → kirim ulang (versi baru).
-- **Hasil:** pengajuan baru `submitted`; riwayat pengajuan lama tetap tersimpan.
+- **Prasyarat:** ada pengajuan `needs_revision` (pengajuan `rejected` bersifat terminal — tidak dapat dikirim ulang).
+- **Langkah:** buka daftar perbaikan → baca alasan → perbaiki → kirim ulang **pada pengajuan yang sama**.
+- **Hasil:** pengajuan yang sama kembali berstatus `submitted`; riwayat transisi tetap tersimpan (`submission_reviews` + audit `activity_logs`).
 - **Gagal:** alasan belum terbaca tuntas → tetap tersedia di layar; revisi tidak mengubah data resmi.
 - **FR:** FR-031, FR-142, FR-140.
+- **Catatan:** FR-031 menyebut "versi pengajuan baru" (pengajuan terpisah); perilaku versi baru tersebut **belum diimplementasikan** — keputusan F5-5 memakai pengajuan yang sama (lihat `docs/DECISIONS.md` §12).
 
 ### FLOW-PGL-05 — Melihat riwayat pengajuan
 - **Langkah:** menu Riwayat → daftar pengajuan + status + waktu.
 - **Hasil:** jejak pengajuan koperasi sendiri.
 - **FR:** FR-150 (sisi pengelola), FR-011.
+
+### FLOW-PGL-06 — Melihat data periodik koperasi sendiri (hanya baca)
+> **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** Penulisan oleh pengelola (via pengajuan, F5)
+> belum tersedia; saat ini **read-only**. Kesehatan merupakan kewenangan admin (BR-010).
+- **Prasyarat:** pengelola login; koperasi terhubung.
+- **Langkah:** menu **Kesehatan / Tata Kelola / Aset / Anggota** → daftar (pagination) → **Detail**.
+- **Hasil:** pengelola hanya melihat data **koperasinya sendiri**; tidak ada tombol tambah/ubah/arsip.
+- **Gagal (otorisasi server-side):** membuka resource milik koperasi lain → **403** (Policy ownership);
+  akun belum tertaut koperasi → 403; guest → redirect login. Menulis lewat route admin → **403** (middleware role).
+- **FR:** FR-041/030 (profil), FR-080/090/100/110 (baca), BR-009, BR-014.
 
 ---
 
