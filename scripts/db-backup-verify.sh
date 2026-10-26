@@ -7,12 +7,13 @@
 # nama yang berbeda, dipakai untuk restore, lalu dihapus (kecuali
 # KEEP_VERIFY_DB=1).
 #
-# Contoh lokal (Git Bash + XAMPP):
+# Contoh backup-only lokal (Git Bash + XAMPP):
 #   DB_DATABASE=koperasi_jabar \
 #   DB_USERNAME=root \
 #   BACKUP_DIR=/c/Users/mocha/AppData/Local/Temp/opencode/backup-test \
 #   DUMP_BIN=/c/xampp/mysql/bin/mysqldump.exe \
 #   CLIENT_BIN=/c/xampp/mysql/bin/mysql.exe \
+#   VERIFY=0 \
 #   bash scripts/db-backup-verify.sh
 #
 # Contoh produksi (kredensial lewat file, bukan argumen):
@@ -178,7 +179,13 @@ case "$VERIFY_DB" in
         ;;
 esac
 
+restore_tmp=""
+
 cleanup() {
+    if [ -n "$restore_tmp" ]; then
+        rm -f "$restore_tmp"
+    fi
+
     if [ "$KEEP_VERIFY_DB" = "1" ]; then
         printf 'Database scratch dipertahankan: %s\n' "$VERIFY_DB"
         return
@@ -199,9 +206,17 @@ printf 'Restore ke database scratch ...\n'
 
 # Normalisasi CRLF dari mysqldump Windows agar aman saat restore lintas OS.
 # Dump Linux biasanya sudah LF; sed tidak mengubah isi data yang di-escape.
-if ! "$GZIP_BIN" -dc "$backup_file" | sed 's/\r$//' | "$CLIENT_BIN" "${AUTH_ARGS[@]}" "$VERIFY_DB"; then
+restore_tmp="$(mktemp "${TMPDIR:-/tmp}/db-restore-XXXXXX.sql")"
+if ! "$GZIP_BIN" -dc "$backup_file" | sed 's/\r$//' > "$restore_tmp"; then
+    fail "Gagal menyiapkan file restore; backup tetap disimpan."
+fi
+
+if ! "$CLIENT_BIN" "${AUTH_ARGS[@]}" "$VERIFY_DB" < "$restore_tmp"; then
     fail "Restore gagal; backup tetap disimpan untuk investigasi."
 fi
+
+rm -f "$restore_tmp"
+restore_tmp=""
 
 source_tables="$("$CLIENT_BIN" "${AUTH_ARGS[@]}" -N -B -e 'SHOW TABLES' "$DB_DATABASE" | sort)"
 verify_tables="$("$CLIENT_BIN" "${AUTH_ARGS[@]}" -N -B -e 'SHOW TABLES' "$VERIFY_DB" | sort)"

@@ -274,7 +274,8 @@ Gunakan `DB_CNF` berisi kredensial `[client]` user backup; jangan menaruh passwo
 database sumber atau database sistem.
 
 Pada Windows, verifikasi lokal dapat dilakukan dengan `mysqldump`/`mysql` native ke database scratch;
-client `mysql.exe` melalui pipe Git Bash tidak kompatibel. Hasil verifikasi lokal 26 Oktober 2026:
+eksekusi penuh script Bash di Git Bash/MSYS terkendala fork saat menjalankan client MySQL. Hasil
+verifikasi lokal 26 Oktober 2026:
 26 tabel, jumlah baris sama, dump 660.646 byte, SHA-256
 `a1e5e3fafe039df98013d428884129abcc32ddf3b0de28f500ef9b5a39bcac22`. Ini **bukan** bukti restore
 staging/produksi.

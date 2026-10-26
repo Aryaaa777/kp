@@ -2570,8 +2570,8 @@ database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan per
   - database scratch dihapus setelah verifikasi.
   - Verifikasi restore lokal dijalankan dengan perintah native PowerShell setara; script Bash
     untuk Linux sudah dicek sintaksnya dan jalur backup-nya dijalankan dengan `VERIFY=0`. Eksekusi
-    penuh script Bash di Windows tidak dilakukan karena client `mysql.exe` melalui pipe Git Bash
-    tidak kompatibel; ini bukan batasan Linux.
+    penuh script Bash di Windows tidak diselesaikan karena lingkungan Git Bash/MSYS mengalami
+    kegagalan fork saat menjalankan client MySQL; ini bukan batasan Linux.
 - **Batas:** ini bukan bukti backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
   staging/produksi. Checklist tetap mewajibkan uji restore ke staging sebelum go-live. Backup
   `storage/app` dan `.env` terenkripsi tetap merupakan langkah terpisah.
