@@ -256,6 +256,29 @@ php artisan app:production-check --json
 Perintah memeriksa konfigurasi wajib, header keamanan, izin storage, aset build, koneksi/versi
 database, migrasi tertunda, data wilayah, dan akun admin. Exit code `1` bila ada `FAIL`.
 
+### 7.1 Verifikasi backup/restore
+
+Script `scripts/db-backup-verify.sh` ditujukan untuk host Linux produksi. Script membuat dump
+`.sql.gz`, checksum SHA-256, me-restore ke database scratch, membandingkan daftar tabel dan jumlah
+baris, lalu menghapus scratch:
+
+```sh
+DB_CNF=/etc/koperasi/backup.cnf \
+DB_DATABASE=koperasi_jabar \
+BACKUP_DIR=/var/backups/koperasi \
+bash scripts/db-backup-verify.sh
+```
+
+Gunakan `DB_CNF` berisi kredensial `[client]` user backup; jangan menaruh password di argumen proses.
+`VERIFY=0` hanya untuk backup cepat, bukan pengganti uji restore. Jangan mengarahkan `VERIFY_DB` ke
+database sumber atau database sistem.
+
+Pada Windows, verifikasi lokal dapat dilakukan dengan `mysqldump`/`mysql` native ke database scratch;
+client `mysql.exe` melalui pipe Git Bash tidak kompatibel. Hasil verifikasi lokal 26 Oktober 2026:
+26 tabel, jumlah baris sama, dump 660.646 byte, SHA-256
+`a1e5e3fafe039df98013d428884129abcc32ddf3b0de28f500ef9b5a39bcac22`. Ini **bukan** bukti restore
+staging/produksi.
+
 ## 8. Struktur Direktori (ringkas)
 
 ```text

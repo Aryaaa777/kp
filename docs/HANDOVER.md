@@ -2,8 +2,9 @@
 
 > **Status dokumen:** serah terima teknis untuk finalisasi MVP, diperbarui **26 Oktober 2026**
 > setelah penyelesaian F8 dan impor wilayah ke database lokal.
-> **Status go-live:** **BELUM siap go-live.** Pengerasan kode (header keamanan, preflight) dan suite
-> MariaDB 10.11.19 lokal sudah diverifikasi, tetapi staging/HTTPS/SMTP/backup belum tersedia. Lihat §8. Jangan menafsirkan dokumen ini sebagai
+> **Status go-live:** **BELUM siap go-live.** Pengerasan kode (header keamanan, preflight), suite
+> MariaDB 10.11.19 lokal, dan prosedur backup/restore lokal sudah diverifikasi; staging/HTTPS/SMTP
+> dan uji restore ke staging belum tersedia. Lihat §8. Jangan menafsirkan dokumen ini sebagai
 > persetujuan produksi.
 >
 > Dokumen ini merangkum apa yang sudah diimplementasikan, bukti verifikasi lokal, gap sementara,
@@ -93,6 +94,7 @@ Perintah dan hasil pada lingkungan lokal:
 | `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3307) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.11.19 portabel, DB uji terpisah). |
 | `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3306) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.4.32 lokal). |
 | `php artisan app:production-check` pada MariaDB 10.11.19 | **32 PASS, 2 WARN, 0 FAIL** dengan konfigurasi produksi, wilayah, dan admin uji. Bukan staging. |
+| Verifikasi backup/restore lokal | **26 tabel** berhasil direstore ke DB scratch; jumlah baris sama; dump 660.646 byte; SHA-256 `a1e5e3fa...`. Bukan staging/produksi. |
 | `vendor/bin/pint --test` | PASS. |
 | `npm.cmd run build` | PASS; aset produksi terbentuk. |
 | `git diff --check` | Bersih (tanpa output). |
@@ -104,8 +106,8 @@ Perintah dan hasil pada lingkungan lokal:
 | `composer audit` | Tidak ada advisory keamanan. |
 
 > **Penting:** suite MariaDB 10.11.19 di atas berjalan pada server **portabel lokal** dengan database
-> uji terpisah, bukan staging/produksi. `sql_mode` produksi, web server, HTTPS, SMTP, dan backup
-> belum diuji. Verifikasi staging tetap wajib.
+> uji terpisah, bukan staging/produksi. `sql_mode` produksi, web server, HTTPS, SMTP, dan
+> backup/restore **ke staging** belum diuji. Verifikasi staging tetap wajib.
 
 ## 5. Review migrasi yang sebelumnya pending
 
@@ -157,7 +159,7 @@ menyediakan migration lock bawaan.
 | Q-022 format laporan pimpinan | Terbuka | Laporan masih agregat dasar, belum format eksekutif final. |
 | Q-001/Q-003 identitas & jenis/bentuk koperasi | Terbuka | Format nomor identitas dan taksonomi jenis/bentuk menunggu dinas. |
 | Q-012 data wilayah | Sebagian | Dataset 6.612 baris **sudah diimpor ke DB lokal**; backfill `region_id` dan `NOT NULL` belum karena audit belum bersih. |
-| Q-014 infrastruktur produksi | Sebagian | MariaDB 10.11.19 sudah diuji lokal; staging resmi, HTTPS/domain `.go.id`, SMTP, dan backup/restore belum diverifikasi. |
+| Q-014 infrastruktur produksi | Sebagian | MariaDB 10.11.19 dan backup/restore sudah diuji **lokal**; staging resmi, HTTPS/domain `.go.id`, SMTP, dan restore ke staging belum diverifikasi. |
 | Q-005 pembatasan wilayah | Terbuka | Peran `admin_wilayah` tersedia, tetapi scope **nonaktif** secara default sampai aturan resmi. |
 | Q-007 formula kesehatan/kepatuhan | Terbuka | Formula 5 komponen dan checklist kepatuhan bersifat **PROVISIONAL**, bukan aturan resmi. |
 | FR-003 driver sesi | Terbatas | Daftar/akhiri sesi lintas perangkat hanya dengan `SESSION_DRIVER=database`; driver lain menampilkan pemberitahuan. |
@@ -178,7 +180,9 @@ Semua item berikut **wajib** diselesaikan dan dicatat buktinya:
    MariaDB 10.11, termasuk enum, self-FK, FK `unpublished_by`, FK `previous_version_id`, dan indeks
    pendukung. DDL/FK sudah diuji pada MariaDB 10.11.19 lokal; staging tetap wajib.
 3. **Backup & restore**: backup database harian + filesystem mingguan ke lokasi remote; uji restore
-   ke staging sebelum go-live. Backup yang belum pernah di-restore belum layak dianggap.
+   ke staging sebelum go-live. Gunakan `scripts/db-backup-verify.sh` (dump `.sql.gz`, checksum,
+   restore ke scratch, bandingkan tabel/baris). Verifikasi lokal 26 tabel sudah lulus, tetapi
+   backup yang belum pernah di-restore di staging belum layak dianggap.
 4. **HTTPS/domain resmi** `.go.id`, redirect HTTP → HTTPS, dan monitoring sertifikat.
 5. **Email produksi**: SMTP/TLS resmi, alamat pengirim sah, uji tautan reset ke kotak masuk nyata.
 6. **Sesi produksi**: `SESSION_DRIVER=database`, `SESSION_SECURE_COOKIE=true`, idle timeout sesuai
@@ -200,7 +204,7 @@ disepakati sudah diuji secara lokal, termasuk suite MariaDB 10.11.19 portabel da
 `app:production-check`. Go-live baru boleh dipertimbangkan setelah:
 
 - staging MariaDB 10.11 terverifikasi (suite lokal 10.11.19 sudah lulus);
-- backup **dan restore** teruji;
+- backup **dan restore** teruji di staging/produksi (verifikasi lokal 26 tabel sudah lulus);
 - email produksi teruji;
 - HTTPS/domain resmi aktif dan header keamanan terverifikasi;
 - migrasi dijalankan dan diverifikasi di staging;
@@ -256,7 +260,9 @@ backfill deterministik selesai.
 
 ## 10. Deployment aman (staging/produksi)
 
-1. **Backup** database dan `storage/app` sebelum deployment; catat checksum.
+1. **Backup** database dan `storage/app` sebelum deployment; catat checksum. Untuk database,
+   gunakan `scripts/db-backup-verify.sh` dengan `DB_CNF` dan `BACKUP_DIR` (lihat
+   `docs/DEPLOYMENT_CHECKLIST.md` §5).
 2. Deploy kode, lalu `composer install --no-dev --optimize-autoloader`.
 3. Build aset dengan Node 22 (`npm ci && npm run build`); Node tidak perlu berjalan di produksi.
 4. Set `.env` produksi dan izin file; jangan menaruh secret di repositori.
@@ -293,7 +299,7 @@ backfill deterministik selesai.
 
 | ID | Blocker | Dampak |
 | --- | --- | --- |
-| Q-014 | Tidak ada akses staging/domain/kredensial; MariaDB 10.11.19 sudah diuji lokal, tetapi HTTPS, SMTP, dan backup/restore belum diverifikasi | Go-live tidak dapat dinyatakan. |
+| Q-014 | Tidak ada akses staging/domain/kredensial; MariaDB 10.11.19 dan backup/restore sudah diuji lokal, tetapi HTTPS, SMTP, dan restore ke staging belum diverifikasi | Go-live tidak dapat dinyatakan. |
 | Q-012 | Impor wilayah **lokal** selesai, tetapi backfill/`region_id NOT NULL` belum; target produksi belum diimpor | Alamat/wilayah publik pada target bergantung pada impor; data lama tanpa wilayah tetap ditandai audit. |
 | Q-010 | Definisi resmi periode belum ada | Filter/laporan memakai definisi sementara. |
 | Q-006 / Q-022 | Whitelist field dan format laporan pimpinan belum final | Cakupan workflow/laporan terbatas. |
@@ -302,9 +308,12 @@ backfill deterministik selesai.
 
 ## 13. Status Git dan batas pekerjaan
 
-- Branch: `main`; HEAD sebelum pengerasan produksi: `ec9a64b`.
+- Branch: `main`; HEAD sebelum batch backup/restore: `244a532` (sudah dipush).
 - Batch pengerasan produksi (header keamanan, `app:production-check`, verifikasi MariaDB 10.11.19,
   dokumentasi) dikomit setelah suite, Pint, build, dan pemeriksaan secret lulus.
+- Batch backup/restore (script `scripts/db-backup-verify.sh`, verifikasi lokal 26 tabel, dokumentasi)
+  dikomit setelah pemeriksaan sintaks, `git diff --check`, dan pemeriksaan secret lulus. Belum
+  dijalankan sebagai backup/restore staging/produksi.
 - Batch F8 sebelumnya dikomit dan di-push setelah suite, Pint, build, dan pemeriksaan secret lulus.
 - Tidak ada `git reset`, `git clean`, atau penghapusan perubahan pengguna.
 - `.env` tidak dikomit; `.env.example` hanya berisi placeholder. Tidak ada secret di repositori.

@@ -448,7 +448,8 @@ Lihat §22 PRD. Ringkasnya: fungsional ✓, validasi ✓, otorisasi ✓, keamana
 5. `php artisan config:cache && php artisan route:cache && php artisan view:cache`
 6. Atur permission `storage/` & `bootstrap/cache/`.
 7. Web root → `public/`. Pastikan storage privat **tidak** terekspos web.
-8. Backup DB harian + dokumentasi prosedur restore.
+8. Backup DB harian + uji restore berkala dengan `scripts/db-backup-verify.sh`; simpan checksum dan
+   catat hasil restore staging.
 
 > Detail infrastruktur dinas **[NEEDS CONFIRMATION]** (Q-014). Jangan mengasumsikan server/domain/CI tertentu.
 
@@ -479,8 +480,8 @@ Rujuk PRD §20. Sorotan:
 
 ## 11. Pengerasan Produksi (di luar fase F0-F8)
 
-**Status 26 Oktober 2026:** pengerasan kode dan verifikasi database target lokal selesai; go-live
-tetap menunggu staging/HTTPS/SMTP/backup.
+**Status 26 Oktober 2026:** pengerasan kode, verifikasi database target lokal, dan verifikasi
+backup/restore lokal selesai; go-live tetap menunggu staging/HTTPS/SMTP dan restore staging.
 
 - Header keamanan global (`SecurityHeaders`): HSTS hanya HTTPS, `X-Frame-Options`, `nosniff`,
   `Referrer-Policy`, `Permissions-Policy`, COOP, dan CSP konfigurabel. CSP produksi memakai
@@ -491,5 +492,9 @@ tetap menunggu staging/HTTPS/SMTP/backup.
   terpisah). Tes FK dibuat sadar driver; simulasi skema parsial menangani `errno 1553`.
 - `phpunit.mariadb.xml.example` disediakan untuk uji MySQL/MariaDB; file salinan
   `phpunit.mariadb.xml` di-.gitignore.
-- Batas: 10.11.19 portabel bukan staging; `sql_mode` produksi, HTTPS/domain, SMTP, backup/restore,
-  dan uji beban belum dilakukan. Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.
+- `scripts/db-backup-verify.sh` membuat dump `.sql.gz`, checksum SHA-256, restore ke database
+  scratch, membandingkan daftar tabel/jumlah baris, lalu menghapus scratch. Verifikasi lokal
+  26 Oktober 2026: 26 tabel, jumlah baris sama (MariaDB 10.4.32).
+- Batas: 10.11.19 portabel dan verifikasi backup/restore lokal bukan staging; `sql_mode` produksi,
+  HTTPS/domain, SMTP, restore staging/produksi, dan uji beban belum dilakukan.
+  Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.

@@ -349,5 +349,8 @@ Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
   `Permissions-Policy`, COOP) dan `app:production-check` sudah ditambahkan.
 - Suite penuh lulus pada SQLite dan MariaDB 10.11.19 portabel lokal (database uji terpisah);
   tes FK dibuat sadar driver.
-- **Belum go-live:** staging resmi, HTTPS/domain, SMTP, backup/restore, `sql_mode` produksi, dan uji
-  beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34 dan `docs/HANDOVER.md` 8.
+- `scripts/db-backup-verify.sh` dan verifikasi restore lokal 26 tabel (jumlah baris sama) sudah
+  tersedia; ini bukan pengganti restore staging/produksi.
+- **Belum go-live:** staging resmi, HTTPS/domain, SMTP, restore staging/produksi, `sql_mode`
+  produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34-35 dan
+  `docs/HANDOVER.md` 8.

@@ -125,7 +125,16 @@
 
 ### 5.1 Database (harian)
 
-- [ ] Dump konsisten:
+- [ ] Gunakan script terverifikasi (membuat dump, checksum, dan uji restore ke scratch):
+      ```sh
+      DB_CNF=/etc/koperasi/backup.cnf \
+      DB_DATABASE=<db> \
+      BACKUP_DIR=/var/backups/koperasi \
+      bash scripts/db-backup-verify.sh
+      ```
+      `DB_CNF` berisi kredensial `[client]` milik user backup; jangan menaruh password di
+      argumen proses. `VERIFY=0` hanya untuk backup cepat tanpa uji restore.
+- [ ] Alternatif manual:
       ```sh
       mariadb-dump --defaults-extra-file=<kredensial-backup> --single-transaction --routines --triggers <db> | gzip > <tujuan>/db-YYYYMMDD.sql.gz
       ```
@@ -150,10 +159,13 @@
 ### 5.4 Uji pemulihan (wajib, berkala)
 
 - [ ] Minimal **triwulanan** (dan sebelum go-live) lakukan restore ke database **staging**:
-      1. siapkan DB kosong; 2. `gunzip -c db-*.sql.gz | mariadb <db_staging>`; 3. bandingkan jumlah baris
-      tabel utama; 4. jalankan aplikasi staging + smoke test (`/login`, `/koperasi`, buka satu profil).
+      1. siapkan DB kosong; 2. jalankan `bash scripts/db-backup-verify.sh` dengan `VERIFY_DB` ke DB
+      staging/scratch; 3. bandingkan jumlah baris tabel utama; 4. jalankan aplikasi staging + smoke
+      test (`/login`, `/koperasi`, buka satu profil).
 - [ ] Catat **RPO/RTO** aktual dan hasil uji. Backup yang belum pernah di-restore **belum** dapat dianggap
       layak.
+- [ ] Verifikasi lokal 26 Oktober 2026 sudah lulus untuk 26 tabel (MariaDB 10.4.32, scratch), tetapi
+      **bukan** pengganti uji restore staging/produksi.
 
 ## 6. Pengerasan & pemantauan
 

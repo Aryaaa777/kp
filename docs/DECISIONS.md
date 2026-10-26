@@ -2550,3 +2550,28 @@ database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan per
   ada data koperasi yang diubah. Database uji 10.11 hanya dipakai untuk verifikasi.
 - Ini adalah status terkini; catatan pada 1-33 adalah historis dan tidak boleh dibaca sebagai
   status produksi.
+
+---
+
+## 35. Prosedur backup dan verifikasi restore (26 Oktober 2026) `[KEPUTUSAN]`
+
+- Script baru `scripts/db-backup-verify.sh` untuk host Linux produksi:
+  - memakai `mariadb-dump` (fallback `mysqldump`), `mariadb`/`mysql`, `gzip`, dan `sha256sum`;
+  - mendukung kredensial lewat `DB_CNF` (`--defaults-extra-file`) agar password tidak tampil di
+    argumen proses; `MYSQL_PWD` hanya fallback lokal dengan peringatan;
+  - menulis dump `.sql.gz` + checksum SHA-256 di `BACKUP_DIR`;
+  - membuat database scratch, me-restore dump, membandingkan daftar tabel dan jumlah baris,
+    lalu menghapus database scratch (kecuali `KEEP_VERIFY_DB=1`);
+  - menolak database scratch yang sama dengan database sumber atau database sistem.
+- Verifikasi lokal 26 Oktober 2026 pada MariaDB **10.4.32**:
+  - sumber `koperasi_jabar`, database scratch `koperasi_jabar_restore_check_ps`;
+  - **26 tabel** berhasil direstore, jumlah baris setiap tabel sama;
+  - dump **660.646 byte**, SHA-256 `a1e5e3fafe039df98013d428884129abcc32ddf3b0de28f500ef9b5a39bcac22`;
+  - database scratch dihapus setelah verifikasi.
+  - Verifikasi restore lokal dijalankan dengan perintah native PowerShell setara; script Bash
+    untuk Linux sudah dicek sintaksnya dan jalur backup-nya dijalankan dengan `VERIFY=0`. Eksekusi
+    penuh script Bash di Windows tidak dilakukan karena client `mysql.exe` melalui pipe Git Bash
+    tidak kompatibel; ini bukan batasan Linux.
+- **Batas:** ini bukan bukti backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
+  staging/produksi. Checklist tetap mewajibkan uji restore ke staging sebelum go-live. Backup
+  `storage/app` dan `.env` terenkripsi tetap merupakan langkah terpisah.

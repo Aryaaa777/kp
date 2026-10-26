@@ -79,6 +79,18 @@ belum tersedia.
 - F8 selesai secara implementasi lokal: FR-012, FR-022, FR-072, FR-082, FR-091, FR-171, FR-183.
   Formula/ambang/pembatasan wilayah tetap **PROVISIONAL** (Q-005/Q-007/Q-010).
 
+## Verifikasi backup/restore lokal (26 Oktober 2026)
+
+- Sumber: database lokal `koperasi_jabar` pada MariaDB 10.4.32.
+- Dump: `mysqldump` dengan `--single-transaction --routines --triggers`, ukuran **660.646 byte**,
+  SHA-256 `a1e5e3fafe039df98013d428884129abcc32ddf3b0de28f500ef9b5a39bcac22`.
+- Restore ke database scratch `koperasi_jabar_restore_check_ps`: **26 tabel** berhasil dibuat,
+  jumlah baris setiap tabel sama dengan sumber; scratch dihapus setelah verifikasi.
+- Script produksi: `scripts/db-backup-verify.sh` (Linux) membuat dump `.sql.gz`, checksum, restore
+  ke scratch, membandingkan tabel/baris, lalu membersihkan scratch.
+- **Batas:** belum menguji backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
+  staging/produksi. Uji restore staging tetap wajib sebelum go-live.
+
 ## Kesesuaian dengan PRD
 
 - PRD §13.1 mengusulkan **Laravel 13.x** dan **PHP 8.3–8.5**. Lingkungan ini memakai **Laravel 13.36.0 + PHP 8.4.0** → sesuai.
