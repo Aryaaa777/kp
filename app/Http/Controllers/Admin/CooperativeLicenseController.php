@@ -66,7 +66,14 @@ class CooperativeLicenseController extends Controller
     {
         Gate::authorize('view', $license);
 
-        $license->load(['verifier', 'documents.uploader']);
+        $license->load([
+            'verifier',
+            'documents' => fn ($query) => $query
+                ->with(['uploader', 'previousVersion'])
+                ->orderBy('category')
+                ->orderByDesc('version')
+                ->orderByDesc('id'),
+        ]);
 
         return view('admin.izin.show', [
             'cooperative' => $cooperative,

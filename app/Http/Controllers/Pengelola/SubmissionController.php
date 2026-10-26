@@ -67,18 +67,34 @@ class SubmissionController extends Controller
             abort(403, 'Akun Anda belum terhubung ke koperasi. Hubungi admin dinas.');
         }
 
-        $module = (string) $request->query('module', SubmissionModules::defaultModule() ?? '');
+        // Versi perbaikan (FR-031/FR-142): formulir diisi dari usulan versi induk, lalu
+        // disimpan sebagai pengajuan baru yang menunjuk induk tersebut.
+        $revision = null;
+
+        if ($request->filled('revision')) {
+            $candidate = Submission::query()->findOrFail((int) $request->query('revision'));
+            Gate::authorize('revise', $candidate);
+            $revision = $candidate;
+        }
+
+        $module = $revision?->module ?? (string) $request->query('module', SubmissionModules::defaultModule() ?? '');
 
         if (! SubmissionModules::has($module)) {
             $module = SubmissionModules::defaultModule() ?? '';
         }
+
+        $official = $module !== '' ? $this->service->officialValues($cooperative, $module) : [];
+        $values = $revision !== null
+            ? array_merge($official, $this->service->proposedValues($revision))
+            : $official;
 
         return view('pengelola.pengajuan.create', [
             'cooperative' => $cooperative,
             'module' => $module,
             'modules' => SubmissionModules::labels(),
             'fields' => SubmissionModules::fields($module),
-            'values' => $module !== '' ? $this->service->officialValues($cooperative, $module) : [],
+            'values' => $values,
+            'revision' => $revision,
         ]);
     }
 
@@ -89,6 +105,30 @@ class SubmissionController extends Controller
 
         if ($cooperative === null) {
             abort(403, 'Akun Anda belum terhubung ke koperasi. Hubungi admin dinas.');
+        }
+
+        $parentId = $request->validated('parent_submission_id');
+
+        if ($parentId !== null) {
+            $parent = Submission::query()->findOrFail((int) $parentId);
+            Gate::authorize('revise', $parent);
+
+            $fields = SubmissionModules::fields($parent->module);
+
+            try {
+                $submission = $this->service->createRevision(
+                    $user,
+                    $parent,
+                    $request->safe()->only(array_keys($fields)),
+                    $request->validated('title'),
+                );
+            } catch (EmptySubmissionException|SubmissionTransitionException $exception) {
+                return back()->withInput()->withErrors(['module' => $exception->getMessage()]);
+            }
+
+            return redirect()
+                ->route('pengelola.pengajuan.show', $submission)
+                ->with('status', 'Versi perbaikan pengajuan disimpan sebagai draft.');
         }
 
         $module = (string) $request->validated('module');
@@ -102,7 +142,7 @@ class SubmissionController extends Controller
                 $request->safe()->only(array_keys($fields)),
                 $request->validated('title'),
             );
-        } catch (EmptySubmissionException $exception) {
+        } catch (EmptySubmissionException|SubmissionTransitionException $exception) {
             return back()->withInput()->withErrors(['module' => $exception->getMessage()]);
         }
 
@@ -115,7 +155,7 @@ class SubmissionController extends Controller
     {
         Gate::authorize('view', $submission);
 
-        $submission->load(['cooperative', 'reviewer', 'items', 'reviews.user']);
+        $submission->load(['cooperative', 'reviewer', 'items', 'reviews.user', 'parent', 'children']);
 
         return view('pengelola.pengajuan.show', [
             'submission' => $submission,

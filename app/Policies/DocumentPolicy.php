@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Document;
 use App\Models\User;
+use App\Policies\Concerns\ChecksAdminRegion;
 
 /**
  * Otorisasi dokumen pendukung (FR-070/071).
@@ -15,9 +16,11 @@ use App\Models\User;
  */
 class DocumentPolicy
 {
+    use ChecksAdminRegion;
+
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
     }
 
     public function view(User $user, Document $document): bool
@@ -35,28 +38,36 @@ class DocumentPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
+    }
+
+    /**
+     * Unggah versi baru (FR-072).
+     */
+    public function update(User $user, Document $document): bool
+    {
+        return $this->adminCanAccessCooperative($user, (int) $document->cooperative_id);
     }
 
     public function delete(User $user, Document $document): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $document->cooperative_id);
     }
 
     public function restore(User $user, Document $document): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $document->cooperative_id);
     }
 
     public function forceDelete(User $user, Document $document): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $document->cooperative_id);
     }
 
     private function adminOrOwner(User $user, Document $document): bool
     {
-        if ($user->hasRole('admin_dinas')) {
-            return true;
+        if ($user->hasAnyRole(['admin_dinas', 'admin_wilayah'])) {
+            return $this->adminCanAccessCooperative($user, (int) $document->cooperative_id);
         }
 
         return $user->koperasi_id !== null

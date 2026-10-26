@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Officer;
 use App\Models\User;
+use App\Policies\Concerns\ChecksAdminRegion;
 
 /**
  * Policy untuk otorisasi akses data pengurus koperasi (officers).
@@ -23,6 +24,8 @@ use App\Models\User;
  */
 class OfficerPolicy
 {
+    use ChecksAdminRegion;
+
     /**
      * Menentukan apakah pengguna dapat melihat daftar pengurus.
      *
@@ -31,7 +34,7 @@ class OfficerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin_dinas') || $user->hasRole('pengelola_koperasi');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']) || $user->hasRole('pengelola_koperasi');
     }
 
     /**
@@ -42,8 +45,8 @@ class OfficerPolicy
      */
     public function view(User $user, Officer $officer): bool
     {
-        if ($user->hasRole('admin_dinas')) {
-            return true;
+        if ($user->hasAnyRole(['admin_dinas', 'admin_wilayah'])) {
+            return $this->adminCanAccessCooperative($user, (int) $officer->cooperative_id);
         }
 
         if ($user->hasRole('pengelola_koperasi')) {
@@ -61,7 +64,7 @@ class OfficerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
     }
 
     /**
@@ -72,7 +75,7 @@ class OfficerPolicy
      */
     public function update(User $user, Officer $officer): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $officer->cooperative_id);
     }
 
     /**
@@ -83,7 +86,7 @@ class OfficerPolicy
      */
     public function delete(User $user, Officer $officer): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $officer->cooperative_id);
     }
 
     /**
@@ -93,7 +96,7 @@ class OfficerPolicy
      */
     public function restore(User $user, Officer $officer): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $officer->cooperative_id);
     }
 
     /**

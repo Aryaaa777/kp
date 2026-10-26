@@ -11,6 +11,7 @@ use App\Models\GovernanceRecord;
 use App\Models\HealthAssessment;
 use App\Models\MemberHistory;
 use App\Models\Submission;
+use App\Models\User;
 use App\Policies\ActivityLogPolicy;
 use App\Policies\CooperativeAssetPolicy;
 use App\Policies\CooperativeLicensePolicy;
@@ -54,5 +55,11 @@ class AppServiceProvider extends ServiceProvider
         // Otorisasi workflow pengajuan & audit trail F5.
         Gate::policy(Submission::class, SubmissionPolicy::class);
         Gate::policy(ActivityLog::class, ActivityLogPolicy::class);
+
+        // Otorisasi pengaturan field publik (FR-191) — hanya admin dinas.
+        Gate::define('manage-public-settings', fn (User $user): bool => $user->hasRole('admin_dinas'));
+
+        // Otorisasi manajemen akun pengelola (US-009) — hanya admin dinas.
+        Gate::define('manage-accounts', fn (User $user): bool => $user->hasRole('admin_dinas'));
     }
 }

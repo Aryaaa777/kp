@@ -324,4 +324,55 @@ class HealthAssessmentTest extends TestCase
             ->get(route('pengelola.kesehatan.show', $assessment))
             ->assertNotFound();
     }
+
+    public function test_score_can_be_calculated_from_five_components(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $cooperative = Cooperative::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.kesehatan.store', $cooperative), [
+                'period_year' => 2025,
+                'period' => 'annual',
+                'assessment_date' => '2025-12-20',
+                'auto_calculate' => '1',
+                'component_permodalan' => 90,
+                'component_likuiditas' => 80,
+                'component_rentabilitas' => 70,
+                'component_kualitas_aset' => 60,
+                'component_efisiensi' => 50,
+                'status' => 'final',
+            ])
+            ->assertRedirect(route('admin.koperasi.kesehatan.index', $cooperative));
+
+        $assessment = HealthAssessment::query()->where('cooperative_id', $cooperative->id)->firstOrFail();
+
+        $this->assertTrue($assessment->auto_calculated);
+        $this->assertSame('70.00', $assessment->score);
+        $this->assertSame('Cukup Sehat', $assessment->predicate);
+        $this->assertSame(90.0, (float) $assessment->component_permodalan);
+    }
+
+    public function test_auto_calculation_requires_all_components(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $cooperative = Cooperative::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.kesehatan.store', $cooperative), [
+                'period_year' => 2025,
+                'period' => 'annual',
+                'assessment_date' => '2025-12-20',
+                'auto_calculate' => '1',
+                'component_permodalan' => 90,
+            ])
+            ->assertSessionHasErrors([
+                'component_likuiditas',
+                'component_rentabilitas',
+                'component_kualitas_aset',
+                'component_efisiensi',
+            ]);
+
+        $this->assertDatabaseCount('health_assessments', 0);
+    }
 }

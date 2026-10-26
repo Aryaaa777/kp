@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Document\StoreDocumentRequest;
+use App\Http\Requests\Document\StoreDocumentVersionRequest;
 use App\Models\Cooperative;
 use App\Models\CooperativeLicense;
 use App\Models\Document;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,11 +23,15 @@ use Illuminate\Support\Facades\Storage;
  */
 class DocumentController extends Controller
 {
+    public function __construct(private readonly ActivityLogger $logger) {}
+
     public function store(
         StoreDocumentRequest $request,
         Cooperative $cooperative,
         CooperativeLicense $license,
     ): RedirectResponse {
+        Gate::authorize('create', Document::class);
+
         $file = $request->file('file');
 
         if (! $file instanceof UploadedFile) {
@@ -51,6 +58,84 @@ class DocumentController extends Controller
         return redirect()
             ->route('admin.koperasi.izin.show', [$cooperative, $license])
             ->with('status', 'Dokumen berhasil diunggah.');
+    }
+
+    /**
+     * Unggah versi baru dokumen (FR-072).
+     *
+     * Versi lama tidak dihapus: ditandai `superseded_at` dan tetap dapat diunduh
+     * sebagai riwayat. Hanya versi terbaru yang boleh diganti.
+     */
+    public function storeVersion(
+        StoreDocumentVersionRequest $request,
+        Cooperative $cooperative,
+        CooperativeLicense $license,
+        Document $document,
+    ): RedirectResponse {
+        Gate::authorize('update', $document);
+
+        if ((int) $document->cooperative_id !== (int) $cooperative->getKey()
+            || (int) $document->documentable_id !== (int) $license->getKey()) {
+            abort(404);
+        }
+
+        if ($document->isSuperseded()) {
+            return back()->withErrors([
+                'file' => 'Dokumen ini sudah digantikan versi yang lebih baru. Unggah versi baru dari dokumen terbaru.',
+            ]);
+        }
+
+        $file = $request->file('file');
+
+        if (! $file instanceof UploadedFile) {
+            return back()->withErrors(['file' => 'Berkas tidak valid.']);
+        }
+
+        $disk = (string) config('koperasi.document_disk', 'local');
+        $path = $file->store("documents/{$cooperative->getKey()}", $disk);
+
+        try {
+            DB::transaction(function () use ($document, $license, $cooperative, $file, $path, $request): void {
+                // Kunci baris agar dua unggahan bersamaan tidak memakai nomor versi yang sama.
+                $current = Document::query()->lockForUpdate()->findOrFail($document->getKey());
+                $newVersion = (int) $current->version + 1;
+
+                $current->forceFill(['superseded_at' => now()])->save();
+
+                $replacement = $license->documents()->create([
+                    'cooperative_id' => $cooperative->getKey(),
+                    'category' => $current->category,
+                    'original_name' => $this->sanitizeOriginalName($file->getClientOriginalName()),
+                    'file_path' => $path,
+                    'mime_type' => $file->getMimeType() ?: $file->getClientMimeType(),
+                    'size_bytes' => $file->getSize(),
+                    'checksum' => hash_file('sha256', $file->getRealPath()) ?: null,
+                    'version' => $newVersion,
+                    'previous_version_id' => $current->getKey(),
+                    'uploaded_by' => $request->user()->id,
+                ]);
+
+                $this->logger->log(
+                    'document_version_created',
+                    $replacement,
+                    $request->user(),
+                    [
+                        'document_id' => $current->getKey(),
+                        'replacement_id' => $replacement->getKey(),
+                        'version' => $newVersion,
+                    ],
+                    'Versi baru dokumen diunggah.',
+                );
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk($disk)->delete($path);
+
+            throw $exception;
+        }
+
+        return redirect()
+            ->route('admin.koperasi.izin.show', [$cooperative, $license])
+            ->with('status', 'Versi baru dokumen berhasil diunggah.');
     }
 
     /**

@@ -33,13 +33,28 @@
             <input id="q" name="q" type="text" value="{{ $filters['q'] }}" placeholder="Judul / nama / nomor koperasi"
                 class="mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm">
         </div>
+        <div>
+            <label for="umur_min" class="block text-xs font-medium text-slate-600">Umur min. (hari)</label>
+            <input id="umur_min" name="umur_min" type="number" min="0" step="1" value="{{ $filters['umur_min'] }}"
+                class="mt-1 w-32 rounded-md border border-slate-300 px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label for="umur_max" class="block text-xs font-medium text-slate-600">Umur maks. (hari)</label>
+            <input id="umur_max" name="umur_max" type="number" min="0" step="1" value="{{ $filters['umur_max'] }}"
+                class="mt-1 w-32 rounded-md border border-slate-300 px-3 py-2 text-sm">
+        </div>
         <button type="submit" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
             Filter
         </button>
-        @if ($filters['status'] !== '' || $filters['q'] !== '')
+        @if ($filters['status'] !== '' || $filters['q'] !== '' || $filters['umur_min'] !== '' || $filters['umur_max'] !== '')
             <a href="{{ route('admin.pengajuan.index') }}" class="text-sm text-slate-600 hover:underline">Reset</a>
         @endif
     </form>
+
+    <p class="mb-4 text-xs text-slate-500">
+        Filter umur dihitung dari <strong>waktu diperbarui</strong> pengajuan (kolom “Diperbarui”), dalam hari dan
+        inklusif pada batas. Diisi manual oleh admin — FR-021 belum menetapkan kategori umur resmi.
+    </p>
 
     <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
         @if ($submissions->isEmpty())

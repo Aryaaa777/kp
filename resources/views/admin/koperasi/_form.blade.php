@@ -3,6 +3,23 @@
     $action = $action ?? route('admin.koperasi.store');
     $method = $method ?? 'POST';
     $jenisOptions = $jenisOptions ?? [];
+    $statusOperasionalOptions = $statusOperasionalOptions ?? [];
+    $statusOperasionalPlaceholder = $cooperative === null
+        ? '— Pilih status operasional —'
+        : ($cooperative->status_operasional === null ? '— Belum ditetapkan —' : null);
+
+    $currentRegion = $cooperative?->region;
+    $currentProvince = $currentRegion?->ancestorOfType('province');
+    $currentRegency = $currentRegion?->ancestorOfType('regency')
+        ?? $currentRegion?->ancestorOfType('city');
+    $currentDistrict = $currentRegion?->ancestorOfType('district');
+
+    $selectedProvince = old('province_id', $currentProvince?->id);
+    $selectedRegency = old('regency_id', $currentRegency?->id);
+    $selectedDistrict = old('district_id', $currentDistrict?->id);
+    $selectedRegion = old('region_id', $cooperative?->region_id);
+
+    $selectClass = 'mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500';
 @endphp
 
 <form method="POST" action="{{ $action }}" class="space-y-6">
@@ -37,6 +54,13 @@
             <x-form.select name="status_verifikasi" label="Status data" required
                 :options="$statusOptions" :selected="$cooperative?->status_verifikasi ?? 'draft'"
                 help="Penjaga matriks transisi resmi mengikuti workflow verifikasi (F5). Status “Diarsipkan” hanya melalui aksi arsip." />
+
+            <x-form.select name="status_operasional" label="Status operasional"
+                :options="$statusOperasionalOptions"
+                :selected="$cooperative?->status_operasional"
+                :placeholder="$statusOperasionalPlaceholder"
+                :required="$cooperative === null"
+                help="Wajib dipilih saat menambah koperasi. Data lama yang belum dikonfirmasi tetap kosong sampai dilengkapi pihak berwenang." />
         </div>
     </div>
 
@@ -44,16 +68,85 @@
         <h2 class="text-sm font-semibold text-slate-900">Wilayah &amp; kontak</h2>
 
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
-            @if ($regions->isEmpty())
+            @if ($provinces->isEmpty())
                 <div class="sm:col-span-2">
                     <x-alert type="warning">
-                        Referensi wilayah belum tersedia (menunggu konfirmasi sumber resmi — Q-012).
-                        Kolom wilayah dikosongkan sementara dan dapat diisi setelah data wilayah di-seed.
+                        Referensi wilayah belum tersedia. Jalankan <code>php artisan regions:import</code>
+                        dengan berkas resmi sebelum mengisi wilayah koperasi.
                     </x-alert>
                 </div>
             @else
-                <x-form.select name="region_id" label="Kabupaten/Kota" placeholder="— Pilih wilayah —"
-                    :options="$regions->pluck('name', 'id')->all()" :selected="$cooperative?->region_id" />
+                <div class="sm:col-span-2 grid gap-4 sm:grid-cols-2" data-region-cascade>
+                    <div>
+                        <label for="province_id" class="block text-sm font-medium text-slate-700">Provinsi</label>
+                        <select id="province_id" name="province_id" data-level="province" class="{{ $selectClass }}">
+                            <option value="">— Pilih provinsi —</option>
+                            @foreach ($provinces as $province)
+                                <option value="{{ $province->id }}" @selected((string) $selectedProvince === (string) $province->id)>
+                                    {{ $province->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-form.error name="province_id" />
+                    </div>
+
+                    <div>
+                        <label for="regency_id" class="block text-sm font-medium text-slate-700">Kabupaten/Kota</label>
+                        <select id="regency_id" name="regency_id" data-level="regency"
+                            data-parent-select="province_id" class="{{ $selectClass }}">
+                            <option value="">— Pilih kabupaten/kota —</option>
+                            @foreach ($regencies as $regency)
+                                <option value="{{ $regency->id }}" data-parent="{{ $regency->parent_id }}"
+                                    @selected((string) $selectedRegency === (string) $regency->id)>
+                                    {{ $regency->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-form.error name="regency_id" />
+                    </div>
+
+                    <div>
+                        <label for="district_id" class="block text-sm font-medium text-slate-700">Kecamatan</label>
+                        <select id="district_id" name="district_id" data-level="district"
+                            data-parent-select="regency_id" class="{{ $selectClass }}">
+                            <option value="">— Pilih kecamatan —</option>
+                            @foreach ($districts as $district)
+                                <option value="{{ $district->id }}" data-parent="{{ $district->parent_id }}"
+                                    @selected((string) $selectedDistrict === (string) $district->id)>
+                                    {{ $district->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-form.error name="district_id" />
+                    </div>
+
+                    <div>
+                        <label for="region_id" class="block text-sm font-medium text-slate-700">Desa/Kelurahan</label>
+                        <select id="region_id" name="region_id" data-level="village"
+                            data-parent-select="district_id" class="{{ $selectClass }}">
+                            <option value="">— Pilih desa/kelurahan —</option>
+                            @if ($currentRegion !== null && $currentRegion->type !== 'village')
+                                <option value="{{ $currentRegion->id }}"
+                                    data-parent="{{ $currentRegion->type === 'district' ? $currentRegion->id : '' }}"
+                                    @selected((string) $selectedRegion === (string) $currentRegion->id)>
+                                    {{ $currentRegion->name }} (wilayah saat ini)
+                                </option>
+                            @endif
+                            @foreach ($villages as $village)
+                                <option value="{{ $village->id }}" data-parent="{{ $village->parent_id }}"
+                                    @selected((string) $selectedRegion === (string) $village->id)>
+                                    {{ $village->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-form.error name="region_id" />
+                    </div>
+
+                    <p class="sm:col-span-2 text-xs text-slate-500">
+                        Pilih berurutan dari provinsi sampai desa/kelurahan. Alamat publik dibentuk dari
+                        hierarki ini; alamat detail (jalan/RT/RW) tidak dipublikasikan.
+                    </p>
+                </div>
             @endif
 
             <x-form.input name="telephone" label="Telepon" :value="$cooperative?->telephone" />

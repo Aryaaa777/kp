@@ -38,6 +38,34 @@
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Status</dt>
                 <dd class="mt-1 text-sm text-slate-900">{{ $record->statusLabel() }}</dd>
             </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Kepatuhan (PROVISIONAL)</dt>
+                <dd class="mt-1 text-sm text-slate-900">
+                    @if ($record->compliance_status)
+                        <span class="rounded px-1.5 py-0.5 text-xs {{ $record->compliance_status === 'patuh' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800' }}">
+                            {{ $record->complianceStatusLabel() }}
+                        </span>
+                    @else
+                        —
+                    @endif
+                </dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">RAT tepat waktu</dt>
+                <dd class="mt-1 text-sm text-slate-900">{{ $record->rat_on_time === null ? '—' : ($record->rat_on_time ? 'Ya' : 'Tidak') }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Laporan keuangan tersedia</dt>
+                <dd class="mt-1 text-sm text-slate-900">{{ $record->financial_report_available === null ? '—' : ($record->financial_report_available ? 'Ya' : 'Tidak') }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Dokumen dasar lengkap</dt>
+                <dd class="mt-1 text-sm text-slate-900">{{ $record->basic_documents_complete === null ? '—' : ($record->basic_documents_complete ? 'Ya' : 'Tidak') }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Catatan kepatuhan</dt>
+                <dd class="mt-1 whitespace-pre-line text-sm text-slate-900">{{ $record->compliance_notes ?: '—' }}</dd>
+            </div>
             <div class="sm:col-span-2">
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Ringkasan</dt>
                 <dd class="mt-1 whitespace-pre-line text-sm text-slate-900">{{ $record->summary ?: '—' }}</dd>

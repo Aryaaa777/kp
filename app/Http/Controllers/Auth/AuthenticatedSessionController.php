@@ -30,6 +30,7 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $request->session()->put('auth.last_activity_at', now()->getTimestamp());
 
         $request->user()->forceFill(['last_login_at' => now()])->save();
 

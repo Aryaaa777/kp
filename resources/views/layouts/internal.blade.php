@@ -16,7 +16,12 @@
                     <span class="text-sm font-semibold text-slate-900 sm:text-base">{{ config('app.name') }}</span>
                 </div>
 
-                <div class="flex items-center gap-3 text-sm">
+                <div class="flex flex-wrap items-center justify-end gap-3 text-sm">
+                    @if (auth()->user()->hasRole('admin_dinas'))
+                        <a href="{{ route('admin.akun.index') }}" class="text-slate-600 hover:text-emerald-700">Akun</a>
+                        <a href="{{ route('admin.pengaturan.publik') }}" class="text-slate-600 hover:text-emerald-700">Pengaturan</a>
+                    @endif
+                    <a href="{{ route('account.security') }}" class="text-slate-600 hover:text-emerald-700">Keamanan</a>
                     <span class="hidden text-slate-600 sm:inline">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -29,9 +34,11 @@
             </div>
         </header>
 
-        <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
-            <aside class="hidden w-56 shrink-0 lg:block">
-                <nav class="space-y-1" aria-label="Navigasi utama">
+        <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+            {{-- Navigasi tetap tersedia di ponsel/tablet (scroll horizontal), bukan disembunyikan. --}}
+            <aside class="w-full shrink-0 lg:w-56">
+                <nav class="flex gap-1 overflow-x-auto pb-2 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0"
+                    aria-label="Navigasi utama">
                     @yield('sidebar')
                 </nav>
             </aside>

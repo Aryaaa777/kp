@@ -480,4 +480,56 @@ class DocumentTest extends TestCase
             'file_path' => $path,
         ]);
     }
+
+    public function test_admin_can_upload_new_document_version_and_old_version_is_retained(): void
+    {
+        [$cooperative, $license] = $this->license();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.izin.dokumen.store', [$cooperative, $license]), [
+                'category' => 'izin_usaha',
+                'file' => $this->pdf('versi-1.pdf'),
+            ])
+            ->assertRedirect();
+
+        $original = Document::firstOrFail();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.izin.dokumen.versi', [$cooperative, $license, $original]), [
+                'file' => $this->pdf('versi-2.pdf'),
+            ])
+            ->assertRedirect(route('admin.koperasi.izin.show', [$cooperative, $license]));
+
+        $original->refresh();
+        $replacement = Document::query()->where('previous_version_id', $original->id)->firstOrFail();
+
+        $this->assertNotNull($original->superseded_at);
+        $this->assertSame(2, $replacement->version);
+        $this->assertSame($original->id, $replacement->previous_version_id);
+        $this->assertSame('versi-2.pdf', $replacement->original_name);
+        $this->assertSame('izin_usaha', $replacement->category);
+        $this->assertSame(2, Document::count());
+
+        $this->assertDatabaseHas('activity_logs', [
+            'action' => 'document_version_created',
+            'subject_id' => $replacement->id,
+        ]);
+    }
+
+    public function test_superseded_document_cannot_be_versioned_again(): void
+    {
+        [$cooperative, $license] = $this->license();
+        $admin = $this->admin();
+        $document = $this->storedDocument($license, 'lama.pdf');
+        $document->forceFill(['superseded_at' => now()])->save();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.izin.dokumen.versi', [$cooperative, $license, $document]), [
+                'file' => $this->pdf(),
+            ])
+            ->assertSessionHasErrors('file');
+
+        $this->assertSame(1, Document::count());
+    }
 }

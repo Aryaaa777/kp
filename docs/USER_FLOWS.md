@@ -24,8 +24,9 @@
 > `revision_requested`). Verifikasi sementara **satu tingkat** oleh admin (Q-004) dan whitelist
 > modul/field sementara (Q-006, saat ini hanya `koperasi_induk`). Rincian: `docs/DECISIONS.md` §12.
 >
-> **Belum mencakup / belum diimplementasikan:** FLOW-ADM-09 (membuat laporan/ekspor, FR-170/171)
-> masih berada di fase **F6/F8**; FLOW-ADM-10/11/12 adalah alur **data periodik F4** (tata kelola,
+> **Status FLOW-ADM-09:** laporan/rekap **FR-170** sudah diimplementasikan pada **F6** (filter
+> wilayah/jenis/status/periode + rekap per wilayah/jenis/periode); **ekspor FR-171** masih **F8**
+> dan belum diimplementasikan. FLOW-ADM-10/11/12 adalah alur **data periodik F4** (tata kelola,
 > aset, riwayat keanggotaan) — **bukan** alur pengajuan/verifikasi.
 
 ---
@@ -38,6 +39,25 @@
 - **Hasil:** diarahkan ke `/dashboard` (statistik & antrian pengajuan).
 - **Gagal:** kredensial salah → pesan generik; akun nonaktif → pesan khusus; rate limit → coba lagi.
 - **FR:** FR-001, FR-020, FR-021.
+
+### FLOW-AUTH-01 — Lupa/reset password
+- **Prasyarat:** akses ke email akun (self-service) atau akun admin aktif (kirim tautan).
+- **Langkah:** buka `/lupa-password` → masukkan email → buka tautan email → isi password baru +
+  konfirmasi → simpan. Admin dapat memicu tautan dari `/admin/akun`.
+- **Hasil:** password baru tersimpan sebagai hash; password lama tidak berlaku; sesi lama diakhiri
+  (driver database) dan tautan tidak dapat dipakai ulang.
+- **Gagal:** email tidak terdaftar → pesan tetap generik; token salah/kedaluwarsa/dipakai ulang →
+  minta tautan baru; password < 8 karakter atau konfirmasi beda → error validasi.
+- **FR:** FR-004. **Batas lokal:** `MAIL_MAILER=log` (tautan di log, bukan email nyata).
+
+### FLOW-AUTH-02 — Keamanan & sesi
+- **Prasyarat:** pengguna login.
+- **Langkah:** buka `/akun/keamanan` → lihat batas idle dan sesi aktif → pilih “Akhiri semua sesi
+  lain” atau “Keluar dari semua perangkat”.
+- **Hasil:** sesi lain dihapus; untuk “semua perangkat”, pengguna juga logout dan diarahkan ke login.
+- **Gagal:** driver sesi bukan `database` → halaman menjelaskan bahwa daftar sesi lintas perangkat
+  tidak tersedia (tidak ada klaim palsu); sesi idle > `SESSION_IDLE_TIMEOUT` → dipaksa login ulang.
+- **FR:** FR-003.
 
 ### FLOW-ADM-02 — Menambah/mengubah data koperasi
 - **Prasyarat:** admin login.
@@ -84,11 +104,22 @@
 - **Hasil:** profil muncul di direktori publik sesuai field yang diizinkan.
 - **Gagal:** data belum approved → tombol publikasi nonaktif.
 - **FR:** FR-190, FR-191, BR-008, BR-020.
+- **Status final (24 Oktober 2026):** langkah "pilih field yang boleh tampil" tersedia di
+  **Pengaturan Publik** (`/admin/pengaturan/publik`) untuk admin dinas, disimpan di tabel `settings`
+  dan dibatasi allowlist Q-008. Field di luar Q-008 (NIK, telepon pribadi, data anggota, omzet
+  terlarang) ditolak di server. Kelayakan ditentukan
+  `config('koperasi.public.visible_statuses')` (saat ini `approved`), lalu admin dinas menekan
+  **Publikasikan** (POST `/admin/koperasi/{cooperative}/publikasikan`) atau **Tarik publikasi**
+  (POST `.../tarik-publikasi`); `published_at`/`published_by` diisi sistem.
 
 ### FLOW-ADM-09 — Membuat laporan/ekspor
 - **Langkah:** menu Laporan → pilih filter (wilayah/jenis/status/periode) → tampilkan/pratinjau → ekspor (jika tersedia).
 - **Hasil:** rekap berbasis data terverifikasi; ekspor tercatat di audit log.
 - **FR:** FR-170, FR-171, FR-151.
+- **Status (26 Oktober 2026):** tampilkan/pratinjau **FR-170 selesai** (hanya data `approved`, rekap
+  per wilayah/jenis/periode). **Ekspor FR-171 selesai** dalam bentuk **CSV** (bukan Excel/PDF),
+  mengikuti filter aktif, hanya data `approved`, dan setiap ekspor dicatat di `activity_logs`.
+  Ekspor Excel/PDF memerlukan dependency baru dan belum disetujui.
 
 ### FLOW-ADM-10 — Mengelola data tata kelola (periodik)
 > **PROVISIONAL — MENUNGGU KONFIRMASI DINAS (Q-010).** Periode untuk sementara **tahunan**; indikator
@@ -117,6 +148,17 @@
 - **Arsip:** hapus = **soft delete** (BR-011).
 - **FR:** FR-110, FR-111.
 
+### FLOW-ADM-13 — Mengelola akun pengelola
+- **Prasyarat:** admin dinas login.
+- **Langkah:** buka `/admin/akun` → cari/filter → Tambah/Ubah → pilih peran & koperasi → simpan;
+  gunakan aksi **Aktifkan/Nonaktifkan** atau **Kirim reset**.
+- **Hasil:** akun tersimpan dengan peran & tautan koperasi yang valid; password acak tidak pernah
+  ditampilkan; tautan reset dikirim ke email akun. Aktivitas dicatat di audit log.
+- **Gagal:** email duplikat / peran tidak dikenal / koperasi tidak ada → error validasi; admin mencoba
+  mengubah peran atau menonaktifkan diri sendiri → ditolak; admin aktif terakhir tidak dapat
+  dinonaktifkan.
+- **FR:** US-009, FR-004, FR-151.
+
 ---
 
 ## 3. Flow Pengelola Koperasi
@@ -143,11 +185,11 @@
 
 ### FLOW-PGL-04 — Menindaklanjuti permintaan perbaikan
 - **Prasyarat:** ada pengajuan `needs_revision` (pengajuan `rejected` bersifat terminal — tidak dapat dikirim ulang).
-- **Langkah:** buka daftar perbaikan → baca alasan → perbaiki → kirim ulang **pada pengajuan yang sama**.
-- **Hasil:** pengajuan yang sama kembali berstatus `submitted`; riwayat transisi tetap tersimpan (`submission_reviews` + audit `activity_logs`).
-- **Gagal:** alasan belum terbaca tuntas → tetap tersedia di layar; revisi tidak mengubah data resmi.
+- **Langkah:** buka daftar perbaikan → baca alasan → **buat versi perbaikan** (`create?revision={id}`) → perbaiki → **kirim versi baru**.
+- **Hasil:** dibuat **pengajuan/versi baru** berstatus `submitted` yang tertaut ke versi induk lewat `parent_submission_id`; pengajuan lama tetap `needs_revision` dan **digantikan** (tidak lagi aktif), sehingga dapat dicatat sebagai riwayat. Hanya satu pengajuan aktif per koperasi + modul.
+- **Gagal:** alasan belum terbaca tuntas → tetap tersedia di layar; revisi tidak mengubah data resmi; bila sudah ada pengajuan aktif lain untuk modul yang sama → ditolak dengan pesan; versi induk yang bukan `needs_revision` (atau sudah digantikan) → ditolak.
 - **FR:** FR-031, FR-142, FR-140.
-- **Catatan:** FR-031 menyebut "versi pengajuan baru" (pengajuan terpisah); perilaku versi baru tersebut **belum diimplementasikan** — keputusan F5-5 memakai pengajuan yang sama (lihat `docs/DECISIONS.md` §12).
+- **Catatan:** keputusan pemilik **D-1 opsi B** (lihat `docs/DECISIONS.md` §17.1) mengimplementasikan bunyi FR-031/FR-142 ("versi pengajuan baru"); catatan "belum diimplementasikan" pada versi dokumen sebelumnya sudah tidak berlaku.
 
 ### FLOW-PGL-05 — Melihat riwayat pengajuan
 - **Langkah:** menu Riwayat → daftar pengajuan + status + waktu.
@@ -174,18 +216,26 @@
 - **Hasil:** hanya koperasi `is_published=true` & approved; field sensitif tidak tampil.
 - **Gagal:** koperasi tidak dipublikasikan → tidak muncul (404 bila akses langsung).
 - **FR:** FR-180, FR-182, BR-009.
+- **Status (Tahap 86):** sudah diimplementasikan — route `publik.direktori` (`/koperasi`) dan
+  `publik.koperasi` (`/koperasi/{slug}`), middleware `web` saja.
 
 ### FLOW-PUB-02 — Mencari & memfilter
 - **Langkah:** isi kata kunci (nama) → pilih jenis → pilih kabupaten/kota → submit.
 - **Hasil:** hasil relevan dengan pagination.
 - **Gagal:** tidak ada hasil → empty state + saran ubah filter.
 - **FR:** FR-181, FR-200.
+- **Status (Tahap 86):** sudah diimplementasikan; nilai filter tak dikenal diabaikan (tidak menyesatkan),
+  pilihan jenis/wilayah diturunkan dari data terpublikasi, dan pagination mempertahankan query string.
 
 ### FLOW-PUB-03 — Melihat statistik agregat
 - **Prasyarat:** statistik publik diizinkan dinas **[NEEDS CONFIRMATION]**.
 - **Langkah:** buka `/statistik` → lihat agregat (jumlah koperasi per jenis/wilayah).
 - **Hasil:** angka agregat tanpa data pribadi.
 - **FR:** FR-183, NFR-SEC-015.
+- **Status (26 Oktober 2026):** FR-183 **selesai lokal** di F8. Route `/statistik` menampilkan
+  agregat total koperasi terpublikasi, per kabupaten/kota, per jenis, dan per status operasional;
+  hanya `is_published = true` + `status_verifikasi = approved`; tanpa data personal. Statistik
+  bersifat informatif dan bukan laporan resmi dinas.
 
 ---
 

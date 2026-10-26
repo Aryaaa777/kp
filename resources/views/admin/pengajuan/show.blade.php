@@ -51,6 +51,39 @@
         @endif
     </div>
 
+    @if ($submission->parent || $submission->children->isNotEmpty())
+        <div class="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+            <h2 class="text-sm font-semibold text-slate-900">Rantai Versi Pengajuan</h2>
+
+            @if ($submission->parent)
+                <p class="mt-2 text-sm text-slate-700">
+                    Versi perbaikan dari
+                    <a href="{{ route('admin.pengajuan.show', $submission->parent) }}" class="font-medium text-emerald-700 hover:underline">
+                        pengajuan #{{ $submission->parent->id }}</a>
+                    <x-status-badge :status="$submission->parent->status" />
+                </p>
+            @endif
+
+            @if ($submission->children->isNotEmpty())
+                <p class="mt-2 text-sm text-slate-700">Digantikan oleh versi perbaikan:</p>
+                <ul class="mt-1 space-y-1 text-sm">
+                    @foreach ($submission->children as $child)
+                        <li class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('admin.pengajuan.show', $child) }}" class="font-medium text-emerald-700 hover:underline">
+                                Pengajuan #{{ $child->id }}</a>
+                            <x-status-badge :status="$child->status" />
+                            <span class="text-slate-500">{{ $child->created_at?->translatedFormat('d M Y, H:i') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            <p class="mt-2 text-xs text-slate-500">
+                Riwayat versi lama tetap tersimpan (usulan &amp; catatan tinjauannya tidak ditimpa).
+            </p>
+        </div>
+    @endif
+
     <div class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white">
         <div class="border-b border-slate-200 bg-slate-50 px-5 py-3">
             <h2 class="text-sm font-semibold text-slate-900">Usulan Perubahan (nilai lama → baru)</h2>

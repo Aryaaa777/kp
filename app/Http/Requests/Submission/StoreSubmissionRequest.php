@@ -32,6 +32,9 @@ class StoreSubmissionRequest extends FormRequest
         return array_merge([
             'module' => ['required', 'string', Rule::in(array_keys(SubmissionModules::all()))],
             'title' => ['nullable', 'string', 'max:200'],
+            // Versi perbaikan (FR-031/FR-142): bila diisi, pengajuan dibuat sebagai versi baru
+            // dari induk tersebut. Kewenangan atas induk diverifikasi di controller (Policy).
+            'parent_submission_id' => ['nullable', 'integer', 'exists:submissions,id'],
         ], SubmissionModules::fieldRules($module));
     }
 

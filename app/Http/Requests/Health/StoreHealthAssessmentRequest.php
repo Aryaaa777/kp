@@ -11,7 +11,8 @@ use Illuminate\Validation\Rule;
  *
  * PROVISIONAL — MENUNGGU KONFIRMASI DINAS:
  * - Periode wajib & unik per koperasi+tahun+periode (AC-PER-01).
- * - `score`/`predicate` opsional, manual (tanpa formula resmi).
+ * - `score`/`predicate` opsional, manual; atau dihitung dari lima komponen
+ *   (FR-082) bila `auto_calculate = 1`. Formula bukan formula resmi (Q-007).
  *
  * Mass assignment guard: `cooperative_id`/`assessor_id` ditetapkan di controller.
  *
@@ -42,10 +43,29 @@ class StoreHealthAssessmentRequest extends FormRequest
             ],
             'period' => ['required', 'string', Rule::in(array_keys(HealthAssessment::periodOptions()))],
             'assessment_date' => ['required', 'date', 'before_or_equal:today'],
+            'auto_calculate' => ['nullable', 'boolean'],
+            'component_permodalan' => $this->componentRule(),
+            'component_likuiditas' => $this->componentRule(),
+            'component_rentabilitas' => $this->componentRule(),
+            'component_kualitas_aset' => $this->componentRule(),
+            'component_efisiensi' => $this->componentRule(),
             'score' => ['nullable', 'numeric', 'between:0,100'],
             'predicate' => ['nullable', 'string', 'max:50'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['nullable', 'string', Rule::in(HealthAssessment::STATUSES)],
+        ];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function componentRule(): array
+    {
+        return [
+            'nullable',
+            'numeric',
+            'between:0,100',
+            Rule::requiredIf(fn (): bool => $this->boolean('auto_calculate')),
         ];
     }
 
@@ -58,6 +78,11 @@ class StoreHealthAssessmentRequest extends FormRequest
             'period_year' => 'tahun periode',
             'period' => 'periode',
             'assessment_date' => 'tanggal penilaian',
+            'component_permodalan' => 'komponen permodalan',
+            'component_likuiditas' => 'komponen likuiditas',
+            'component_rentabilitas' => 'komponen rentabilitas',
+            'component_kualitas_aset' => 'komponen kualitas aset',
+            'component_efisiensi' => 'komponen efisiensi',
             'score' => 'skor',
             'predicate' => 'predikat',
             'notes' => 'catatan',

@@ -6,6 +6,7 @@ use Database\Factories\DocumentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -48,6 +49,8 @@ class Document extends Model
         'size_bytes',
         'checksum',
         'version',
+        'previous_version_id',
+        'superseded_at',
         'uploaded_by',
     ];
 
@@ -59,6 +62,7 @@ class Document extends Model
         return [
             'size_bytes' => 'integer',
             'version' => 'integer',
+            'superseded_at' => 'datetime',
         ];
     }
 
@@ -86,6 +90,31 @@ class Document extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * Versi sebelumnya dalam rantai versi (FR-072).
+     *
+     * @return BelongsTo<Document, $this>
+     */
+    public function previousVersion(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'previous_version_id');
+    }
+
+    /**
+     * Versi berikutnya yang menggantikan dokumen ini.
+     *
+     * @return HasMany<Document, $this>
+     */
+    public function nextVersions(): HasMany
+    {
+        return $this->hasMany(self::class, 'previous_version_id');
+    }
+
+    public function isSuperseded(): bool
+    {
+        return $this->superseded_at !== null;
     }
 
     /**

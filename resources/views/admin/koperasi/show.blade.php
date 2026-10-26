@@ -34,6 +34,12 @@
                 <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->jenis_koperasi }}</dd>
             </div>
             <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Status operasional</dt>
+                <dd class="mt-1 text-sm {{ $cooperative->statusOperasionalLabel() ? 'text-slate-900' : 'text-slate-500' }}">
+                    {{ $cooperative->statusOperasionalLabel() ?? 'Belum ditetapkan' }}
+                </dd>
+            </div>
+            <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Bentuk</dt>
                 <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->bentuk_koperasi ?: '—' }}</dd>
             </div>
@@ -42,8 +48,10 @@
                 <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->tanggal_berdiri?->translatedFormat('d F Y') ?? '—' }}</dd>
             </div>
             <div>
-                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Kabupaten/Kota</dt>
-                <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->region?->name ?? '—' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Wilayah</dt>
+                <dd class="mt-1 text-sm text-slate-900">
+                    {{ $cooperative->region?->fullPath() ?? '-' }}
+                </dd>
             </div>
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Telepon</dt>
@@ -68,6 +76,99 @@
             @if ($cooperative->created_at) · {{ $cooperative->created_at->translatedFormat('d F Y, H:i') }} @endif
             @if ($cooperative->updater) · Terakhir diubah oleh {{ $cooperative->updater->name }} @endif
         </p>
+    </div>
+
+    <div class="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+                <h2 class="text-sm font-semibold text-slate-900">Publikasi direktori publik</h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    Menentukan apakah data koperasi ini tampil pada direktori publik (FR-190). Publikasi
+                    bersifat opt-in: koperasi tampil hanya setelah diterbitkan (BR-016).
+                </p>
+            </div>
+            <x-badge :color="$cooperative->is_published ? 'emerald' : 'slate'">
+                {{ $cooperative->is_published ? 'Dipublikasikan' : 'Belum dipublikasikan' }}
+            </x-badge>
+        </div>
+
+        @if ($cooperative->is_published)
+            @if ($publicationBlocker !== null)
+                <p class="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                    Data masih ditandai <strong>Dipublikasikan</strong>, tetapi saat ini <strong>tidak tampil</strong>
+                    di direktori publik. {{ $publicationBlocker }} Tarik publikasi atau perbaiki status verifikasi.
+                </p>
+            @endif
+
+            <dl class="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Dipublikasikan pada</dt>
+                    <dd class="mt-1 text-sm text-slate-900">
+                        {{ $cooperative->published_at?->translatedFormat('d F Y, H:i') ?? '—' }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Dipublikasikan oleh</dt>
+                    <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->publisher?->name ?? '—' }}</dd>
+                </div>
+            </dl>
+
+            <form method="POST" action="{{ route('admin.koperasi.unpublish', $cooperative) }}" class="mt-4"
+                onsubmit="return confirm('Tarik publikasi koperasi ini dari direktori publik?');">
+                @csrf
+                <button type="submit"
+                    class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                    Tarik publikasi
+                </button>
+                <p class="mt-2 text-xs text-slate-500">
+                    Status verifikasi tidak berubah dan data tidak diarsipkan.
+                </p>
+            </form>
+        @elseif ($publicationBlocker !== null)
+            <p class="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {{ $publicationBlocker }}
+            </p>
+        @else
+            <form method="POST" action="{{ route('admin.koperasi.publish', $cooperative) }}" class="mt-4"
+                onsubmit="return confirm('Publikasikan koperasi ini ke direktori publik?');">
+                @csrf
+                <button type="submit"
+                    class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Publikasikan
+                </button>
+                @php
+                    $statusPublikasi = \App\Models\Cooperative::publicStatusLabels();
+                @endphp
+                <p class="mt-2 text-xs text-slate-500">
+                    @if ($statusPublikasi === [])
+                        {{-- Defensif: bila daftar status publikasi kosong/berisi status tanpa label resmi,
+                             tombol publikasi memang tidak muncul (lihat $publicationBlocker), namun teks
+                             tetap dibuat aman dan tidak mengklaim koperasi ini pasti dapat dipublikasikan. --}}
+                        Kelayakan publikasi mengikuti daftar status verifikasi yang ditetapkan dinas.
+                    @else
+                        Hanya koperasi dengan status verifikasi {{ implode(' atau ', $statusPublikasi) }} yang dapat dipublikasikan.
+                    @endif
+                </p>
+            </form>
+        @endif
+
+        @if (! $cooperative->is_published && $cooperative->unpublished_at !== null)
+            <dl class="mt-4 grid gap-x-6 gap-y-3 border-t border-slate-200 pt-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Penarikan terakhir</dt>
+                    <dd class="mt-1 text-sm text-slate-900">
+                        {{ $cooperative->unpublished_at->translatedFormat('d F Y, H:i') }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Ditarik oleh</dt>
+                    <dd class="mt-1 text-sm text-slate-900">{{ $cooperative->unpublisher?->name ?? '-' }}</dd>
+                </div>
+            </dl>
+            <p class="mt-2 text-xs text-slate-500">
+                Jejak publikasi sebelumnya tidak dihapus dan tetap tercatat pada log audit.
+            </p>
+        @endif
     </div>
 
     <div class="mt-6 rounded-lg border border-slate-200 bg-white p-5">

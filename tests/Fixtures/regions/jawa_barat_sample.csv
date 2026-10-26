@@ -1,0 +1,9 @@
+level,code,name,parent_code,type
+province,32,Jawa Barat,,province
+regency,32.01,Bogor,32,kabupaten
+district,32.01.01,Cibinong,32.01,district
+district,32.01.02,Gunungputri,32.01,district
+village,32.01.01.1001,Pondok Rajeg,32.01.01,village
+village,32.01.01.1002,Karadenan,32.01.01,village
+village,32.01.02.2001,Wanaherang,32.01.02,village
+village,32.01.02.2002,Bojongkulur,32.01.02,village

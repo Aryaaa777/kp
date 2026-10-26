@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\CooperativeAsset;
 use App\Models\User;
+use App\Policies\Concerns\ChecksAdminRegion;
 
 /**
  * Otorisasi aset koperasi (FR-100/101).
@@ -16,15 +17,17 @@ use App\Models\User;
  */
 class CooperativeAssetPolicy
 {
+    use ChecksAdminRegion;
+
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin_dinas') || $user->hasRole('pengelola_koperasi');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']) || $user->hasRole('pengelola_koperasi');
     }
 
     public function view(User $user, CooperativeAsset $asset): bool
     {
-        if ($user->hasRole('admin_dinas')) {
-            return true;
+        if ($user->hasAnyRole(['admin_dinas', 'admin_wilayah'])) {
+            return $this->adminCanAccessCooperative($user, (int) $asset->cooperative_id);
         }
 
         return $user->koperasi_id !== null
@@ -33,22 +36,22 @@ class CooperativeAssetPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
     }
 
     public function update(User $user, CooperativeAsset $asset): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $asset->cooperative_id);
     }
 
     public function delete(User $user, CooperativeAsset $asset): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $asset->cooperative_id);
     }
 
     public function restore(User $user, CooperativeAsset $asset): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $asset->cooperative_id);
     }
 
     public function forceDelete(User $user, CooperativeAsset $asset): bool

@@ -291,4 +291,65 @@ class GovernanceRecordTest extends TestCase
             ->get(route('pengelola.tata-kelola.show', $record))
             ->assertNotFound();
     }
+
+    public function test_complete_checklist_is_marked_patuh(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $cooperative = Cooperative::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.tata-kelola.store', $cooperative), [
+                'period_year' => 2025,
+                'period' => 'annual',
+                'meeting_count' => 2,
+                'rat_on_time' => '1',
+                'financial_report_available' => '1',
+                'basic_documents_complete' => '1',
+                'status' => 'final',
+            ])
+            ->assertRedirect(route('admin.koperasi.tata-kelola.index', $cooperative));
+
+        $record = GovernanceRecord::query()->where('cooperative_id', $cooperative->id)->firstOrFail();
+
+        $this->assertSame('patuh', $record->compliance_status);
+        $this->assertSame('Patuh', $record->complianceStatusLabel());
+    }
+
+    public function test_deviation_requires_notes(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $cooperative = Cooperative::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.tata-kelola.store', $cooperative), [
+                'period_year' => 2025,
+                'period' => 'annual',
+                'meeting_count' => 1,
+                'rat_on_time' => '1',
+                'financial_report_available' => '0',
+                'basic_documents_complete' => '1',
+                'status' => 'final',
+            ])
+            ->assertSessionHasErrors('compliance_notes');
+
+        $this->assertDatabaseCount('governance_records', 0);
+
+        $this->actingAs($admin)
+            ->post(route('admin.koperasi.tata-kelola.store', $cooperative), [
+                'period_year' => 2025,
+                'period' => 'annual',
+                'meeting_count' => 1,
+                'rat_on_time' => '1',
+                'financial_report_available' => '0',
+                'basic_documents_complete' => '1',
+                'compliance_notes' => 'Laporan keuangan belum tersedia saat evaluasi.',
+                'status' => 'final',
+            ])
+            ->assertRedirect(route('admin.koperasi.tata-kelola.index', $cooperative));
+
+        $this->assertDatabaseHas('governance_records', [
+            'cooperative_id' => $cooperative->id,
+            'compliance_status' => 'deviasi',
+        ]);
+    }
 }

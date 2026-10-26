@@ -22,7 +22,9 @@ use Illuminate\View\View;
  * Catatan terarsip (soft delete) tidak dapat diakses endpoint biasa; pemulihan admin memakai
  * route `.../pulihkan` dengan `withTrashed()` (lihat `restore()`).
  *
- * PROVISIONAL — periode tahunan; skor/predikat manual (tanpa formula resmi). Lihat DECISIONS §10.
+ * PROVISIONAL — periode tahunan; skor/predikat dapat dihitung dari lima komponen
+ * (FR-082) memakai bobot/ambang konfigurasi, atau diisi manual. Bukan formula resmi
+ * dinas (Q-007). Lihat DECISIONS §10 dan §33.
  */
 class HealthAssessmentController extends Controller
 {
@@ -60,6 +62,7 @@ class HealthAssessmentController extends Controller
             'cooperative' => $cooperative,
             'periodOptions' => HealthAssessment::periodOptions(),
             'statusOptions' => HealthAssessment::statusOptions(),
+            'componentLabels' => HealthAssessment::componentLabels(),
         ]);
     }
 
@@ -68,11 +71,24 @@ class HealthAssessmentController extends Controller
         $this->authorize('create', HealthAssessment::class);
 
         $data = $request->validated();
+        $autoCalculate = (bool) ($data['auto_calculate'] ?? false);
+        unset($data['auto_calculate']);
         $data['status'] = $data['status'] ?? 'draft';
 
         $assessment = new HealthAssessment($data);
         $assessment->cooperative_id = $cooperative->id;
         $assessment->assessor_id = $request->user()->id;
+
+        if ($autoCalculate) {
+            if (! $assessment->applyAutoCalculation()) {
+                return back()->withInput()->withErrors([
+                    'auto_calculate' => 'Semua komponen skor wajib diisi untuk menghitung otomatis.',
+                ]);
+            }
+        } else {
+            $assessment->auto_calculated = false;
+        }
+
         $assessment->save();
 
         return redirect()
@@ -101,6 +117,7 @@ class HealthAssessmentController extends Controller
             'assessment' => $healthAssessment,
             'periodOptions' => HealthAssessment::periodOptions(),
             'statusOptions' => HealthAssessment::statusOptions(),
+            'componentLabels' => HealthAssessment::componentLabels(),
         ]);
     }
 
@@ -108,7 +125,22 @@ class HealthAssessmentController extends Controller
     {
         $this->authorize('update', $healthAssessment);
 
-        $healthAssessment->fill($request->validated());
+        $data = $request->validated();
+        $autoCalculate = (bool) ($data['auto_calculate'] ?? false);
+        unset($data['auto_calculate']);
+
+        $healthAssessment->fill($data);
+
+        if ($autoCalculate) {
+            if (! $healthAssessment->applyAutoCalculation()) {
+                return back()->withInput()->withErrors([
+                    'auto_calculate' => 'Semua komponen skor wajib diisi untuk menghitung otomatis.',
+                ]);
+            }
+        } else {
+            $healthAssessment->auto_calculated = false;
+        }
+
         $healthAssessment->save();
 
         return redirect()

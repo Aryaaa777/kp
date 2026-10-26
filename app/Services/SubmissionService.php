@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Exceptions\EmptySubmissionException;
 use App\Exceptions\SubmissionTransitionException;
+use App\Exceptions\SubmissionVersionException;
 use App\Models\Cooperative;
 use App\Models\Submission;
 use App\Models\User;
 use App\Notifications\SubmissionStatusNotification;
 use App\Services\Submissions\SubmissionModuleHandler;
 use App\Services\Submissions\SubmissionModules;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -23,6 +25,15 @@ use Throwable;
  * transaksi, lalu pembaruan status memakai penjaga optimistik (conditional update pada
  * status lama). Ini mencegah dua keputusan bersamaan sama-sama berhasil memproses status
  * yang sama (M1).
+ *
+ * **Pembuatan pengajuan juga diserialkan (T-1).** `createDraft()` & `createRevision()` mengunci
+ * baris **koperasi** (`lockForUpdate()` — anchor stabil yang selalu ada, berbeda dari record
+ * submission yang pada pembuatan pertama belum ada) **sebelum** memeriksa konflik/pengajuan aktif
+ * dan menyimpan record, semuanya di dalam satu transaksi. Urutan lock selalu `cooperatives` dulu
+ * (konsisten di semua jalur pembuatan), sehingga dua permintaan bersamaan untuk koperasi yang sama
+ * berjalan berurutan dan aturan "satu pengajuan aktif per koperasi+modul" tidak dapat dilanggar
+ * oleh balapan (race). Ini pengamanan **tingkat aplikasi**: SQLite mengabaikan `FOR UPDATE`, dan
+ * mekanisme ini **bukan** pengganti constraint basis data. Lihat `docs/DECISIONS.md` §18.
  *
  * Penerapan perubahan ke data resmi (FR-143) dilakukan dalam transaksi yang sama dengan
  * pencatatan riwayat (FR-150) & audit (FR-151); bila penerapan gagal, seluruh transaksi
@@ -46,14 +57,19 @@ class SubmissionService
     {
         $handler = SubmissionModules::handler($module);
 
-        $submission = $this->transientSubmission($cooperative, $module);
-        $items = $this->buildItems($handler, $submission, $inputs);
+        return DB::transaction(function () use ($actor, $cooperative, $module, $inputs, $title, $handler): Submission {
+            // Serialisasi per koperasi (T-1): kunci anchor stabil lebih dulu, lalu periksa
+            // konflik & buat record di dalam transaksi yang sama.
+            $this->lockCooperativeAnchor($cooperative);
+            $this->assertNoConflictingActive($cooperative, $module);
 
-        if ($items === []) {
-            throw EmptySubmissionException::noChanges();
-        }
+            $probe = $this->transientSubmission($cooperative, $module);
+            $items = $this->buildItems($handler, $probe, $inputs);
 
-        return DB::transaction(function () use ($actor, $cooperative, $module, $title, $items): Submission {
+            if ($items === []) {
+                throw EmptySubmissionException::noChanges();
+            }
+
             $submission = new Submission;
             $submission->cooperative_id = $cooperative->id;
             $submission->submitted_by = $actor->id;
@@ -68,6 +84,78 @@ class SubmissionService
                 'module' => $module,
                 'changes' => $items,
             ]);
+
+            return $submission;
+        });
+    }
+
+    /**
+     * Buat **versi perbaikan** dari pengajuan `needs_revision` (FR-031/FR-142, D-1).
+     *
+     * Record lama **tidak** diubah: ia tetap menyimpan `submission_items` & `submission_reviews`
+     * sebagai riwayat, sementara record baru (`status = draft`) menunjuk versi induk lewat
+     * `parent_submission_id`. Perbaikan hanya boleh dibuat satu kali per versi induk (induk yang
+     * sudah punya versi turunan → `alreadySuperseded`), dan tidak boleh ada pengajuan aktif lain
+     * untuk koperasi/modul yang sama.
+     *
+     * @param  array<string, mixed>  $inputs  Nilai usulan (biasanya sudah terisi dari versi induk).
+     */
+    public function createRevision(User $actor, Submission $parent, array $inputs, ?string $title = null): Submission
+    {
+        return DB::transaction(function () use ($actor, $parent, $inputs, $title): Submission {
+            // Serialisasi per koperasi (T-1): kunci anchor stabil sebelum memeriksa status induk.
+            $this->lockCooperativeAnchor((int) $parent->cooperative_id);
+
+            // Status & ketersediaan induk dibaca ulang di dalam transaksi agar tidak memakai
+            // model binding yang basi (mis. induk diarsipkan di permintaan lain).
+            $lockedParent = Submission::query()->find($parent->getKey());
+
+            if (! $lockedParent instanceof Submission) {
+                throw SubmissionVersionException::parentUnavailable($parent);
+            }
+
+            $cooperative = $lockedParent->cooperative;
+
+            if (! $cooperative instanceof Cooperative) {
+                throw SubmissionTransitionException::targetUnavailable($lockedParent);
+            }
+
+            if ($lockedParent->status !== 'needs_revision') {
+                throw SubmissionVersionException::parentNotRevisable($lockedParent);
+            }
+
+            if ($lockedParent->isSuperseded()) {
+                throw SubmissionVersionException::alreadySuperseded($lockedParent);
+            }
+
+            $module = $lockedParent->module;
+
+            $this->assertNoConflictingActive($cooperative, $module, ignoreIds: [(int) $lockedParent->getKey()]);
+
+            $handler = SubmissionModules::handler($module);
+            $probe = $this->transientSubmission($cooperative, $module);
+            $items = $this->buildItems($handler, $probe, $inputs);
+
+            if ($items === []) {
+                throw EmptySubmissionException::noChanges();
+            }
+
+            $submission = new Submission;
+            $submission->cooperative_id = $lockedParent->cooperative_id;
+            $submission->parent_submission_id = $lockedParent->getKey();
+            $submission->submitted_by = $actor->id;
+            $submission->module = $module;
+            $submission->title = $title ?: ($lockedParent->title ?: $this->defaultTitle($module, $cooperative));
+            $submission->status = 'draft';
+            $submission->save();
+
+            $this->syncItems($submission, $items);
+            $this->recordReview($submission, $actor, null, 'draft', null);
+            $this->logger->log('create_submission_revision', $submission, $actor, [
+                'module' => $module,
+                'parent_submission_id' => $lockedParent->getKey(),
+                'changes' => $items,
+            ], 'Versi perbaikan pengajuan dibuat.');
 
             return $submission;
         });
@@ -325,6 +413,31 @@ class SubmissionService
     }
 
     /**
+     * Kunci baris koperasi (anchor stabil) untuk menyerialkan pembuatan pengajuan (T-1).
+     *
+     * Mengapa koperasi, bukan submission? Pada pembuatan pertama belum ada baris submission untuk
+     * dikunci, sehingga mengunci submission tidak menutup balapan. Baris koperasi selalu ada dan
+     * sama untuk semua jalur pembuatan (draft biasa & versi revisi) pada koperasi itu, sehingga
+     * urutan lock selalu konsisten (`cooperatives` lebih dulu) dan tidak menimbulkan deadlock.
+     * `withTrashed()` dipakai agar lock tetap didapat walaupun koperasi di-soft-delete (barisnya
+     * masih ada di basis data).
+     *
+     * Catatan: pengamanan **tingkat aplikasi**. SQLite mengabaikan `FOR UPDATE` (no-op), dan ini
+     * **bukan** pengganti constraint basis data (mis. unique index bersyarat). Lihat
+     * `docs/DECISIONS.md` §18.
+     */
+    private function lockCooperativeAnchor(Cooperative|int $cooperative): void
+    {
+        $id = $cooperative instanceof Cooperative ? $cooperative->getKey() : $cooperative;
+
+        if ($id === null) {
+            return;
+        }
+
+        Cooperative::withTrashed()->whereKey($id)->lockForUpdate()->first();
+    }
+
+    /**
      * Penjaga optimistik: update status hanya berhasil bila status di basis data masih
      * sama dengan status yang diharapkan (`$from`). Lapis kedua setelah `lockForUpdate()`.
      *
@@ -354,6 +467,35 @@ class SubmissionService
     {
         if (! $submission->isEditable()) {
             throw SubmissionTransitionException::notEditable($submission);
+        }
+    }
+
+    /**
+     * Tolak pembuatan pengajuan baru bila sudah ada pengajuan **aktif** untuk koperasi & modul
+     * yang sama. Pengajuan `needs_revision` dihitung aktif **hanya bila belum digantikan** versi
+     * turunan — induk yang sudah diperbaiki tidak lagi menghambat pengajuan berikutnya.
+     *
+     * **Wajib dipanggil di dalam transaksi yang sudah memegang lock koperasi**
+     * (`lockCooperativeAnchor()`) agar pemeriksaan tidak rentan balapan (T-1).
+     *
+     * @param  list<int>  $ignoreIds  ID yang dikecualikan (mis. versi induk yang sedang diperbaiki).
+     */
+    private function assertNoConflictingActive(Cooperative $cooperative, string $module, array $ignoreIds = []): void
+    {
+        $exists = Submission::query()
+            ->where('cooperative_id', $cooperative->getKey())
+            ->where('module', $module)
+            ->when($ignoreIds !== [], fn (Builder $query): Builder => $query->whereNotIn('id', $ignoreIds))
+            ->where(function (Builder $query): void {
+                $query->whereIn('status', ['draft', 'submitted', 'under_review'])
+                    ->orWhere(function (Builder $inner): void {
+                        $inner->where('status', 'needs_revision')->whereDoesntHave('children');
+                    });
+            })
+            ->exists();
+
+        if ($exists) {
+            throw SubmissionVersionException::activeExists($cooperative, $module);
         }
     }
 

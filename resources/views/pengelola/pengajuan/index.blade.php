@@ -60,7 +60,12 @@
                         @foreach ($submissions as $submission)
                             <tr class="hover:bg-slate-50">
                                 <td class="px-5 py-4 text-slate-500">{{ $submission->id }}</td>
-                                <td class="px-5 py-4 font-medium text-slate-900">{{ $submission->title }}</td>
+                                <td class="px-5 py-4 font-medium text-slate-900">
+                                    {{ $submission->title }}
+                                    @if ($submission->isRevision())
+                                        <span class="ml-1 text-xs font-normal text-slate-500">· versi perbaikan dari #{{ $submission->parent_submission_id }}</span>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-4"><x-status-badge :status="$submission->status" /></td>
                                 <td class="px-5 py-4 text-slate-700">{{ $submission->updated_at?->translatedFormat('d M Y, H:i') }}</td>
                                 <td class="whitespace-nowrap px-5 py-4 text-right">

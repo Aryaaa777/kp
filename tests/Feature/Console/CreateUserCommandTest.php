@@ -74,6 +74,22 @@ class CreateUserCommandTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'dedi@example.test']);
     }
 
+    public function test_it_rejects_a_soft_deleted_koperasi_id(): void
+    {
+        $cooperative = Cooperative::factory()->create();
+        $cooperative->delete();
+
+        $this->artisan('user:create')
+            ->expectsQuestion('Nama pengguna', 'Dedi')
+            ->expectsQuestion('Email pengguna', 'dedi@example.test')
+            ->expectsQuestion('Peran', 'pengelola_koperasi')
+            ->expectsQuestion('Password (minimal 8 karakter)', 'rahasia-kuat')
+            ->expectsQuestion('ID koperasi (boleh dikosongkan)', (string) $cooperative->id)
+            ->assertExitCode(1);
+
+        $this->assertDatabaseMissing('users', ['email' => 'dedi@example.test']);
+    }
+
     public function test_it_allows_a_pengelola_without_koperasi(): void
     {
         $this->artisan('user:create')

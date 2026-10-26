@@ -65,7 +65,9 @@ class KoperasiIndukHandler implements SubmissionModuleHandler
             'website' => [
                 'label' => 'Website',
                 'type' => 'url',
-                'rules' => ['nullable', 'url', 'max:200'],
+                // Skema dibatasi ke http/https (Tahap 87) — nilai ini dapat dipublikasikan
+                // setelah pengajuan disetujui, jadi jangan sampai skema non-web lolos.
+                'rules' => ['nullable', 'url:http,https', 'max:200'],
             ],
         ];
     }

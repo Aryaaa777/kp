@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnforceSessionIdleTimeout;
+use App\Http\Middleware\EnsureAdminRegionAccess;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Foundation\Application;
@@ -17,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'active' => EnsureUserIsActive::class,
+            'idle' => EnforceSessionIdleTimeout::class,
+            'admin-region' => EnsureAdminRegionAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

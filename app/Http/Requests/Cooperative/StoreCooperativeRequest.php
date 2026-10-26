@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Cooperative;
 
 use App\Models\Cooperative;
+use App\Rules\ValidRegionSelection;
+use App\Rules\WithinAdminRegion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,13 +31,29 @@ class StoreCooperativeRequest extends FormRequest
             'jenis_koperasi' => ['required', 'string', 'max:100'],
             'bentuk_koperasi' => ['nullable', 'string', 'max:100'],
             'tanggal_berdiri' => ['nullable', 'date', 'before_or_equal:today'],
-            // Wilayah belum tersedia (Q-012) → opsional sampai referensi resmi di-seed.
-            'region_id' => ['nullable', 'integer', 'exists:regions,id'],
+            // Hierarki wilayah (Q-012): provinsi → kabupaten/kota → kecamatan →
+            // desa/kelurahan. `region_id` menyimpan wilayah desa/kelurahan.
+            'province_id' => ['nullable', 'integer', 'exists:regions,id'],
+            'regency_id' => ['nullable', 'integer', 'exists:regions,id'],
+            'district_id' => ['nullable', 'integer', 'exists:regions,id'],
+            'region_id' => [
+                'nullable',
+                'integer',
+                'exists:regions,id',
+                new ValidRegionSelection($this->all()),
+                new WithinAdminRegion($this->user()),
+            ],
             'alamat' => ['nullable', 'string', 'max:1000'],
             'telephone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:150'],
-            'website' => ['nullable', 'url', 'max:200'],
+            // Skema dibatasi eksplisit ke http/https (Tahap 87): rule `url` bawaan menerima
+            // banyak skema non-web (mis. `ftp://`, `data://`, `file://`) yang tidak layak
+            // ditautkan dari halaman publik.
+            'website' => ['nullable', 'url:http,https', 'max:200'],
             'status_verifikasi' => ['required', Rule::in(Cooperative::assignableStatuses())],
+            // Status operasional: tiga nilai resmi (Tahap 106). Wajib saat membuat koperasi baru;
+            // data lama yang belum dikonfirmasi tetap NULL (lihat UpdateCooperativeRequest).
+            'status_operasional' => ['required', Rule::in(Cooperative::STATUS_OPERASIONAL)],
         ];
     }
 
@@ -51,9 +69,15 @@ class StoreCooperativeRequest extends FormRequest
             'jenis_koperasi.required' => 'Jenis koperasi wajib diisi.',
             'tanggal_berdiri.before_or_equal' => 'Tanggal berdiri tidak boleh melebihi hari ini.',
             'email.email' => 'Format email tidak valid.',
-            'website.url' => 'Format website tidak valid (contoh: https://contoh.id).',
+            'website.url' => 'Format website tidak valid (harus diawali http:// atau https://, contoh: https://contoh.id).',
             'status_verifikasi.required' => 'Status data wajib dipilih.',
             'status_verifikasi.in' => 'Status data tidak dikenal.',
+            'status_operasional.required' => 'Status operasional wajib dipilih.',
+            'status_operasional.in' => 'Status operasional tidak dikenal.',
+            'region_id.exists' => 'Wilayah yang dipilih tidak ditemukan.',
+            'province_id.exists' => 'Provinsi yang dipilih tidak ditemukan.',
+            'regency_id.exists' => 'Kabupaten/kota yang dipilih tidak ditemukan.',
+            'district_id.exists' => 'Kecamatan yang dipilih tidak ditemukan.',
         ];
     }
 }

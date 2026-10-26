@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD)
+﻿# Product Requirements Document (PRD)
 
 ## Sistem Informasi Pendataan dan Pemantauan Koperasi Provinsi Jawa Barat
 
@@ -579,7 +579,7 @@ Lihat daftar lengkap berprioritas di §21.
 #### Modul 21 — Status Publikasi
 
 **FR-190 — Kontrol publikasi** — admin mempublikasikan/menarik informasi koperasi.
-**FR-191 — Pengaturan field publik** — menentukan field apa yang boleh tampil (mis. legalitas/kesehatan hanya jika diizinkan) **[NEEDS CONFIRMATION]**.
+**FR-191 — Pengaturan field publik** — menentukan field apa yang boleh tampil (mis. legalitas/kesehatan hanya jika diizinkan) sesuai batas maksimum **Q-008**; UI admin diimplementasikan pada finalisasi 24 Oktober 2026.
 
 #### Modul 22 — Validasi, Error Handling, Notifikasi
 
@@ -799,12 +799,17 @@ Keterangan: **C**=Create, **R**=Read, **U**=Update, **D**=Delete/Arsip, **V**=Ve
 | `under_review` | `needs_revision` | Admin | Perlu perbaikan (alasan wajib) |
 | `under_review` | `rejected` | Admin | Tidak sesuai (alasan wajib) |
 | `under_review` | `approved` | Admin | Valid & sesuai kebijakan |
-| `needs_revision` | `submitted` | Pengelola | Setelah diperbaiki |
 | `needs_revision` | `archived` | Pengelola | Dibatalkan |
 | `approved` | `archived` | Admin | Arsip historis |
 | `rejected` | `archived` | Admin/Pengelola | Arsip historis |
 
 > Transisi di luar tabel **ditolak** oleh lapisan service/state guard.
+
+> **Perbaikan membuat versi baru (FR-031/FR-142).** `needs_revision` **tidak** bertransisi ke `submitted`
+> pada record yang sama. Perbaikan dilakukan dengan membuat **versi pengajuan baru** yang menunjuk versi
+> induk lewat `parent_submission_id`; versi baru dimulai dari `draft` dan mengikuti alur normal. Record
+> lama tetap tersimpan sebagai riwayat (beserta `submission_items` & `submission_reviews`-nya), dan hanya
+> dapat diarsipkan. Lihat §12.5 dan `docs/DECISIONS.md` §17.1.
 
 ### 12.3 Perubahan pada data yang sudah disetujui
 
@@ -829,11 +834,17 @@ stateDiagram-v2
     under_review --> needs_revision: Perlu perbaikan (alasan)
     under_review --> rejected: Tolak (alasan)
     under_review --> approved: Setujui + terapkan
-    needs_revision --> submitted: Pengelola kirim ulang
     needs_revision --> archived: Batalkan
     approved --> archived: Arsip
     rejected --> archived: Arsip
     archived --> [*]
+
+    note right of needs_revision
+        Perbaikan membuat VERSI PENGAJUAN BARU
+        (record baru berstatus draft dengan
+        parent_submission_id). Record versi lama
+        tidak berubah dan hanya dapat diarsipkan.
+    end note
 ```
 
 ---
@@ -1444,6 +1455,13 @@ Jika waktu terbatas, MVP dapat dipangkas bertahap:
 | F7 | Direktori publik & kontrol publikasi | F5 |
 | F8 | Ekspor, sub-peran, pembatasan wilayah, statistik publik | F7 |
 
+> **Status implementasi per 26 Oktober 2026:** F0–F8 sudah diimplementasikan dan diuji secara lokal.
+> FR F8 (012, 022, 072, 082, 091, 171, 183) tersedia dengan aturan **PROVISIONAL** untuk hal yang
+> belum dijawab dinas (Q-005/Q-007/Q-010). PRD ini tetap menjadi kontrak kebutuhan; status
+> implementasi rinci ada di `docs/IMPLEMENTATION_PLAN.md`, `docs/DECISIONS.md` §33, dan
+> `docs/HANDOVER.md`. Verifikasi produksi (MariaDB 10.11, HTTPS, SMTP, backup) belum dilakukan
+> (Q-014).
+
 ### 19.4 Langkah implementasi berikutnya (setelah PRD disetujui)
 
 1. Konfirmasi pertanyaan **P0** di §21.
@@ -1528,6 +1546,30 @@ Sebuah fitur/modul dinyatakan **selesai** bila:
 10. **Review:** ditinjau oleh rekan/pembimbing; tidak ada kode debug/data dummy di produksi.
 11. **Git:** dikomit dengan pesan jelas pada branch fitur; siap merge.
 12. **Acceptance:** seluruh AC terkait (§10) terbukti terpenuhi.
+
+---
+
+## 23. Traceability implementasi (status lokal 26 Oktober 2026)
+
+Bagian ini adalah **catatan status**, bukan perubahan kontrak kebutuhan. Status final tetap mengikuti
+kode, tes, dan `docs/IMPLEMENTATION_PLAN.md`.
+
+| FR/US | Status lokal | Bukti utama | Batas yang belum tertutup |
+| --- | --- | --- | --- |
+| FR-003 | **Selesai** — idle timeout 30 menit (`SESSION_IDLE_TIMEOUT`), daftar & pengakhiran sesi pada driver `database` | `SessionSecurityTest`, `EnforceSessionIdleTimeout`, `ActiveSessionService` | Driver sesi non-database tidak mendukung daftar lintas perangkat (dinyatakan di UI) |
+| FR-004 | **Selesai** — permintaan tautan generik, token hash/sekali pakai/60 menit, validasi password, invalidasi sesi | `PasswordResetTest`, `PasswordResetLinkController`, `NewPasswordController` | Transport email produksi belum diverifikasi; lokal memakai `MAIL_MAILER=log` |
+| US-009 | **Selesai** — daftar/cari/tambah/ubah/status akun, tautan koperasi, kirim tautan reset, audit | `AdminUserManagementTest`, `AdminUserController` | Tidak ada akun contoh/default; akun pertama tetap `user:create` |
+| FR-191 | **Selesai** — UI admin field publik + tabel `settings` + integrasi direktori/profil, dibatasi Q-008 | `PublicSettingsTest`, `PublicFieldSettings`, `DirektoriPublikTest` | Q-008 tetap batas kebijakan |
+| FR-012 | **Selesai lokal (PROVISIONAL)** — peran `admin_wilayah`, `users.region_id`, Policy/middleware, scope default nonaktif | `AdminRegionScopeTest`, `AdminRegionScope`, `EnsureAdminRegionAccess` | Pembagian kewenangan resmi menunggu Q-005 |
+| FR-022 | **Selesai lokal (PROVISIONAL)** — ringkasan izin mendekati kedaluwarsa, ambang konfigurabel | `AdminDashboardTest` | Ambang 30 hari adalah usulan, bukan aturan dinas |
+| FR-072 | **Selesai** — versi dokumen, `previous_version_id`, `superseded_at`, retensi berkas | `DocumentTest` | Tidak ada penghapusan berkas (sesuai BR-011) |
+| FR-082 / FR-091 | **Selesai lokal (PROVISIONAL)** — skor berbobot & checklist kepatuhan dihitung server-side | `HealthAssessmentTest`, `GovernanceRecordTest` | Formula/kriteria resmi menunggu Q-007 |
+| FR-171 | **Selesai** — ekspor CSV hanya data `approved` + audit ekspor | `AdminReportTest` | Excel/PDF tidak ditambahkan |
+| FR-183 | **Selesai** — `/statistik` agregat hanya data published + approved | `DirektoriPublikTest` | Verifikasi produksi menunggu Q-014 |
+
+Suite penuh pada status ini: **599 tes / 2.687 asersi PASS** (SQLite `:memory:`; bukan bukti
+kompatibilitas MariaDB 10.11). Database lokal MariaDB 10.4.32: **30 migrasi `Ran`, 0 `Pending`**,
+`regions` = 6.612. Verifikasi produksi (MariaDB 10.11, HTTPS, SMTP, backup) belum dilakukan (Q-014).
 
 ---
 

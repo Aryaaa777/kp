@@ -34,6 +34,19 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Idle Timeout (FR-003)
+    |--------------------------------------------------------------------------
+    |
+    | Batas waktu tidak aktif (menit) untuk sesi terautentikasi. Nilai ini
+    | diperiksa oleh middleware `EnforceSessionIdleTimeout`, terpisah dari
+    | `lifetime` cookie/session Laravel. Nilai minimal 1 menit.
+    |
+    */
+
+    'idle_timeout' => max(1, (int) env('SESSION_IDLE_TIMEOUT', 30)),
+
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*

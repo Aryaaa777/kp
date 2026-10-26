@@ -21,7 +21,9 @@ use Illuminate\View\View;
  * Catatan terarsip (soft delete) tidak dapat diakses endpoint biasa; pemulihan admin memakai
  * route `.../pulihkan` dengan `withTrashed()` (lihat `restore()`).
  *
- * PROVISIONAL — periode tahunan; indikator resmi belum ada. Lihat DECISIONS §10.
+ * PROVISIONAL — periode tahunan; indikator resmi belum ada. Checklist kepatuhan
+ * (FR-091) dievaluasi server-side; bukan kriteria resmi dinas (Q-007). Lihat
+ * DECISIONS §10 dan §33.
  */
 class GovernanceRecordController extends Controller
 {
@@ -68,9 +70,23 @@ class GovernanceRecordController extends Controller
         $data = $request->validated();
         $data['status'] = $data['status'] ?? 'draft';
 
+        foreach (['rat_on_time', 'financial_report_available', 'basic_documents_complete'] as $checklist) {
+            if ($request->has($checklist)) {
+                $data[$checklist] = $request->boolean($checklist);
+            }
+        }
+
         $record = new GovernanceRecord($data);
         $record->cooperative_id = $cooperative->id;
         $record->recorded_by = $request->user()->id;
+        $record->evaluateCompliance();
+
+        if ($record->requiresComplianceNotes()) {
+            return back()->withInput()->withErrors([
+                'compliance_notes' => 'Catatan wajib diisi bila hasil evaluasi kepatuhan adalah Deviasi.',
+            ]);
+        }
+
         $record->save();
 
         return redirect()
@@ -106,7 +122,23 @@ class GovernanceRecordController extends Controller
     {
         $this->authorize('update', $governanceRecord);
 
-        $governanceRecord->fill($request->validated());
+        $data = $request->validated();
+
+        foreach (['rat_on_time', 'financial_report_available', 'basic_documents_complete'] as $checklist) {
+            if ($request->has($checklist)) {
+                $data[$checklist] = $request->boolean($checklist);
+            }
+        }
+
+        $governanceRecord->fill($data);
+        $governanceRecord->evaluateCompliance();
+
+        if ($governanceRecord->requiresComplianceNotes()) {
+            return back()->withInput()->withErrors([
+                'compliance_notes' => 'Catatan wajib diisi bila hasil evaluasi kepatuhan adalah Deviasi.',
+            ]);
+        }
+
         $governanceRecord->save();
 
         return redirect()

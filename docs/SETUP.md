@@ -51,6 +51,45 @@ npm.cmd install
 
    > `.env` **tidak pernah** di-commit (sudah masuk `.gitignore`). Jangan menulis password/token/secret ke source code maupun dokumentasi.
 
+### 3.1 Sesi & email lokal (FR-003/FR-004)
+
+Nilai default yang aman untuk pengembangan:
+
+```dotenv
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_IDLE_TIMEOUT=30
+MAIL_MAILER=log
+```
+
+- `SESSION_IDLE_TIMEOUT` adalah batas idle terautentikasi dalam menit (minimal 1). Default 30 menit.
+  Daftar/pengakhiran sesi lintas perangkat hanya tersedia bila `SESSION_DRIVER=database`; driver lain
+  akan menampilkan keterbatasan di halaman Keamanan.
+- `MAIL_MAILER=log` **tidak mengirim email nyata**; tautan reset password ditulis ke
+  `storage/logs/laravel.log`. Jangan mengaktifkan SMTP produksi di mesin pengembangan. Untuk produksi,
+  isi konfigurasi SMTP/TLS resmi melalui environment dan uji pengiriman ke kotak masuk nyata sebelum
+  go-live. Jangan menaruh kredensial email di repositori.
+- Test memakai `Notification::fake()` dan `MAIL_MAILER=array`, sehingga tidak ada email keluar.
+
+### 3.1 Konfigurasi F8 (PROVISIONAL)
+
+Semua nilai berikut **bukan** aturan resmi dinas dan dapat diubah tanpa mengubah kode:
+
+```dotenv
+# Default nonaktif. Aktifkan hanya setelah dinas menetapkan pembagian wilayah (Q-005).
+ADMIN_REGION_SCOPE_ENABLED=false
+# Ambang peringatan izin mendekati kedaluwarsa (hari).
+LICENSE_EXPIRING_DAYS=30
+# Minimal rapat tahunan untuk checklist kepatuhan (PROVISIONAL).
+GOVERNANCE_MIN_MEETINGS=2
+```
+
+- Bobot/ambang kesehatan dan label kepatuhan berada di `config/koperasi.php`
+  (`health_assessment`, `governance_compliance`). Formula resmi belum ada (Q-007).
+- Saat `ADMIN_REGION_SCOPE_ENABLED=true`, akun `admin_wilayah` **wajib** memiliki `region_id`;
+  `admin_dinas` tetap super admin. Jangan mengaktifkan di produksi tanpa keputusan resmi.
+- Ekspor laporan memakai CSV dan hanya data `approved`; tidak ada paket Excel/PDF tambahan.
+
 ## 4. Menyiapkan Database
 
 Buat database kosong (utf8mb4) sesuai nama pada `DB_DATABASE`:
@@ -68,6 +107,23 @@ php artisan migrate
 ```
 
 > F0 hanya menjalankan migrasi bawaan Laravel (`users`, `cache`, `jobs`). Migrasi modul bisnis dibuat pada fase berikutnya.
+
+### 4.1 Referensi wilayah (opsional, Q-012)
+
+Setelah tabel `regions` ada, dataset resmi Jawa Barat dapat diimpor (idempoten, transaksional):
+
+```powershell
+php artisan regions:import --dry-run --expected=province:1,regency:27,district:627,village:5957
+php artisan regions:import --expected=province:1,regency:27,district:627,village:5957
+php artisan regions:audit-cooperatives
+```
+
+Sumber, checksum, lisensi, dan batas data: `docs/REGION_DATA_SOURCES.md`. Jangan mengimpor data
+karangan dan jangan mengubah `cooperatives.region_id` menjadi `NOT NULL` tanpa audit/backfill.
+
+Database lokal pengembangan sudah diimpor pada 26 Oktober 2026 (6.612 baris). Langkah di atas tetap
+wajib untuk instalasi baru/staging. Audit pada database lokal menemukan satu koperasi tanpa wilayah,
+jadi **tidak ada backfill** dan `region_id` tetap nullable.
 
 ## 5. Menjalankan Aplikasi (Lokal)
 
@@ -111,6 +167,22 @@ membuat akun apa pun.
 Peran yang tersedia: `admin_dinas`, `pengelola_koperasi`, dan `masyarakat`.
 `masyarakat` adalah peran konteks publik (akses tanpa login) dan tidak ditautkan
 ke akun login, sesuai PRD §8.
+
+### 6.1 Akun berikutnya, reset password, dan pengaturan publik
+
+- Admin dinas yang sudah login dapat membuka **Akun Pengelola** (`/admin/akun`) untuk mencari,
+  membuat, mengubah, menautkan koperasi, serta mengaktifkan/menonaktifkan akun. Password akun baru
+  dibuat acak dan tidak pernah ditampilkan; tautan reset dikirim ke email akun.
+- Halaman **Lupa password** (`/lupa-password`) tersedia untuk pengguna. Di lokal, tautan reset masuk
+  ke log (`MAIL_MAILER=log`), bukan email nyata. Token berlaku 60 menit dan hanya sekali pakai.
+- Halaman **Keamanan** (`/akun/keamanan`) menampilkan batas idle dan sesi aktif. Daftar/pengakhiran
+  sesi lintas perangkat memerlukan `SESSION_DRIVER=database`.
+- Admin dinas dapat mengatur field publik di **Pengaturan Publik** (`/admin/pengaturan/publik`).
+  Batas maksimum tetap Q-008; NIK, telepon pribadi, data anggota, dan omzet terlarang tidak dapat
+  dipilih.
+- Tabel `settings` dibuat oleh migrasi aditif; jalankan `php artisan migrate` pada database
+  pengembangan/staging yang memang diizinkan. **Jangan** menjalankan `migrate:fresh` pada database
+  berisi data.
 
 ### Data demo (opsional, opt-in)
 
@@ -175,7 +247,7 @@ Font `Instrument Sans` dimuat melalui plugin fonts `laravel-vite-plugin`. Optima
 - Otorisasi berbasis peran: tabel `roles` + pivot `role_user`, middleware `role:...` (`EnsureUserHasRole`) dan `active` (`EnsureUserIsActive`), serta Gate `access-koperasi` untuk mencegah akses lintas koperasi (anti-IDOR).
 - Semua pemeriksaan hak akses dilakukan **di server**, bukan sekadar menyembunyikan menu.
 - Relasi `users.koperasi_id` → `cooperatives.id` **belum diberi foreign key** karena tabel `cooperatives` baru dibuat pada F2. Foreign key ditambahkan pada migrasi F2.
-- Belum ada (fase berikutnya): reset password (FR-004), manajemen akun via UI, CRUD koperasi, workflow verifikasi.
+- **FR-003, FR-004, dan US-009 sudah tersedia:** idle timeout (`SESSION_IDLE_TIMEOUT`, default 30 menit), daftar/pengakhiran sesi pada driver database (`/akun/keamanan`), reset password self-service/admin (`/lupa-password`), dan manajemen akun pengelola (`/admin/akun`). Provisioning akun pertama tetap memakai `php artisan user:create`; akun berikutnya dapat dibuat lewat UI dengan tautan reset, tanpa password teks biasa. CRUD koperasi dan workflow verifikasi sudah tersedia pada fase berikutnya.
 - Laravel Boost **tidak** digunakan (keputusan F0 & F1). Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`.
 
 **F3 — Perizinan & Dokumen:**

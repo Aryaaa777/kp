@@ -13,7 +13,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * PROVISIONAL — MENUNGGU KONFIRMASI DINAS:
  * - Periodisitas dibatasi **tahunan** (Q-010).
- * - Skor & predikat adalah **input manual opsional**; tidak ada formula resmi (Q-007).
+ * - Formula lima komponen (FR-082) adalah **aturan sementara** yang dapat diubah lewat
+ *   `config('koperasi.health_assessment')`; bukan formula resmi dinas (Q-007).
+ * - Skor & predikat manual tetap dimungkinkan bila `auto_calculated = false`.
  * - `status = final` hanyalah penanda internal, bukan klasifikasi/pengesahan resmi dinas.
  *
  * @property int $id
@@ -21,8 +23,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $period_year
  * @property string $period
  * @property Carbon $assessment_date
+ * @property string|null $component_permodalan
+ * @property string|null $component_likuiditas
+ * @property string|null $component_rentabilitas
+ * @property string|null $component_kualitas_aset
+ * @property string|null $component_efisiensi
  * @property string|null $score
  * @property string|null $predicate
+ * @property bool $auto_calculated
  * @property int|null $assessor_id
  * @property string|null $notes
  * @property string $status
@@ -53,6 +61,11 @@ class HealthAssessment extends Model
         'period_year',
         'period',
         'assessment_date',
+        'component_permodalan',
+        'component_likuiditas',
+        'component_rentabilitas',
+        'component_kualitas_aset',
+        'component_efisiensi',
         'score',
         'predicate',
         'notes',
@@ -66,7 +79,13 @@ class HealthAssessment extends Model
     {
         return [
             'assessment_date' => 'date',
+            'component_permodalan' => 'decimal:2',
+            'component_likuiditas' => 'decimal:2',
+            'component_rentabilitas' => 'decimal:2',
+            'component_kualitas_aset' => 'decimal:2',
+            'component_efisiensi' => 'decimal:2',
             'score' => 'decimal:2',
+            'auto_calculated' => 'boolean',
         ];
     }
 
@@ -107,5 +126,108 @@ class HealthAssessment extends Model
     public static function statusOptions(): array
     {
         return self::STATUS_LABELS;
+    }
+
+    /**
+     * Label komponen formula kesehatan (PROVISIONAL).
+     *
+     * @return array<string, string>
+     */
+    public static function componentLabels(): array
+    {
+        return (array) config('koperasi.health_assessment.components', []);
+    }
+
+    /**
+     * Nama kolom komponen untuk setiap kunci komponen.
+     *
+     * @return array<string, string>
+     */
+    public static function componentFields(): array
+    {
+        $fields = [];
+
+        foreach (array_keys(self::componentLabels()) as $key) {
+            $fields[$key] = 'component_'.$key;
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Nilai komponen yang tersimpan.
+     *
+     * @return array<string, float|null>
+     */
+    public function componentScores(): array
+    {
+        $scores = [];
+
+        foreach (self::componentFields() as $key => $field) {
+            $value = $this->getAttribute($field);
+            $scores[$key] = $value === null ? null : (float) $value;
+        }
+
+        return $scores;
+    }
+
+    /**
+     * Hitung skor & predikat dari komponen (PROVISIONAL).
+     *
+     * Bobot dinormalisasi agar perubahan konfigurasi tidak menghasilkan skor > 100.
+     * Mengembalikan `false` bila ada komponen yang belum diisi.
+     */
+    public function applyAutoCalculation(): bool
+    {
+        $scores = $this->componentScores();
+        $weights = (array) config('koperasi.health_assessment.weights', []);
+
+        if ($scores === [] || in_array(null, $scores, true)) {
+            return false;
+        }
+
+        $weighted = 0.0;
+        $totalWeight = 0.0;
+
+        foreach ($scores as $key => $score) {
+            $weight = (float) ($weights[$key] ?? 0);
+
+            if ($weight <= 0) {
+                continue;
+            }
+
+            $weighted += ((float) $score) * $weight;
+            $totalWeight += $weight;
+        }
+
+        if ($totalWeight <= 0) {
+            return false;
+        }
+
+        $score = round($weighted / $totalWeight, 2);
+
+        $this->score = (string) $score;
+        $this->predicate = self::predicateForScore($score);
+        $this->auto_calculated = true;
+
+        return true;
+    }
+
+    /**
+     * Predikat berdasarkan ambang konfigurasi (PROVISIONAL).
+     */
+    public static function predicateForScore(float $score): string
+    {
+        $predicates = (array) config('koperasi.health_assessment.predicates', []);
+
+        usort($predicates, fn (array $a, array $b): int => ((float) ($b['min'] ?? 0)) <=> ((float) ($a['min'] ?? 0)));
+
+        foreach ($predicates as $predicate) {
+            if ($score >= (float) ($predicate['min'] ?? 0)) {
+                return (string) ($predicate['label'] ?? 'Tidak Sehat');
+            }
+        }
+
+        return 'Tidak Sehat';
     }
 }

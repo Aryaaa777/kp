@@ -38,6 +38,8 @@ class CooperativeCrudTest extends TestCase
             'email' => 'makmur@example.test',
             'website' => 'https://makmur.example.test',
             'status_verifikasi' => 'draft',
+            // Status operasional wajib untuk koperasi baru (Tahap 106).
+            'status_operasional' => 'aktif',
         ], $overrides);
     }
 
@@ -92,7 +94,7 @@ class CooperativeCrudTest extends TestCase
         $this->actingAs($this->admin())
             ->from(route('admin.koperasi.create'))
             ->post(route('admin.koperasi.store'), [])
-            ->assertSessionHasErrors(['nama', 'nomor_identitas', 'jenis_koperasi', 'status_verifikasi']);
+            ->assertSessionHasErrors(['nama', 'nomor_identitas', 'jenis_koperasi', 'status_verifikasi', 'status_operasional']);
     }
 
     public function test_store_rejects_invalid_formats(): void
@@ -104,8 +106,75 @@ class CooperativeCrudTest extends TestCase
                 'website' => 'bukan-url',
                 'tanggal_berdiri' => now()->addYear()->format('Y-m-d'),
                 'status_verifikasi' => 'tidak-dikenal',
+                'status_operasional' => 'tidak-dikenal',
             ]))
-            ->assertSessionHasErrors(['email', 'website', 'tanggal_berdiri', 'status_verifikasi']);
+            ->assertSessionHasErrors(['email', 'website', 'tanggal_berdiri', 'status_verifikasi', 'status_operasional']);
+    }
+
+    public function test_store_rejects_website_with_non_web_scheme(): void
+    {
+        $admin = $this->admin();
+
+        // Rule `url` bawaan Laravel menerima banyak skema non-web (`data://`, `file://`, `ftp://`)
+        // yang tidak layak ditautkan dari halaman publik → skema dibatasi ke http/https (Tahap 87).
+        $rejected = [
+            'javascript:alert(1)',
+            'javascript://contoh.id/%0aalert(1)',
+            'data://contoh.id/teks',
+            'ftp://contoh.id/berkas',
+            'file://contoh.id/berkas',
+        ];
+
+        foreach ($rejected as $index => $website) {
+            $this->actingAs($admin)
+                ->from(route('admin.koperasi.create'))
+                ->post(route('admin.koperasi.store'), $this->payload([
+                    'nama' => 'Koperasi Skema '.$index,
+                    'nomor_identitas' => 'KOP-SKEMA-'.$index,
+                    'website' => $website,
+                ]))
+                ->assertSessionHasErrors('website');
+        }
+
+        $this->assertSame(0, Cooperative::query()->count());
+    }
+
+    public function test_store_accepts_http_and_https_website(): void
+    {
+        $admin = $this->admin();
+
+        foreach (['http://contoh.id', 'https://contoh.id/profil'] as $index => $website) {
+            $this->actingAs($admin)
+                ->post(route('admin.koperasi.store'), $this->payload([
+                    'nama' => 'Koperasi Web '.$index,
+                    'nomor_identitas' => 'KOP-WEB-'.$index,
+                    'website' => $website,
+                ]))
+                ->assertSessionHasNoErrors();
+        }
+
+        $this->assertSame(2, Cooperative::query()->count());
+    }
+
+    public function test_update_rejects_website_with_non_web_scheme(): void
+    {
+        $cooperative = Cooperative::factory()->create([
+            'nama' => 'Koperasi Web Lama',
+            'nomor_identitas' => 'KOP-WEB-LAMA',
+            'website' => 'https://lama.example.test',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.koperasi.edit', $cooperative))
+            ->put(route('admin.koperasi.update', $cooperative), $this->payload([
+                'nama' => 'Koperasi Web Lama',
+                'nomor_identitas' => 'KOP-WEB-LAMA',
+                'website' => 'data://contoh.id/teks',
+            ]))
+            ->assertSessionHasErrors('website');
+
+        // Validasi gagal tidak boleh mengubah data yang sudah ada.
+        $this->assertSame('https://lama.example.test', $cooperative->fresh()->website);
     }
 
     public function test_admin_can_update_cooperative(): void
@@ -273,20 +342,141 @@ class CooperativeCrudTest extends TestCase
 
     public function test_region_can_be_assigned_and_displayed(): void
     {
-        $region = Region::factory()->create(['name' => 'Kabupaten Contoh']);
+        $province = Region::factory()->create([
+            'name' => 'Jawa Barat',
+            'type' => 'province',
+            'parent_id' => null,
+        ]);
+        $regency = Region::factory()->create([
+            'name' => 'Kabupaten Contoh',
+            'type' => 'regency',
+            'parent_id' => $province->id,
+        ]);
+        $district = Region::factory()->create([
+            'name' => 'Kecamatan Contoh',
+            'type' => 'district',
+            'parent_id' => $regency->id,
+        ]);
+        $village = Region::factory()->create([
+            'name' => 'Desa Contoh',
+            'type' => 'village',
+            'parent_id' => $district->id,
+        ]);
 
         $this->actingAs($this->admin())
-            ->post(route('admin.koperasi.store'), $this->payload(['region_id' => $region->id]))
+            ->post(route('admin.koperasi.store'), $this->payload([
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'district_id' => $district->id,
+                'region_id' => $village->id,
+            ]))
             ->assertRedirect();
 
         $cooperative = Cooperative::firstOrFail();
 
-        $this->assertSame($region->id, $cooperative->region_id);
+        $this->assertSame($village->id, $cooperative->region_id);
 
         $this->actingAs($this->admin())
             ->get(route('admin.koperasi.show', $cooperative))
             ->assertOk()
-            ->assertSee('Kabupaten Contoh');
+            ->assertSee('Desa Contoh')
+            ->assertSee('Jawa Barat > Kabupaten Contoh > Kecamatan Contoh > Desa Contoh');
+    }
+
+    public function test_region_hierarchy_must_match_selected_village(): void
+    {
+        $province = Region::factory()->create(['type' => 'province', 'parent_id' => null]);
+        $regency = Region::factory()->create(['type' => 'regency', 'parent_id' => $province->id]);
+        $otherRegency = Region::factory()->create(['type' => 'regency', 'parent_id' => $province->id]);
+        $district = Region::factory()->create(['type' => 'district', 'parent_id' => $regency->id]);
+        $village = Region::factory()->create(['type' => 'village', 'parent_id' => $district->id]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.koperasi.create'))
+            ->post(route('admin.koperasi.store'), $this->payload([
+                'province_id' => $province->id,
+                'regency_id' => $otherRegency->id,
+                'district_id' => $district->id,
+                'region_id' => $village->id,
+            ]))
+            ->assertSessionHasErrors('region_id');
+
+        $this->assertDatabaseCount('cooperatives', 0);
+    }
+
+    public function test_new_cooperative_requires_village_level_region(): void
+    {
+        $province = Region::factory()->create(['type' => 'province', 'parent_id' => null]);
+        $regency = Region::factory()->create(['type' => 'regency', 'parent_id' => $province->id]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.koperasi.create'))
+            ->post(route('admin.koperasi.store'), $this->payload([
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'region_id' => $regency->id,
+            ]))
+            ->assertSessionHasErrors('region_id');
+
+        $this->assertDatabaseCount('cooperatives', 0);
+    }
+
+    public function test_legacy_non_village_region_can_be_kept_on_update(): void
+    {
+        $province = Region::factory()->create(['type' => 'province', 'parent_id' => null]);
+        $regency = Region::factory()->create(['type' => 'regency', 'parent_id' => $province->id]);
+        $cooperative = Cooperative::factory()->create([
+            'region_id' => $regency->id,
+            'status_operasional' => 'aktif',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->put(route('admin.koperasi.update', $cooperative), $this->payload([
+                'nama' => $cooperative->nama,
+                'nomor_identitas' => $cooperative->nomor_identitas,
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'region_id' => $regency->id,
+            ]))
+            ->assertRedirect(route('admin.koperasi.show', $cooperative));
+
+        $this->assertSame($regency->id, $cooperative->fresh()->region_id);
+    }
+
+    public function test_create_form_renders_cascading_region_dropdowns(): void
+    {
+        $province = Region::factory()->create([
+            'name' => 'Jawa Barat',
+            'type' => 'province',
+            'parent_id' => null,
+        ]);
+        $regency = Region::factory()->create([
+            'name' => 'Kabupaten Contoh',
+            'type' => 'regency',
+            'parent_id' => $province->id,
+        ]);
+        $district = Region::factory()->create([
+            'name' => 'Kecamatan Contoh',
+            'type' => 'district',
+            'parent_id' => $regency->id,
+        ]);
+        Region::factory()->create([
+            'name' => 'Desa Contoh',
+            'type' => 'village',
+            'parent_id' => $district->id,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.create'))
+            ->assertOk()
+            ->assertSee('name="province_id"', false)
+            ->assertSee('name="regency_id"', false)
+            ->assertSee('name="district_id"', false)
+            ->assertSee('name="region_id"', false)
+            ->assertSee('Jawa Barat')
+            ->assertSee('Kabupaten Contoh')
+            ->assertSee('Kecamatan Contoh')
+            ->assertSee('Desa Contoh');
     }
 
     public function test_search_matches_nama_and_nomor_identitas(): void
@@ -352,5 +542,127 @@ class CooperativeCrudTest extends TestCase
             ->assertOk()
             ->assertSee('Koperasi Tampil')
             ->assertSee($cooperative->nomor_identitas);
+    }
+
+    public function test_search_treats_percent_as_literal_not_wildcard(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi A',
+            'nomor_identitas' => 'ABC123456',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi B',
+            'nomor_identitas' => 'ABC%789',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'ABC%']))
+            ->assertOk();
+
+        $response->assertSee($coop2->nama);
+        $response->assertDontSee($coop1->nama);
+    }
+
+    public function test_search_treats_underscore_as_literal_not_wildcard(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Match',
+            'nomor_identitas' => 'XYZ123456',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Underscore',
+            'nomor_identitas' => 'XYZ_789',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'XYZ_']))
+            ->assertOk();
+
+        $response->assertSee($coop2->nama);
+        $response->assertDontSee($coop1->nama);
+    }
+
+    public function test_search_treats_exclamation_as_literal(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Normal',
+            'nomor_identitas' => 'DEF123456',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Escape',
+            'nomor_identitas' => 'DEF!456',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'DEF!']))
+            ->assertOk();
+
+        $response->assertSee($coop2->nama);
+        $response->assertDontSee($coop1->nama);
+    }
+
+    public function test_search_by_nama_with_special_chars(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Normal',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi%Khusus',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'Koperasi%']))
+            ->assertOk();
+
+        $response->assertSee($coop2->nama);
+        $response->assertDontSee($coop1->nama);
+    }
+
+    public function test_search_normal_text_still_works(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Makmur',
+            'nomor_identitas' => 'MAK001',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Maju',
+            'nomor_identitas' => 'MAJ001',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'Makmur']))
+            ->assertOk();
+
+        $response->assertSee('Koperasi Makmur');
+        $response->assertDontSee('Koperasi Maju');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', ['q' => 'MAJ']))
+            ->assertOk();
+
+        $response->assertSee('Koperasi Maju');
+        $response->assertDontSee('Koperasi Makmur');
+    }
+
+    public function test_search_with_status_filter_still_works(): void
+    {
+        $coop1 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Draft',
+            'status_verifikasi' => 'draft',
+        ]);
+        $coop2 = Cooperative::factory()->create([
+            'nama' => 'Koperasi Approved',
+            'status_verifikasi' => 'approved',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.koperasi.index', [
+                'q' => 'Koperasi',
+                'status_verifikasi' => 'approved',
+            ]))
+            ->assertOk();
+
+        $response->assertSee($coop2->nama);
+        $response->assertDontSee($coop1->nama);
     }
 }

@@ -21,7 +21,15 @@ use Illuminate\Support\Carbon;
  *
  * Status mengikuti matriks transisi PRD §12.2.
  *
+ * **Versioning (FR-031/FR-142, keputusan Tahap 63 / D-1 opsi B).** Revisi atas pengajuan
+ * `needs_revision` **tidak** menyunting record yang sama, melainkan membuat record pengajuan
+ * **baru** (`status = draft`) yang menunjuk versi induk lewat `parent_submission_id`. Versi
+ * lama tetap tersimpan utuh (termasuk `submission_items` & `submission_reviews`) sebagai
+ * riwayat. Karena itu pengajuan `needs_revision` yang sudah punya versi turunan dianggap
+ * **sudah digantikan** (`isSuperseded()`) dan tidak lagi aktif.
+ *
  * @property int $id
+ * @property int|null $parent_submission_id
  * @property int $cooperative_id
  * @property int $submitted_by
  * @property string $module
@@ -74,24 +82,40 @@ class Submission extends Model
     /**
      * Matriks transisi status yang sah (PRD §12.2). Transisi di luar tabel ini ditolak.
      *
+     * `needs_revision` **tidak** bertransisi ke `submitted` pada record yang sama: perbaikan
+     * membuat **versi pengajuan baru** (`parent_submission_id`) — lihat `docs/DECISIONS.md` §17.1.
+     *
      * @var array<string, list<string>>
      */
     public const TRANSITIONS = [
         'draft' => ['submitted', 'archived'],
         'submitted' => ['under_review'],
         'under_review' => ['needs_revision', 'rejected', 'approved'],
-        'needs_revision' => ['submitted', 'archived'],
+        'needs_revision' => ['archived'],
         'approved' => ['archived'],
         'rejected' => ['archived'],
         'archived' => [],
     ];
 
     /**
-     * Status yang masih dapat diubah/dikirim oleh pengelola.
+     * Status yang masih **aktif** (belum selesai/terminal). Dipakai untuk mencegah beberapa
+     * pengajuan yang saling bertentangan pada koperasi & modul yang sama. Pengajuan
+     * `needs_revision` yang sudah digantikan versi turunan **tidak** aktif (lihat
+     * `isActive()`).
      *
      * @var list<string>
      */
-    public const EDITABLE_STATUSES = ['draft', 'needs_revision'];
+    public const ACTIVE_STATUSES = ['draft', 'submitted', 'under_review', 'needs_revision'];
+
+    /**
+     * Status yang masih dapat **diubah langsung** oleh pengelola.
+     *
+     * Sejak versioning (D-1), `needs_revision` **bukan** lagi dapat disunting di tempat:
+     * perbaikan dilakukan dengan membuat versi pengajuan baru (`parent_submission_id`).
+     *
+     * @var list<string>
+     */
+    public const EDITABLE_STATUSES = ['draft'];
 
     /**
      * `cooperative_id` & `submitted_by` sengaja TIDAK fillable (ditetapkan server-side, anti-IDOR).
@@ -157,6 +181,63 @@ class Submission extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(SubmissionReview::class);
+    }
+
+    /**
+     * Versi induk (pengajuan yang diperbaiki oleh versi ini). `null` untuk versi awal.
+     *
+     * @return BelongsTo<Submission, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_submission_id');
+    }
+
+    /**
+     * Versi turunan (perbaikan) yang menunjuk pengajuan ini sebagai induk.
+     *
+     * @return HasMany<Submission, $this>
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_submission_id');
+    }
+
+    /**
+     * Apakah pengajuan ini merupakan versi perbaikan (punya induk).
+     */
+    public function isRevision(): bool
+    {
+        return $this->parent_submission_id !== null;
+    }
+
+    /**
+     * Apakah pengajuan ini sudah digantikan oleh versi turunan (`needs_revision` → versi baru).
+     */
+    public function isSuperseded(): bool
+    {
+        return $this->children()->exists();
+    }
+
+    /**
+     * Apakah pengajuan masih aktif (belum selesai/terminal **dan** belum digantikan).
+     */
+    public function isActive(): bool
+    {
+        if (! in_array($this->status, self::ACTIVE_STATUSES, true)) {
+            return false;
+        }
+
+        return ! ($this->status === 'needs_revision' && $this->isSuperseded());
+    }
+
+    /**
+     * Apakah pengajuan ini dapat menjadi induk perbaikan (versi baru) — `needs_revision`
+     * yang belum digantikan.
+     */
+    public function isRevisable(): bool
+    {
+        return $this->status === 'needs_revision' && ! $this->isSuperseded();
     }
 
     /**

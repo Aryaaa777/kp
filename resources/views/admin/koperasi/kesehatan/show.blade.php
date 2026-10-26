@@ -36,12 +36,24 @@
             </div>
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Skor</dt>
-                <dd class="mt-1 text-sm text-slate-900">{{ $assessment->score ?? '—' }}</dd>
+                <dd class="mt-1 text-sm text-slate-900">
+                    {{ $assessment->score ?? '—' }}
+                    @if ($assessment->auto_calculated)
+                        <span class="ml-1 rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700">otomatis</span>
+                    @endif
+                </dd>
             </div>
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Predikat</dt>
                 <dd class="mt-1 text-sm text-slate-900">{{ $assessment->predicate ?: '—' }}</dd>
             </div>
+            @foreach (\App\Models\HealthAssessment::componentLabels() as $key => $label)
+                @php($field = 'component_'.$key)
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">{{ $label }}</dt>
+                    <dd class="mt-1 text-sm text-slate-900">{{ $assessment->getAttribute($field) ?? '—' }}</dd>
+                </div>
+            @endforeach
             <div class="sm:col-span-2">
                 <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Catatan</dt>
                 <dd class="mt-1 whitespace-pre-line text-sm text-slate-900">{{ $assessment->notes ?: '—' }}</dd>

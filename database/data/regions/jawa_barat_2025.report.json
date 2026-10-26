@@ -1,0 +1,32 @@
+{
+  "source": {
+    "title": "Keputusan Menteri Dalam Negeri Nomor 300.2.2-2138 Tahun 2025 tentang Pemberian dan Pemutakhiran Kode, Data Wilayah Administrasi Pemerintahan, dan Pulau",
+    "publisher": "Kementerian Dalam Negeri Republik Indonesia",
+    "file": "kepmendagri_2138_2025.pdf",
+    "sha256": "4a40e41cc2be515ca5b88df17a91e3f7ac6161ce7326a9fd38691753efa6b3fd",
+    "pdf_pages": [
+      1369,
+      1604
+    ]
+  },
+  "output": {
+    "file": "jawa_barat_2025.csv",
+    "sha256": "208d7aca0cc7993721a39f3e3c003e290b9675d37d2f7d8506d5bc7f755a6526",
+    "rows": 6612
+  },
+  "counts": {
+    "province": 1,
+    "regency": 18,
+    "city": 9,
+    "district": 627,
+    "village": 5957,
+    "total": 6612
+  },
+  "corrections": {
+    "32.09.29.2003": "Prajawinangun Wetan",
+    "32.12.28.2005": "Kedokanbunder Wetan",
+    "32.15.06.2001": "Rengasdengklok Selatan",
+    "32.15.06.2002": "Rengasdengklok Utara"
+  },
+  "note": "Nama diambil dari lapisan teks OCR PDF resmi. Nama yang terpotong karena lebar kolom dikoreksi hanya bila terbukti dari kolom desa yang sama pada publikasi BPS Jawa Barat 2025 Semester 2."
+}

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'koperasi_id', 'status'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'koperasi_id', 'region_id', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -52,6 +52,16 @@ class User extends Authenticatable
     public function koperasi(): BelongsTo
     {
         return $this->belongsTo(Cooperative::class, 'koperasi_id');
+    }
+
+    /**
+     * Wilayah kewenangan admin wilayah (FR-012, PROVISIONAL).
+     *
+     * @return BelongsTo<Region, $this>
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
     }
 
     /**

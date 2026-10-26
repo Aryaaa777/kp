@@ -107,6 +107,7 @@
                         <tr>
                             <th class="px-3 py-2">Berkas</th>
                             <th class="px-3 py-2">Kategori</th>
+                            <th class="px-3 py-2">Versi</th>
                             <th class="px-3 py-2">Ukuran</th>
                             <th class="px-3 py-2">Diunggah</th>
                             <th class="px-3 py-2 text-right">Aksi</th>
@@ -115,8 +116,19 @@
                     <tbody class="divide-y divide-slate-100">
                         @foreach ($license->documents as $document)
                             <tr>
-                                <td class="px-3 py-2 font-medium text-slate-900 break-all">{{ $document->original_name }}</td>
+                                <td class="px-3 py-2 font-medium text-slate-900 break-all">
+                                    {{ $document->original_name }}
+                                    @if ($document->isSuperseded())
+                                        <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-normal text-slate-500">Diarsipkan</span>
+                                    @endif
+                                </td>
                                 <td class="px-3 py-2 text-slate-600">{{ $document->category }}</td>
+                                <td class="px-3 py-2 text-slate-600">
+                                    v{{ $document->version }}
+                                    @if ($document->previous_version_id)
+                                        <span class="block text-xs text-slate-400">dari v{{ $document->previousVersion?->version ?? $document->version - 1 }}</span>
+                                    @endif
+                                </td>
                                 <td class="px-3 py-2 text-slate-600">{{ $document->humanSize() }}</td>
                                 <td class="px-3 py-2 text-slate-600">
                                     {{ $document->uploader?->name ?? '—' }}
@@ -127,12 +139,23 @@
                                 <td class="whitespace-nowrap px-3 py-2 text-right">
                                     <a href="{{ route('dokumen.unduh', $document) }}" class="text-emerald-700 hover:underline">Unduh</a>
 
-                                    <form method="POST" action="{{ route('admin.dokumen.destroy', $document) }}" class="ml-3 inline"
-                                        onsubmit="return confirm('Arsipkan dokumen ini dari daftar?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Arsipkan</button>
-                                    </form>
+                                    @unless ($document->isSuperseded())
+                                        <form method="POST"
+                                            action="{{ route('admin.koperasi.izin.dokumen.versi', [$cooperative, $license, $document]) }}"
+                                            enctype="multipart/form-data" class="mt-2 flex items-center justify-end gap-2">
+                                            @csrf
+                                            <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png"
+                                                class="w-40 text-xs text-slate-600">
+                                            <button type="submit" class="text-emerald-700 hover:underline">Ganti versi</button>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('admin.dokumen.destroy', $document) }}" class="mt-2 inline"
+                                            onsubmit="return confirm('Arsipkan dokumen ini dari daftar?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">Arsipkan</button>
+                                        </form>
+                                    @endunless
                                 </td>
                             </tr>
                         @endforeach

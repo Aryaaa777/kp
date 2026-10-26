@@ -47,6 +47,39 @@ class Cooperative extends Model
     ];
 
     /**
+     * Status operasional koperasi — keputusan pemilik proyek (Tahap 106).
+     *
+     * Berbeda dari `status_verifikasi` (posisi dalam alur verifikasi) dan `is_published`
+     * (tampil/tidak di direktori). Nilai `NULL` = belum ditetapkan; jangan dianggap aktif.
+     *
+     * @var list<string>
+     */
+    public const STATUS_OPERASIONAL = [
+        'aktif',
+        'tidak_aktif',
+        'bubar',
+    ];
+
+    /**
+     * Label Indonesia status operasional (satu-satunya sumber teks tampilan).
+     *
+     * @var array<string, string>
+     */
+    public const STATUS_OPERASIONAL_LABELS = [
+        'aktif' => 'Aktif',
+        'tidak_aktif' => 'Tidak Aktif',
+        'bubar' => 'Bubar',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    public static function statusOperasionalLabels(): array
+    {
+        return self::STATUS_OPERASIONAL_LABELS;
+    }
+
+    /**
      * Status yang boleh ditetapkan langsung admin melalui form pada F2.
      *
      * `archived` DIKECUALIKAN: status itu hanya dicapai lewat aksi arsip (FR-043) yang sekaligus
@@ -69,6 +102,25 @@ class Cooperative extends Model
     }
 
     /**
+     * Label status verifikasi yang **boleh tampil publik** menurut konfigurasi
+     * (`config('koperasi.public.visible_statuses')`) — sumber kelayakan yang sama dengan
+     * direktori publik dan `Admin\CooperativeController::publicationBlocker()`.
+     *
+     * Status yang tidak memiliki label resmi (`STATUS_LABELS`) **diabaikan**, sehingga UI tidak
+     * pernah menampilkan kode status mentah. Daftar kosong berarti tidak ada status yang dapat
+     * dipublikasikan: pemanggil wajib memakai teks aman dan **tidak** mengklaim kelayakan apa pun.
+     * Urutan label mengikuti `STATUS_LABELS` (urutan alur verifikasi resmi).
+     *
+     * @return list<string>
+     */
+    public static function publicStatusLabels(): array
+    {
+        $statuses = array_map('strval', array_values((array) config('koperasi.public.visible_statuses', [])));
+
+        return array_values(array_intersect_key(self::STATUS_LABELS, array_flip($statuses)));
+    }
+
+    /**
      * @var list<string>
      */
     protected $fillable = [
@@ -84,9 +136,12 @@ class Cooperative extends Model
         'email',
         'website',
         'status_verifikasi',
+        'status_operasional',
         'is_published',
         'published_at',
         'published_by',
+        'unpublished_at',
+        'unpublished_by',
         'created_by',
         'updated_by',
         'archived_reason',
@@ -101,6 +156,7 @@ class Cooperative extends Model
             'tanggal_berdiri' => 'date',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
+            'unpublished_at' => 'datetime',
         ];
     }
 
@@ -114,14 +170,75 @@ class Cooperative extends Model
     }
 
     /**
+     * Segmen URL **internal** di bawah prefix `/koperasi` yang TIDAK boleh dipakai sebagai slug
+     * publik (Tahap 88). Bila sebuah koperasi memakai salah satu segmen ini, `/koperasi/{slug}`
+     * akan ditangkap route internal (`auth` + `role:pengelola_koperasi`) sehingga profil publiknya
+     * tidak dapat dijangkau.
+     *
+     * Daftar ini adalah **satu sumber** yang dipakai oleh `generateUniqueSlug()` (mencegah slug
+     * baru) **dan** `publicSlugPattern()` (constraint route publik). Isinya diturunkan dari
+     * inventaris route aktual di `routes/web.php` (bukan tebakan) — lihat `docs/DECISIONS.md` §26.
+     *
+     * @var list<string>
+     */
+    public const RESERVED_SLUGS = [
+        'dashboard',
+        'profil',
+        'izin',
+        'pengurus',
+        'kesehatan',
+        'tata-kelola',
+        'aset',
+        'anggota',
+        'pengajuan',
+        'notifikasi',
+    ];
+
+    /**
+     * Apakah sebuah slug termasuk segmen tercadang. Pencocokan memakai normalisasi yang sama
+     * dengan pembentukan slug (`Str::slug()`), sehingga variasi kapitalisasi/tanda hubung
+     * (`Profil`, `TATA KELOLA`, `tata_kelola`) tetap terdeteksi.
+     */
+    public static function isReservedSlug(string $slug): bool
+    {
+        return in_array(Str::slug($slug), self::RESERVED_SLUGS, true);
+    }
+
+    /**
+     * Pola constraint untuk route profil publik `/koperasi/{slug}`: **menolak** segmen tercadang.
+     *
+     * Hanya segmen yang **sama persis** yang ditolak; slug seperti `anggota-sejahtera` atau
+     * `profil-koperasi` tetap diterima.
+     */
+    public static function publicSlugPattern(): string
+    {
+        $reserved = array_map(fn (string $segment): string => preg_quote($segment, '#'), self::RESERVED_SLUGS);
+
+        // Grup non-capturing wajib: tanpa `(?:…)`, tanda `$` hanya menempel pada alternatif
+        // terakhir sehingga `anggota-sejahtera`/`profil-2` ikut tertolak.
+        return '(?!(?:'.implode('|', $reserved).')$)[^/]+';
+    }
+
+    /**
      * Slug unik yang stabil. Dibuat sekali saat pembuatan data; tidak diubah saat nama diperbarui
      * agar URL (direktori publik, F7) tidak berubah.
+     *
+     * Nama yang menghasilkan segmen tercadang (`Profil`, `Anggota`, …) diperlakukan seperti slug
+     * yang sudah terpakai sehingga kandidat berikutnya memakai suffix numerik yang sama dengan
+     * konvensi aplikasi (`profil-2`, `profil-3`, …) — Tahap 88.
      */
     public static function generateUniqueSlug(string $nama, ?int $ignoreId = null): string
     {
         $base = Str::slug($nama) ?: 'koperasi';
-        $slug = $base;
-        $suffix = 2;
+
+        if (static::isReservedSlug($base)) {
+            // Segmen internal diperlakukan seperti slug yang sudah terpakai → mulai dari `-2`.
+            $slug = $base.'-2';
+            $suffix = 3;
+        } else {
+            $slug = $base;
+            $suffix = 2;
+        }
 
         while (static::withTrashed()
             ->where('slug', $slug)
@@ -234,6 +351,21 @@ class Cooperative extends Model
     }
 
     /**
+     * Label status operasional; `null` bila belum ditetapkan **atau** nilainya tidak dikenal.
+     *
+     * `null` sengaja dikembalikan untuk nilai tak dikenal agar tampilan publik tidak pernah
+     * mencetak kode mentah (mis. data lama/rusak).
+     */
+    public function statusOperasionalLabel(): ?string
+    {
+        $status = $this->status_operasional;
+
+        return is_string($status)
+            ? (self::STATUS_OPERASIONAL_LABELS[$status] ?? null)
+            : null;
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
@@ -255,5 +387,15 @@ class Cooperative extends Model
     public function publisher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'published_by');
+    }
+
+    /**
+     * Aktor yang menarik publikasi terakhir (D-6).
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function unpublisher(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'unpublished_by');
     }
 }

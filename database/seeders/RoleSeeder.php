@@ -23,6 +23,11 @@ class RoleSeeder extends Seeder
                 'description' => 'Petugas dinas: mengelola, memverifikasi, dan mempublikasikan data koperasi.',
             ],
             [
+                'name' => 'admin_wilayah',
+                'display_name' => 'Admin Wilayah',
+                'description' => 'Petugas dinas dengan kewenangan terbatas pada wilayah tertentu (FR-012, PROVISIONAL).',
+            ],
+            [
                 'name' => 'pengelola_koperasi',
                 'display_name' => 'Pengelola Koperasi',
                 'description' => 'Perwakilan koperasi yang memperbarui data koperasinya untuk diverifikasi.',

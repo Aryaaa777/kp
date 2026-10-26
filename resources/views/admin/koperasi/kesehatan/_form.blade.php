@@ -25,6 +25,22 @@
             <x-form.input name="assessment_date" type="date" label="Tanggal penilaian" required
                 :value="$assessment?->assessment_date?->format('Y-m-d')" />
 
+            <div class="sm:col-span-2">
+                <x-form.checkbox name="auto_calculate" label="Hitung skor otomatis dari komponen"
+                    :checked="$assessment?->auto_calculated ?? false"
+                    help="PROVISIONAL: bobot dan ambang ada di config/koperasi.php. Bukan formula resmi (Q-007)." />
+            </div>
+
+            <div class="sm:col-span-2 grid gap-4 sm:grid-cols-2">
+                @foreach ($componentLabels as $key => $label)
+                    @php($field = 'component_'.$key)
+                    <x-form.input :name="$field" type="number" step="0.01" min="0" max="100"
+                        :label="$label.' (0–100)'"
+                        :value="$assessment?->getAttribute($field)"
+                        help="Wajib bila hitung otomatis dicentang." />
+                @endforeach
+            </div>
+
             <x-form.select name="status" label="Status catatan"
                 :options="$statusOptions"
                 :selected="$assessment?->status ?? 'draft'"

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 /**
  * Membuat akun pengguna internal (admin dinas / pengelola koperasi).
@@ -54,7 +55,11 @@ class CreateUserCommand extends Command
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'in:admin_dinas,pengelola_koperasi'],
             // Tautan akun–koperasi harus menunjuk koperasi yang benar-benar ada (BR-017).
-            'koperasi_id' => ['nullable', 'integer', 'exists:cooperatives,id'],
+            'koperasi_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('cooperatives', 'id')->whereNull('deleted_at'),
+            ],
         ], [
             'koperasi_id.exists' => 'Koperasi dengan ID tersebut tidak ditemukan. Kosongkan bila belum dikaitkan.',
             'koperasi_id.integer' => 'ID koperasi harus berupa angka.',

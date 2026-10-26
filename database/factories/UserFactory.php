@@ -79,6 +79,17 @@ class UserFactory extends Factory
     }
 
     /**
+     * Akun admin wilayah dengan kewenangan pada satu wilayah (FR-012).
+     */
+    public function adminWilayah(?int $regionId = null): static
+    {
+        return $this->state([
+            'koperasi_id' => null,
+            'region_id' => $regionId,
+        ])->withRole('admin_wilayah');
+    }
+
+    /**
      * Akun pengelola koperasi, opsional tertaut ke ID koperasi.
      */
     public function pengelola(?int $koperasiId = null): static

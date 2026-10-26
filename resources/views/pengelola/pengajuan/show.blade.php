@@ -55,6 +55,40 @@
         @endif
     </div>
 
+    @if ($submission->parent || $submission->children->isNotEmpty())
+        <div class="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+            <h2 class="text-sm font-semibold text-slate-900">Rantai Versi Pengajuan</h2>
+
+            @if ($submission->parent)
+                <p class="mt-2 text-sm text-slate-700">
+                    Pengajuan ini adalah <strong>versi perbaikan</strong> dari
+                    <a href="{{ route('pengelola.pengajuan.show', $submission->parent) }}" class="font-medium text-emerald-700 hover:underline">
+                        pengajuan #{{ $submission->parent->id }}</a>
+                    <x-status-badge :status="$submission->parent->status" />
+                </p>
+            @endif
+
+            @if ($submission->children->isNotEmpty())
+                <p class="mt-2 text-sm text-slate-700">
+                    Pengajuan ini <strong>sudah digantikan</strong> oleh versi perbaikan:
+                </p>
+                <ul class="mt-1 space-y-1 text-sm">
+                    @foreach ($submission->children as $child)
+                        <li class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('pengelola.pengajuan.show', $child) }}" class="font-medium text-emerald-700 hover:underline">
+                                Pengajuan #{{ $child->id }}</a>
+                            <x-status-badge :status="$child->status" />
+                            <span class="text-slate-500">{{ $child->created_at?->translatedFormat('d M Y, H:i') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+                <p class="mt-2 text-xs text-slate-500">
+                    Versi ini tidak lagi dapat diperbaiki; gunakan versi terbaru di atas.
+                </p>
+            @endif
+        </div>
+    @endif
+
     <div class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white">
         <div class="border-b border-slate-200 bg-slate-50 px-5 py-3">
             <h2 class="text-sm font-semibold text-slate-900">Usulan Perubahan (nilai lama → baru)</h2>
@@ -117,7 +151,18 @@
                 </form>
             @endcan
 
-            @if ($submission->status === 'submitted' || $submission->status === 'under_review')
+            @can('revise', $submission)
+                <a href="{{ route('pengelola.pengajuan.create', ['revision' => $submission->id]) }}"
+                    class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                    Buat Versi Perbaikan
+                </a>
+            @endcan
+
+            @if ($submission->status === 'needs_revision' && $submission->isSuperseded())
+                <p class="text-sm text-slate-500">
+                    Sudah digantikan versi perbaikan yang lebih baru.
+                </p>
+            @elseif ($submission->status === 'submitted' || $submission->status === 'under_review')
                 <p class="text-sm text-slate-500">Menunggu verifikasi admin dinas.</p>
             @endif
         </div>

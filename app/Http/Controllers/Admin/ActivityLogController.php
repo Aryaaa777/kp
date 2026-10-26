@@ -30,7 +30,7 @@ class ActivityLogController extends Controller
             ->with('user')
             ->when($action !== '', fn (Builder $query) => $query->where('action', $action))
             ->when(filled($userId), fn (Builder $query) => $query->where('user_id', $userId))
-            ->when($q !== '', fn (Builder $query) => $query->where('description', 'like', "%{$q}%"))
+            ->when($q !== '', fn (Builder $query) => $query->whereRaw("description LIKE ? ESCAPE '!'", ['%'.$this->escapeLike($q).'%']))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate(30)
@@ -50,5 +50,14 @@ class ActivityLogController extends Controller
                 ->pluck('action', 'action'),
             'userOptions' => User::query()->orderBy('name')->pluck('name', 'id'),
         ]);
+    }
+
+    /**
+     * Escape karakter wildcard LIKE agar diperlakukan sebagai literal.
+     * Urutan: `!` dulu, lalu `%` dan `_` dengan escape character `!`.
+     */
+    private function escapeLike(string $value): string
+    {
+        return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value);
     }
 }

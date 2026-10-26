@@ -39,8 +39,12 @@ class StoreGovernanceRecordRequest extends FormRequest
             ],
             'period' => ['required', 'string', Rule::in(array_keys(GovernanceRecord::periodOptions()))],
             'meeting_count' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'rat_on_time' => ['nullable', 'boolean'],
+            'financial_report_available' => ['nullable', 'boolean'],
+            'basic_documents_complete' => ['nullable', 'boolean'],
             'governance_score' => ['nullable', 'numeric', 'between:0,100'],
             'summary' => ['nullable', 'string', 'max:2000'],
+            'compliance_notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['nullable', 'string', Rule::in(GovernanceRecord::STATUSES)],
         ];
     }
@@ -54,8 +58,12 @@ class StoreGovernanceRecordRequest extends FormRequest
             'period_year' => 'tahun periode',
             'period' => 'periode',
             'meeting_count' => 'jumlah rapat',
+            'rat_on_time' => 'RAT tepat waktu',
+            'financial_report_available' => 'laporan keuangan tersedia',
+            'basic_documents_complete' => 'dokumen dasar lengkap',
             'governance_score' => 'skor tata kelola',
             'summary' => 'ringkasan',
+            'compliance_notes' => 'catatan kepatuhan',
             'status' => 'status',
         ];
     }

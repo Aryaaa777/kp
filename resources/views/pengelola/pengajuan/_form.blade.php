@@ -2,6 +2,7 @@
     $action = $action ?? route('pengelola.pengajuan.store');
     $method = $method ?? 'POST';
     $submission = $submission ?? null;
+    $revision = $revision ?? null;
     $values = $values ?? [];
 @endphp
 
@@ -11,13 +12,18 @@
         @method($method)
     @endif
 
-    @if (count($modules) > 1)
+    @if ($revision)
+        {{-- Versi perbaikan (FR-031/FR-142): tautkan pengajuan baru ke versi induk. --}}
+        <input type="hidden" name="parent_submission_id" value="{{ $revision->id }}">
+    @endif
+
+    @if ($revision || count($modules) <= 1)
+        <input type="hidden" name="module" value="{{ $module }}">
+    @else
         <div class="rounded-lg border border-slate-200 bg-white p-5">
             <x-form.select name="module" label="Modul data" :options="$modules" :selected="$module" required
                 help="Pilih modul data yang ingin diubah." />
         </div>
-    @else
-        <input type="hidden" name="module" value="{{ $module }}">
     @endif
 
     <div class="rounded-lg border border-slate-200 bg-white p-5">
@@ -52,9 +58,9 @@
     <div class="flex items-center gap-3">
         <button type="submit"
             class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-            Simpan Draft
+            {{ $revision ? 'Simpan Versi Perbaikan' : 'Simpan Draft' }}
         </button>
-        <a href="{{ $submission ? route('pengelola.pengajuan.show', $submission) : route('pengelola.pengajuan.index') }}"
+        <a href="{{ $submission ? route('pengelola.pengajuan.show', $submission) : ($revision ? route('pengelola.pengajuan.show', $revision) : route('pengelola.pengajuan.index')) }}"
             class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
             Batal
         </a>

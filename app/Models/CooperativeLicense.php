@@ -183,4 +183,44 @@ class CooperativeLicense extends Model
     {
         $query->where('license_type', $type);
     }
+
+    /**
+     * Izin yang **sudah** kedaluwarsa menurut tanggal berlaku (FR-050).
+     *
+     * Versi query dari `isExpired()` agar agregasi daftar (mis. dashboard admin F6)
+     * memakai definisi yang sama tanpa memuat seluruh baris ke PHP.
+     *
+     * @param  Builder<CooperativeLicense>  $query
+     */
+    public function scopeExpiredByDate(Builder $query): void
+    {
+        $query->whereNotNull('tanggal_berlaku_sampai')
+            ->whereDate('tanggal_berlaku_sampai', '<', today());
+    }
+
+    /**
+     * Izin yang akan kedaluwarsa dalam `$days` hari ke depan (FR-022).
+     *
+     * Batas bawah = hari ini (izin yang sudah lewat tidak termasuk; itu FR-050).
+     *
+     * @param  Builder<CooperativeLicense>  $query
+     */
+    public function scopeExpiringByDate(Builder $query, int $days = 30): void
+    {
+        $days = max(1, $days);
+
+        $query->whereNotNull('tanggal_berlaku_sampai')
+            ->whereDate('tanggal_berlaku_sampai', '>=', today())
+            ->whereDate('tanggal_berlaku_sampai', '<=', today()->addDays($days));
+    }
+
+    /**
+     * Apakah izin akan kedaluwarsa dalam `$days` hari (FR-022).
+     */
+    public function isExpiringSoon(int $days = 30): bool
+    {
+        return $this->tanggal_berlaku_sampai !== null
+            && ! $this->isExpired()
+            && $this->tanggal_berlaku_sampai->lte(today()->addDays(max(1, $days)));
+    }
 }

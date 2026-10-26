@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\CooperativeLicense;
 use App\Models\User;
+use App\Policies\Concerns\ChecksAdminRegion;
 
 /**
  * Otorisasi izin usaha & izin usaha simpan pinjam (FR-050/051/060/061).
@@ -15,15 +16,17 @@ use App\Models\User;
  */
 class CooperativeLicensePolicy
 {
+    use ChecksAdminRegion;
+
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
     }
 
     public function view(User $user, CooperativeLicense $license): bool
     {
-        if ($user->hasRole('admin_dinas')) {
-            return true;
+        if ($user->hasAnyRole(['admin_dinas', 'admin_wilayah'])) {
+            return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
         }
 
         return $user->koperasi_id !== null
@@ -32,17 +35,17 @@ class CooperativeLicensePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $user->hasAnyRole(['admin_dinas', 'admin_wilayah']);
     }
 
     public function update(User $user, CooperativeLicense $license): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
     }
 
     public function delete(User $user, CooperativeLicense $license): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
     }
 
     /**
@@ -50,16 +53,16 @@ class CooperativeLicensePolicy
      */
     public function verify(User $user, CooperativeLicense $license): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
     }
 
     public function restore(User $user, CooperativeLicense $license): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
     }
 
     public function forceDelete(User $user, CooperativeLicense $license): bool
     {
-        return $user->hasRole('admin_dinas');
+        return $this->adminCanAccessCooperative($user, (int) $license->cooperative_id);
     }
 }
