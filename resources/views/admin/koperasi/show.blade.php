@@ -114,7 +114,7 @@
             </dl>
 
             <form method="POST" action="{{ route('admin.koperasi.unpublish', $cooperative) }}" class="mt-4"
-                onsubmit="return confirm('Tarik publikasi koperasi ini dari direktori publik?');">
+                data-confirm="Tarik publikasi koperasi ini dari direktori publik?">
                 @csrf
                 <button type="submit"
                     class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
@@ -130,7 +130,7 @@
             </p>
         @else
             <form method="POST" action="{{ route('admin.koperasi.publish', $cooperative) }}" class="mt-4"
-                onsubmit="return confirm('Publikasikan koperasi ini ke direktori publik?');">
+                data-confirm="Publikasikan koperasi ini ke direktori publik?">
                 @csrf
                 <button type="submit"
                     class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
@@ -226,7 +226,7 @@
         </p>
 
         <form method="POST" action="{{ route('admin.koperasi.destroy', $cooperative) }}" class="mt-4"
-            onsubmit="return confirm('Arsipkan koperasi ini?');">
+            data-confirm="Arsipkan koperasi ini?">
             @csrf
             @method('DELETE')
 

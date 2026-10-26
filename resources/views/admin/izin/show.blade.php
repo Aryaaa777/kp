@@ -150,7 +150,7 @@
                                         </form>
 
                                         <form method="POST" action="{{ route('admin.dokumen.destroy', $document) }}" class="mt-2 inline"
-                                            onsubmit="return confirm('Arsipkan dokumen ini dari daftar?');">
+                                            data-confirm="Arsipkan dokumen ini dari daftar?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:underline">Arsipkan</button>
@@ -197,7 +197,7 @@
         </p>
 
         <form method="POST" action="{{ route('admin.koperasi.izin.destroy', [$cooperative, $license]) }}" class="mt-4"
-            onsubmit="return confirm('Arsipkan izin ini?');">
+            data-confirm="Arsipkan izin ini?">
             @csrf
             @method('DELETE')
 

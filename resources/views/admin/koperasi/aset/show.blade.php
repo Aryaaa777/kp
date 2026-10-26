@@ -66,7 +66,7 @@
         <h2 class="text-sm font-semibold text-red-800">Arsipkan aset</h2>
         <p class="mt-1 text-sm text-red-700">Data tidak dihapus permanen (soft delete, BR-011). Data periode lain tidak terpengaruh.</p>
         <form method="POST" action="{{ route('admin.koperasi.aset.destroy', [$cooperative, $asset]) }}" class="mt-4"
-            onsubmit="return confirm('Arsipkan aset ini?');">
+            data-confirm="Arsipkan aset ini?">
             @csrf
             @method('DELETE')
             <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Arsipkan</button>

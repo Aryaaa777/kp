@@ -83,7 +83,7 @@
                                 <td class="whitespace-nowrap px-5 py-4 text-right">
                                     @if ($showArchived)
                                         <form method="POST" action="{{ route('admin.koperasi.tata-kelola.restore', [$cooperative, $record]) }}"
-                                            class="inline" onsubmit="return confirm('Pulihkan catatan tata kelola ini?');">
+                                            class="inline" data-confirm="Pulihkan catatan tata kelola ini?">
                                             @csrf
                                             <button type="submit" class="text-emerald-600 hover:underline">Pulihkan</button>
                                         </form>

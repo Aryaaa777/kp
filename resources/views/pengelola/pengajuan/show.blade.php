@@ -133,7 +133,7 @@
 
             @can('submit', $submission)
                 <form method="POST" action="{{ route('pengelola.pengajuan.submit', $submission) }}"
-                    onsubmit="return confirm('Kirim pengajuan ini untuk diverifikasi?');">
+                    data-confirm="Kirim pengajuan ini untuk diverifikasi?">
                     @csrf
                     <button type="submit" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
                         Kirim untuk Verifikasi
@@ -143,7 +143,7 @@
 
             @can('archive', $submission)
                 <form method="POST" action="{{ route('pengelola.pengajuan.archive', $submission) }}"
-                    onsubmit="return confirm('Arsipkan pengajuan ini?');">
+                    data-confirm="Arsipkan pengajuan ini?">
                     @csrf
                     <button type="submit" class="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50">
                         Arsipkan

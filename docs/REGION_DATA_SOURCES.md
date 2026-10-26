@@ -260,20 +260,20 @@ Laporan lengkap: `storage/app/reports/region-audit-2026-10-26.json`.
 
 Empat migrasi yang sebelumnya `Pending` kini **sudah dijalankan pada database lokal** MariaDB 10.4.32
 (batch 7). Empat migrasi F8 berikutnya juga dijalankan (batch 8). Tinjauan di bawah tetap berlaku
-sebagai catatan desain; **MariaDB 10.11/produksi belum diverifikasi**.
+sebagai catatan desain; **MariaDB 10.11.19 lokal sudah diuji; staging/produksi belum**.
 
 | Migrasi | Isi | SQLite | MariaDB 10.11 |
 | --- | --- | --- | --- |
-| `2026_10_19_000001_add_parent_submission_id_to_submissions_table` | kolom nullable `submissions.parent_submission_id`, indeks eksplisit, self-FK `ON DELETE SET NULL` | kolom + indeks dibuat; **self-FK sengaja dilewati**; `down()` melepas indeks sebelum kolom | kolom + indeks + self-FK; `down()` melepas FK berdasarkan definisi. Perilaku DDL nyata **belum diverifikasi** |
-| `2026_10_24_000001_add_unpublished_tracking_to_cooperatives_table` | `unpublished_at`, `unpublished_by` nullable; FK ke `users.id` `ON DELETE SET NULL` | kolom dibuat; **FK dilewati**; `down()` hanya melepas objek milik migrasi | kolom + FK; `down()` memakai `dropForeign([kolom])`. **Belum diverifikasi** |
-| `2026_10_24_000002_add_status_operasional_to_cooperatives_table` | `status_operasional` enum nullable (`aktif`, `tidak_aktif`, `bubar`) | enum dipetakan ke `varchar` + `CHECK` oleh grammar Laravel; kolom nullable | enum native; kolom nullable. **Belum diverifikasi** |
-| `2026_10_24_000003_create_settings_table` | Tabel `settings` (`key` unik, `value` teks, timestamps) untuk FR-191 | dibuat sebagai tabel biasa; tidak ada FK | tabel + unique index `key`. **Belum diverifikasi** |
+| `2026_10_19_000001_add_parent_submission_id_to_submissions_table` | kolom nullable `submissions.parent_submission_id`, indeks eksplisit, self-FK `ON DELETE SET NULL` | kolom + indeks dibuat; **self-FK sengaja dilewati**; `down()` melepas indeks sebelum kolom | kolom + indeks + self-FK; `down()` melepas FK berdasarkan definisi. Perilaku DDL nyata terverifikasi pada MariaDB 10.11.19 lokal |
+| `2026_10_24_000001_add_unpublished_tracking_to_cooperatives_table` | `unpublished_at`, `unpublished_by` nullable; FK ke `users.id` `ON DELETE SET NULL` | kolom dibuat; **FK dilewati**; `down()` hanya melepas objek milik migrasi | kolom + FK; `down()` memakai `dropForeign([kolom])`. Terverifikasi pada MariaDB 10.11.19 lokal |
+| `2026_10_24_000002_add_status_operasional_to_cooperatives_table` | `status_operasional` enum nullable (`aktif`, `tidak_aktif`, `bubar`) | enum dipetakan ke `varchar` + `CHECK` oleh grammar Laravel; kolom nullable | enum native; kolom nullable. Terverifikasi pada MariaDB 10.11.19 lokal |
+| `2026_10_24_000003_create_settings_table` | Tabel `settings` (`key` unik, `value` teks, timestamps) untuk FR-191 | dibuat sebagai tabel biasa; tidak ada FK | tabel + unique index `key`. Terverifikasi pada MariaDB 10.11.19 lokal |
 
 Kesimpulan: tidak ada migrasi baru yang diperlukan untuk data wilayah (tabel `regions` sudah ada).
 Bukti runtime tersedia dari MariaDB **10.4.32** lokal (migrasi `Ran`, impor, dan audit `region_id`),
-dan suite tes berjalan pada SQLite `:memory:`. Namun **DDL/migrasi pada MariaDB 10.11 belum
-dijalankan**; kompatibilitas target **belum terbukti**. Verifikasi runtime MariaDB 10.11 tetap menjadi
-**Q-014** dan memerlukan staging/kredensial.
+dan suite tes berjalan pada SQLite `:memory:`. DDL/migrasi juga sudah dijalankan pada MariaDB
+**10.11.19** portabel lokal lewat suite penuh. Staging/produksi tetap **belum** diverifikasi;
+verifikasi runtime di sana tetap menjadi **Q-014** dan memerlukan staging/kredensial.
 
 ---
 
@@ -284,5 +284,5 @@ dijalankan**; kompatibilitas target **belum terbukti**. Verifikasi runtime Maria
   lama (`id = 1`) belum memiliki wilayah dan tidak ada pemetaan deterministik untuk backfill.
 - Nama OCR dapat mengandung artefak yang belum terbukti; jangan mengoreksi tanpa sumber.
 - Kode BPS tidak dipakai; jangan mencampur kode BPS dan Kemendagri.
-- Kompatibilitas MariaDB 10.11 belum diverifikasi.
+- Kompatibilitas MariaDB 10.11.19 sudah diuji pada server portabel lokal; staging/produksi belum.
 - Perubahan dataset harus disertai pembaruan checksum, laporan, dan catatan keputusan.

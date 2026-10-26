@@ -340,3 +340,14 @@ F4 (6d) + F5 (7d) + F6 (4d) + F7 (3d) = **20 hari kerja** untuk MVP lengkap (F0â
 F8 opsional tambahan ~6 hari.
 
 Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
+
+---
+
+## Pengerasan produksi (26 Oktober 2026)
+
+- Header keamanan global (HSTS, CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`,
+  `Permissions-Policy`, COOP) dan `app:production-check` sudah ditambahkan.
+- Suite penuh lulus pada SQLite dan MariaDB 10.11.19 portabel lokal (database uji terpisah);
+  tes FK dibuat sadar driver.
+- **Belum go-live:** staging resmi, HTTPS/domain, SMTP, backup/restore, `sql_mode` produksi, dan uji
+  beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34 dan `docs/HANDOVER.md` 8.

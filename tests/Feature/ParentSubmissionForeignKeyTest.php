@@ -98,12 +98,30 @@ class ParentSubmissionForeignKeyTest extends TestCase
 
     public function test_sqlite_only_skips_the_self_foreign_key_by_design(): void
     {
+        if (DB::getDriverName() !== 'sqlite') {
+            $this->markTestSkipped('Perilaku khusus driver SQLite.');
+        }
+
         // Tes SQLite-only (F-69-10): guard driver membuat self-FK tidak dibuat pada SQLite.
         // Bila kelak guard dihapus, tes ini akan gagal dan memaksa pembaruan dokumentasi.
         $this->assertNull(
             $this->foreignKeyMetadata(),
             'Migrasi sengaja melewati self-FK pada SQLite; validasi FK memerlukan MariaDB.'
         );
+    }
+
+    public function test_mysql_creates_the_self_foreign_key_with_set_null(): void
+    {
+        if (! in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('Memerlukan koneksi MySQL/MariaDB.');
+        }
+
+        $foreignKey = $this->foreignKeyMetadata();
+
+        $this->assertNotNull($foreignKey, 'Self-FK harus dibuat pada MySQL/MariaDB.');
+        $this->assertSame(self::TABLE, $foreignKey['foreign_table']);
+        $this->assertSame(['id'], $foreignKey['foreign_columns']);
+        $this->assertSame('set null', strtolower((string) $foreignKey['on_delete']));
     }
 
     public function test_migration_source_declares_the_null_on_delete_foreign_key(): void
@@ -206,9 +224,7 @@ class ParentSubmissionForeignKeyTest extends TestCase
 
     public function test_up_recreates_a_missing_index_when_the_column_already_exists(): void
     {
-        Schema::table(self::TABLE, function (Blueprint $table): void {
-            $table->dropIndex(self::INDEX);
-        });
+        $this->dropMigrationForeignKeyAndIndex();
 
         $this->assertTrue(Schema::hasColumn(self::TABLE, self::COLUMN));
         $this->assertFalse($this->hasColumnIndex());
@@ -217,6 +233,10 @@ class ParentSubmissionForeignKeyTest extends TestCase
 
         $this->assertTrue(Schema::hasColumn(self::TABLE, self::COLUMN));
         $this->assertTrue($this->hasColumnIndex(), 'Indeks harus dibuat ulang tanpa menyentuh kolom.');
+
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->assertNotNull($this->foreignKeyMetadata(), 'FK harus dibuat ulang setelah indeks.');
+        }
     }
 
     public function test_down_removes_column_and_index_but_keeps_other_schema(): void
@@ -511,9 +531,7 @@ class ParentSubmissionForeignKeyTest extends TestCase
     public function test_up_completes_a_partial_schema_without_duplicating_the_index(): void
     {
         // Skema parsial (kolom ada, indeks hilang) → dilengkapi tanpa duplikasi walau dijalankan dua kali.
-        Schema::table(self::TABLE, function (Blueprint $table): void {
-            $table->dropIndex(self::INDEX);
-        });
+        $this->dropMigrationForeignKeyAndIndex();
 
         $this->migration()->up();
         $this->migration()->up();
@@ -528,6 +546,10 @@ class ParentSubmissionForeignKeyTest extends TestCase
             (string) collect(Schema::getIndexes(self::TABLE))->firstWhere('name', self::INDEX)['name'],
             'Indeks milik migrasi harus kembali dengan nama yang benar.'
         );
+
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->assertNotNull($this->foreignKeyMetadata(), 'FK harus kembali setelah indeks dipulihkan.');
+        }
     }
 
     public function test_up_creates_the_column_then_index_then_foreign_key_when_all_are_missing(): void
@@ -1218,6 +1240,29 @@ class ParentSubmissionForeignKeyTest extends TestCase
         return collect(Schema::getIndexes(self::TABLE))->contains(
             fn (array $index) => ($index['columns'] ?? []) === [self::COLUMN]
         );
+    }
+
+    /**
+     * Melepas FK lalu indeks milik migrasi untuk mensimulasikan skema parsial.
+     *
+     * MariaDB menolak menghapus indeks yang masih dipakai FK (errno 1553), jadi
+     * FK harus dilepas lebih dulu. SQLite tidak memiliki self-FK dari migrasi ini.
+     */
+    private function dropMigrationForeignKeyAndIndex(): void
+    {
+        $foreignKey = $this->foreignKeyMetadata();
+
+        if ($foreignKey !== null && isset($foreignKey['name'])) {
+            Schema::table(self::TABLE, function (Blueprint $table) use ($foreignKey): void {
+                $table->dropForeign((string) $foreignKey['name']);
+            });
+        }
+
+        if ($this->hasColumnIndex()) {
+            Schema::table(self::TABLE, function (Blueprint $table): void {
+                $table->dropIndex(self::INDEX);
+            });
+        }
     }
 
     /**

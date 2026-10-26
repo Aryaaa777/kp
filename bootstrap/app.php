@@ -4,6 +4,7 @@ use App\Http\Middleware\EnforceSessionIdleTimeout;
 use App\Http\Middleware\EnsureAdminRegionAccess;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Header keamanan global, termasuk untuk respons error (NFR-SEC-017).
+        $middleware->append(SecurityHeaders::class);
+
+        // Reverse proxy tepercaya dibaca oleh middleware bawaan Laravel dari
+        // `config/trustedproxy.php` (TRUSTED_PROXIES), bukan dari bootstrap,
+        // agar tetap benar saat `config:cache` aktif.
+
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'active' => EnsureUserIsActive::class,

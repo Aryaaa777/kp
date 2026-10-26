@@ -71,7 +71,7 @@ MAIL_MAILER=log
   go-live. Jangan menaruh kredensial email di repositori.
 - Test memakai `Notification::fake()` dan `MAIL_MAILER=array`, sehingga tidak ada email keluar.
 
-### 3.1 Konfigurasi F8 (PROVISIONAL)
+### 3.2 Konfigurasi F8 (PROVISIONAL)
 
 Semua nilai berikut **bukan** aturan resmi dinas dan dapat diubah tanpa mengubah kode:
 
@@ -89,6 +89,33 @@ GOVERNANCE_MIN_MEETINGS=2
 - Saat `ADMIN_REGION_SCOPE_ENABLED=true`, akun `admin_wilayah` **wajib** memiliki `region_id`;
   `admin_dinas` tetap super admin. Jangan mengaktifkan di produksi tanpa keputusan resmi.
 - Ekspor laporan memakai CSV dan hanya data `approved`; tidak ada paket Excel/PDF tambahan.
+
+### 3.3 Header keamanan & reverse proxy (produksi)
+
+```dotenv
+SECURITY_HSTS_ENABLED=true
+SECURITY_HSTS_MAX_AGE=31536000
+SECURITY_HSTS_INCLUDE_SUBDOMAINS=false
+SECURITY_HSTS_PRELOAD=false
+# Nonaktif secara default agar Vite HMR lokal tidak terganggu.
+SECURITY_CSP_ENABLED=false
+SECURITY_CSP_REPORT_ONLY=false
+SECURITY_X_FRAME_OPTIONS=DENY
+# Isi hanya bila di belakang reverse proxy/load balancer.
+TRUSTED_PROXIES=
+```
+
+- HSTS hanya dikirim pada request HTTPS. Jangan aktifkan `includeSubDomains`/`preload` sebelum
+  domain resmi dan seluruh subdomainnya dipastikan HTTPS.
+- Di produksi, `SECURITY_CSP_ENABLED=true` **wajib**. CSP default memakai `script-src 'self'` tanpa
+  `unsafe-inline`; inline `onsubmit` sudah diganti `data-confirm` + listener di `resources/js/app.js`.
+  `style-src` masih mengizinkan atribut style inline untuk progress bar.
+- Bila memakai `npm run dev`, biarkan CSP nonaktif. Setelah build produksi, uji ulang halaman dengan
+  DevTools Console agar tidak ada pelanggaran CSP.
+- `TRUSTED_PROXIES` dibaca dari `config/trustedproxy.php`; ini diperlukan agar Laravel mendeteksi
+  HTTPS dari `X-Forwarded-Proto` di belakang proxy. Jangan gunakan `*` pada host yang dapat diakses
+  langsung dari internet.
+- `php artisan app:production-check` memeriksa HSTS/CSP dan akan gagal bila CSP masih nonaktif.
 
 ## 4. Menyiapkan Database
 
@@ -200,9 +227,34 @@ php artisan db:seed --class=DemoSeeder
 
 ## 7. Pengujian
 
+Suite default memakai SQLite `:memory:`:
+
 ```powershell
 php artisan test
 ```
+
+Untuk memverifikasi driver MySQL/MariaDB, gunakan database uji **terpisah** dan konfigurasi contoh
+(lihat `phpunit.mariadb.xml.example`):
+
+```powershell
+Copy-Item phpunit.mariadb.xml.example phpunit.mariadb.xml
+# edit DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD ke database uji khusus
+php vendor\bin\phpunit -c phpunit.mariadb.xml --no-coverage
+```
+
+`RefreshDatabase` menjalankan migrasi bersih pada database uji. **Jangan** mengarahkan konfigurasi ini
+ke database staging/produksi berisi data. Pada 26 Oktober 2026 suite yang sama lulus pada MariaDB
+10.11.19 portabel lokal dan MariaDB 10.4.32 lokal.
+
+Pemeriksaan kesiapan produksi (read-only):
+
+```powershell
+php artisan app:production-check
+php artisan app:production-check --json
+```
+
+Perintah memeriksa konfigurasi wajib, header keamanan, izin storage, aset build, koneksi/versi
+database, migrasi tertunda, data wilayah, dan akun admin. Exit code `1` bila ada `FAIL`.
 
 ## 8. Struktur Direktori (ringkas)
 

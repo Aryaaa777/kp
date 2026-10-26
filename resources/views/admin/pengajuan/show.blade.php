@@ -149,7 +149,7 @@
         @elseif (in_array($submission->status, ['approved', 'rejected'], true))
             <p class="mt-2 text-sm text-slate-600">Pengajuan telah selesai. Anda dapat mengarsipkannya.</p>
             <form method="POST" action="{{ route('admin.pengajuan.archive', $submission) }}" class="mt-3"
-                onsubmit="return confirm('Arsipkan pengajuan ini?');">
+                data-confirm="Arsipkan pengajuan ini?">
                 @csrf
                 <button type="submit" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Arsipkan

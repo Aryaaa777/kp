@@ -96,6 +96,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Referensi wilayah (Q-012)
+    |--------------------------------------------------------------------------
+    |
+    | Jumlah baris dataset Jawa Barat yang diharapkan. Dipakai oleh perintah
+    | `app:production-check` sebagai peringatan bila dataset belum lengkap.
+    | Ini bukan aturan resmi; sesuaikan setelah sumber resmi dikonfirmasi.
+    |
+    */
+
+    'regions' => [
+        'expected_total' => (int) env('REGIONS_EXPECTED_TOTAL', 6612),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | F8 — Peringatan izin mendekati kedaluwarsa (FR-022)
     |--------------------------------------------------------------------------
     |

@@ -1,8 +1,9 @@
 # Checklist Deployment & Backup — Tim IT
 
 > Dokumen ini adalah **checklist operasional** untuk menindaklanjuti keputusan **Q-014** (Tahap 105).
-> Isinya **belum** dijalankan: tidak ada server, domain, kredensial, atau staging yang tersedia saat
-> dokumen dibuat. Karena itu **tidak ada** klaim bahwa aplikasi sudah terverifikasi di MariaDB/produksi.
+> Isinya **belum** dijalankan di staging/produksi: server, domain, kredensial, SMTP, dan akses backup
+> belum tersedia. Pengerasan kode dan verifikasi MariaDB 10.11.19 portabel sudah dilakukan
+> (lihat `docs/DECISIONS.md` 34), tetapi **tidak ada** klaim bahwa aplikasi sudah siap produksi.
 >
 > Jangan menaruh domain, IP, atau kredensial nyata di repositori. Nilai `<...>` diisi oleh tim IT.
 
@@ -28,6 +29,12 @@
 - [ ] Web server mengarah ke `public/` (bukan root proyek).
 - [ ] `.env` produksi: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<subdomain>.go.id`,
       `APP_TIMEZONE=Asia/Jakarta`, kredensial DB khusus, `SESSION_SECURE_COOKIE=true`.
+- [ ] Header keamanan: `SECURITY_HSTS_ENABLED=true`, `SECURITY_CSP_ENABLED=true`,
+      `SECURITY_CSP_REPORT_ONLY=false`, `SECURITY_X_FRAME_OPTIONS=DENY`. HSTS hanya dikirim pada
+      HTTPS. CSP default memakai `script-src 'self'` tanpa `unsafe-inline`.
+- [ ] Bila berada di belakang reverse proxy/load balancer: isi `TRUSTED_PROXIES` dengan IP/CIDR
+      proxy, jangan `*` pada host yang dapat diakses langsung. Uji deteksi HTTPS lewat
+      `X-Forwarded-Proto`.
 - [ ] Sesi: `SESSION_DRIVER=database` (agar daftar/pengakhiran sesi FR-003 berfungsi),
       `SESSION_LIFETIME` sesuai kebijakan, dan `SESSION_IDLE_TIMEOUT=30` (atau nilai yang disetujui).
       Pastikan tabel `sessions` ada setelah migrasi.
@@ -48,14 +55,15 @@
       SELECT VERSION();
       SELECT @@sql_mode;
       ```
-      Catat hasilnya. Proyek **belum** diverifikasi pada MariaDB; jangan menganggap SQLite sebagai bukti.
+      Catat hasilnya. Proyek sudah diuji pada MariaDB 10.11.19 portabel lokal, tetapi staging/produksi
+      tetap wajib diverifikasi; jangan menganggap SQLite sebagai bukti.
 - [ ] Migrasi dijalankan **terserialisasi** (satu proses `migrate` pada satu waktu — tidak ada migration
       lock bawaan):
       ```sh
       php artisan migrate --force
       ```
-- [ ] Migrasi yang harus tersedia pada target (semuanya sudah `Ran` di DB lokal MariaDB 10.4.32,
-      **belum** diverifikasi pada MariaDB 10.11/produksi):
+- [ ] Migrasi yang harus tersedia pada target (sudah `Ran` di DB lokal MariaDB 10.4.32 dan diuji
+      pada MariaDB 10.11.19 portabel; staging/produksi **belum** diverifikasi):
       `2026_10_19_000001_add_parent_submission_id_to_submissions_table`,
       `2026_10_24_000001_add_unpublished_tracking_to_cooperatives_table`,
       `2026_10_24_000002_add_status_operasional_to_cooperatives_table`,
@@ -87,10 +95,17 @@
       5.957 desa/kelurahan). **Jangan** backfill `region_id` tanpa pemetaan deterministik dan
       **jangan** mengubahnya menjadi `NOT NULL` sebelum audit tuntas. Rincian:
       `docs/REGION_DATA_SOURCES.md`.
-- [ ] Jalankan suite pada **database uji terpisah**—bukan DB staging berisi data. `phpunit.xml`
+- [ ] Jalankan suite pada **database uji terpisah**-bukan DB staging berisi data. `phpunit.xml`
       memaksa SQLite `:memory:`, sehingga `php artisan test --no-coverage` **tidak otomatis** menguji
-      MariaDB. Untuk uji MariaDB, gunakan konfigurasi PHPUnit/database uji khusus dan jangan memakai
-      `RefreshDatabase` pada data staging.
+      MariaDB. Untuk uji MariaDB:
+      ```sh
+      cp phpunit.mariadb.xml.example phpunit.mariadb.xml
+      # edit DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD ke database uji khusus
+      php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage
+      ```
+      `RefreshDatabase` menjalankan migrasi bersih pada database uji. **Jangan** mengarahkan file ini
+      ke staging/produksi berisi data. Pada 26 Oktober 2026 suite yang sama lulus pada MariaDB
+      10.11.19 portabel lokal (610 tes, 609 lulus, 1 skipped).
 - [ ] Akun admin pertama: `php artisan user:create` (password diminta interaktif; jangan ditanam di kode).
 
 ## 4. TLS & domain
@@ -100,6 +115,11 @@
       masa berlaku.
 - [ ] Redirect HTTP → HTTPS; hanya 80/443 terbuka untuk publik.
 - [ ] Uji: `curl -I https://<subdomain>.go.id` → 200/302 dan header TLS valid.
+- [ ] Verifikasi header keamanan pada respons HTTPS: `Strict-Transport-Security`,
+      `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+      `Referrer-Policy`, dan `Permissions-Policy`. HSTS **tidak** boleh muncul pada HTTP biasa.
+      Buka DevTools Console dan pastikan tidak ada pelanggaran CSP pada halaman utama, login,
+      direktori, dashboard, dan form admin.
 
 ## 5. Backup
 
@@ -139,6 +159,8 @@
 
 - [ ] SSH: hanya key, `PermitRootLogin no`, firewall 22/80/443.
 - [ ] `APP_DEBUG=false`; halaman error tidak membocorkan stack trace.
+- [ ] `SECURITY_HSTS_ENABLED=true` dan `SECURITY_CSP_ENABLED=true`; CSP tidak memakai
+      `script-src 'unsafe-inline'`; tidak ada inline event handler baru di Blade.
 - [ ] Rotasi log + monitoring disk, sertifikat, dan keberhasilan backup (alert bila gagal).
 - [ ] Tidak ada akun default berpassword; akun admin dibuat lewat `user:create`.
 - [ ] Audit akses berkala ke server & backup.
@@ -147,6 +169,8 @@
 
 - [ ] `php artisan config:cache && php artisan route:cache && php artisan view:cache`
 - [ ] `php artisan migrate --force` (terserialisasi) + `php artisan migrate:status`
+- [ ] `php artisan app:production-check` -> **0 FAIL**; simpan keluaran `--json` sebagai bukti.
+      Periksa dan setujui setiap `WARN` (mis. `SESSION_ENCRYPT`, cache config/route).
 - [ ] Smoke test: login admin, direktori publik, profil publik, tarik publikasi → hilang dari direktori.
 - [ ] Smoke test FR-003: biarkan sesi idle melewati `SESSION_IDLE_TIMEOUT` → dipaksa login ulang; buka
       `/akun/keamanan` → daftar sesi tampil (driver database) dan “akhiri sesi lain” bekerja.

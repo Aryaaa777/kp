@@ -3,6 +3,25 @@
 // desa/kelurahan). Tanpa JavaScript, semua opsi tetap tampil dan validasi
 // konsistensi tetap dilakukan di server.
 //
+//
+// Konfirmasi tindakan destruktif tanpa inline event handler, agar CSP
+// `script-src 'self'` dapat dipakai di produksi (NFR-SEC-017).
+//
+document.addEventListener('submit', (event) => {
+    const form = event.target;
+
+    if (!(form instanceof HTMLFormElement)) {
+        return;
+    }
+
+    const message = form.dataset.confirm;
+
+    if (message && !window.confirm(message)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const cascade = document.querySelector('[data-region-cascade]');
 

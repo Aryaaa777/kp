@@ -15,7 +15,8 @@
 | npm | **10.9.2** | `npm.cmd -v` | Pakai `npm.cmd` (kebijakan eksekusi PowerShell memblokir `npm.ps1`) |
 | Git | **2.48.1.windows.1** | `git --version` | Branch awal: `main` |
 | Database server | **MariaDB 10.4.32** | `mysql --version` (XAMPP) | Tersedia sebagai service Windows `mysql` (Running) |
-| Database client | `C:\xampp\mysql\bin\mysql.exe` | — | Tidak ada di `PATH` |
+| Database uji target | **MariaDB 10.11.19** | `mariadb.exe --version` (portabel, port 3307) | Hanya untuk verifikasi suite; bukan service/staging/produksi. Binary tidak di-commit. |
+| Database client | `C:\xampp\mysql\bin\mysql.exe` | - | Tidak ada di `PATH` |
 
 ## Dependency Frontend (terpasang)
 
@@ -41,34 +42,47 @@
 | --- | --- | --- | --- | --- |
 | Kepmendagri 300.2.2-2138/2025 | 25 April 2025, 4.428 halaman | `kepmendagri_2138_2025.pdf` (tidak disimpan di repo) | `4a40e41cc2be515ca5b88df17a91e3f7ac6161ce7326a9fd38691753efa6b3fd` | Domain publik (UU 28/2014 Pasal 42); sumber kode & nama |
 | BPS Master File Desa Jawa Barat 2025 Semester 2 | Vol. 22 No. 1 2026, rilis 30 Juni 2026 | `mfd_jabar_2025_s2.pdf` (tidak disimpan di repo) | `d1a2ca37003804b4c1d834bf8b1d3a6c8c6a6b523c3cfe486b31ec22f26d337f` | Publikasi BPS; hanya validasi jumlah/nama, tidak disebarluaskan ulang |
-| Dataset turunan | 6.612 baris | `database/data/regions/jawa_barat_2025.csv` | `95e0c10a41cff77a3ab90c6eebdcb2564665c8ed5192a9a3ddee96622ba2edfd` | Turunan Kepmendagri; lihat `docs/REGION_DATA_SOURCES.md` |
+| Dataset turunan | 6.612 baris | `database/data/regions/jawa_barat_2025.csv` | `208d7aca0cc7993721a39f3e3c003e290b9675d37d2f7d8506d5bc7f755a6526` | Turunan Kepmendagri; lihat `docs/REGION_DATA_SOURCES.md` |
 
 Ekstraksi memerlukan `pypdf` (dependensi skrip, **bukan** dependensi aplikasi). Dataset **sudah
 diimpor ke database lokal** MariaDB 10.4.32 (6.612 baris, 26 Oktober 2026); database produksi/staging
 belum tersedia.
 
-## Status suite & migrasi (26 Oktober 2026, penutupan F8)
+## Status suite, migrasi, dan pengerasan produksi (26 Oktober 2026)
 
-- Suite penuh: **599 tes / 2.687 asersi PASS** pada SQLite `:memory:` (bukan bukti MariaDB 10.11).
+- Suite penuh SQLite `:memory:`: **610 tes, 609 lulus, 1 skipped, 2.728 asersi**. Tes yang
+  di-skip adalah tes khusus MySQL/MariaDB (self-FK).
+- Suite penuh MariaDB **10.4.32** lokal: **610 tes, 609 lulus, 1 skipped, 2.733 asersi**.
+  Tes yang di-skip adalah tes khusus SQLite (guard self-FK).
+- Suite penuh MariaDB **10.11.19** portabel (port 3307, database uji terpisah): **610 tes,
+  609 lulus, 1 skipped, 2.733 asersi**. Ini memverifikasi migrasi, DDL/FK, indeks, enum, dan
+  perilaku aplikasi pada versi database target secara lokal. **Bukan** staging/produksi.
+- `ParentSubmissionForeignKeyTest` kini sadar driver: tes tanpa self-FK hanya SQLite, tes baru
+  memverifikasi self-FK + `ON DELETE SET NULL` pada MySQL/MariaDB, dan simulasi skema parsial
+  melepas FK sebelum indeks untuk menghindari `errno 1553`.
 - `php artisan migrate:status` pada database lokal MariaDB 10.4.32: **30 migrasi `Ran`**, tidak ada
   `Pending`. Ini mencakup empat migrasi yang sebelumnya tertunda (batch 7) dan empat migrasi F8
   (batch 8: `users.region_id`, komponen kesehatan, kepatuhan tata kelola, versi dokumen).
+- `app:production-check` pada MariaDB 10.11.19 dengan konfigurasi produksi, dataset wilayah
+  (6.612 baris), dan akun admin uji: **32 PASS, 2 WARN, 0 FAIL**. WARN: `SESSION_ENCRYPT=false`
+  dan cache konfigurasi/route belum dibuat saat perintah dijalankan. Ini bukan pengganti staging.
 - `regions` pada database lokal berisi **6.612 baris**; audit `region_id` menunjukkan 1 koperasi
   tanpa wilayah sehingga `cooperatives.region_id` **tetap nullable** (tanpa backfill/`NOT NULL`).
 - `RoleSeeder` dijalankan ulang (aditif) untuk menambahkan peran referensi `admin_wilayah` pada
   database lokal.
 - Smoke HTTP lokal: `/statistik`, `/koperasi`, dan `/login` = **200**; `composer audit` bersih.
-- Tidak ada `migrate:fresh`, rollback massal, atau penghapusan data. Backup lokal dibuat sebelum
-  migrasi di luar repositori.
-- **Bukan bukti produksi:** MariaDB 10.11, HTTPS, domain, SMTP, dan backup produksi belum
-  diverifikasi (Q-014). Transport email lokal memakai `MAIL_MAILER=log`.
+- Tidak ada `migrate:fresh`, rollback massal, atau penghapusan data pada database berisi data.
+  Backup lokal dibuat sebelum migrasi di luar repositori. Database uji 10.11 hanya dipakai untuk
+  verifikasi.
+- **Bukan bukti produksi:** staging resmi, HTTPS/domain `.go.id`, SMTP nyata, dan backup/restore
+  produksi belum diverifikasi (Q-014). Transport email lokal memakai `MAIL_MAILER=log`.
 - F8 selesai secara implementasi lokal: FR-012, FR-022, FR-072, FR-082, FR-091, FR-171, FR-183.
   Formula/ambang/pembatasan wilayah tetap **PROVISIONAL** (Q-005/Q-007/Q-010).
 
 ## Kesesuaian dengan PRD
 
 - PRD §13.1 mengusulkan **Laravel 13.x** dan **PHP 8.3–8.5**. Lingkungan ini memakai **Laravel 13.36.0 + PHP 8.4.0** → sesuai.
-- PRD mengusulkan **MySQL 8.x** dan menandainya `[NEEDS CONFIRMATION]`. Server yang benar-benar tersedia adalah **MariaDB 10.4.32 (XAMPP)**, yang tetap didukung Laravel 13 (driver `mysql`). **Keputusan sementara:** gunakan MariaDB lokal; versi server produksi masih perlu dikonfirmasi (Q-014 / §21 PRD).
+- PRD mengusulkan **MySQL 8.x** dan menandainya `[NEEDS CONFIRMATION]`. Server lokal adalah **MariaDB 10.4.32 (XAMPP)**; versi target **10.11.19** juga diuji secara portabel pada 26 Oktober 2026. Keduanya memakai driver `mysql` Laravel. **Keputusan sementara:** gunakan MariaDB lokal; versi server produksi masih perlu dikonfirmasi (Q-014 / §21 PRD).
 - PRD mengasumsikan zona waktu `Asia/Jakarta` dan locale Indonesia. Diterapkan via `APP_TIMEZONE=Asia/Jakarta` dan `APP_LOCALE=id` (fallback `en`).
 
 ## Known Issues / Advisory
@@ -79,6 +93,6 @@ belum tersedia.
 | `php artisan db:show` gagal di MariaDB 10.4 (XAMPP) karena tabel `performance_schema.session_status` tidak tersedia | Diketahui | Bukan kegagalan koneksi. Gunakan `migrate:status` / query langsung sebagai gantinya. |
 | Laravel Boost | Tidak digunakan | Keputusan proyek: Boost tidak dipakai. Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`; jangan dijalankan kecuali diputuskan lain oleh pemilik proyek. |
 | Paket autentikasi | Tidak digunakan | F1 memakai session guard bawaan Laravel. Tidak ada paket autentikasi eksternal yang ditambahkan. |
-| Migrasi `2026_10_19_000001_*` — `up()` **tidak idempoten** bila statement FK gagal (kolom+indeks sudah ada → `early return` → FK tidak pernah dibuat, migrasi tetap tercatat `Ran`) | **DIPERBAIKI** (Tahap 68) dan **sudah dijalankan di DB lokal** | `up()` memeriksa **kolom, indeks, dan FK secara terpisah** (`classify()`); migrasi kini `Ran` pada MariaDB 10.4.32 lokal (batch 7). Diuji oleh `tests/Feature/ParentSubmissionForeignKeyTest.php`. DDL FK pada MariaDB **10.11/produksi belum diverifikasi** — `DECISIONS.md` §21 dan §33. |
-| Kebijakan `down()` migrasi `2026_10_19_000001_*` — penghapusan indeks berdasarkan definisi kolom & `dropColumn` yang destruktif terhadap tautan versi | **DIPERBAIKI/DIDOKUMENTASIKAN** (Tahap 70) | Indeks dinilai dari **nama `self::INDEX` + definisi** (`classifyIndex()`); indeks pihak lain tidak pernah dihapus. `down()` **destruktif** terhadap relasi versi (`parent_submission_id` hilang permanen meski baris tetap ada) → butuh persetujuan eksplisit. `DROP INDEX` dapat gagal lebih awal di MariaDB (errno 1553). Risiko `->after('id')` **perlu diverifikasi** pada MariaDB target. `DECISIONS.md` §21.2/§21.7. |
-| Self-FK `submissions.parent_submission_id` & serialisasi T-1 | **Belum terverifikasi penuh** | SQLite: `lockForUpdate()` no-op **dan** self-FK sengaja dilewati oleh guard driver migrasi → suite SQLite **bukan** bukti. Migrasi sudah `Ran` di MariaDB 10.4.32 lokal, tetapi uji konkurensi dan verifikasi FK pada MariaDB 10.11/produksi belum dilakukan — `DECISIONS.md` §20.7, §21.3, §33. |
+| Migrasi `2026_10_19_000001_*` — `up()` **tidak idempoten** bila statement FK gagal (kolom+indeks sudah ada → `early return` → FK tidak pernah dibuat, migrasi tetap tercatat `Ran`) | **DIPERBAIKI** (Tahap 68) dan **sudah dijalankan di DB lokal** | `up()` memeriksa **kolom, indeks, dan FK secara terpisah** (`classify()`); migrasi kini `Ran` pada MariaDB 10.4.32 lokal (batch 7). Diuji oleh `tests/Feature/ParentSubmissionForeignKeyTest.php`. DDL/FK telah diuji pada MariaDB **10.11.19 lokal**; staging/produksi belum diverifikasi — `DECISIONS.md` §21 dan §33. |
+| Kebijakan `down()` migrasi `2026_10_19_000001_*` — penghapusan indeks berdasarkan definisi kolom & `dropColumn` yang destruktif terhadap tautan versi | **DIPERBAIKI/DIDOKUMENTASIKAN** (Tahap 70) | Indeks dinilai dari **nama `self::INDEX` + definisi** (`classifyIndex()`); indeks pihak lain tidak pernah dihapus. `down()` **destruktif** terhadap relasi versi (`parent_submission_id` hilang permanen meski baris tetap ada) → butuh persetujuan eksplisit. `DROP INDEX` dapat gagal lebih awal di MariaDB (errno 1553). Risiko `->after('id')` telah dijalankan pada MariaDB 10.11.19 lokal; staging tetap perlu diverifikasi. `DECISIONS.md` §21.2/§21.7. |
+| Self-FK `submissions.parent_submission_id` & serialisasi T-1 | **Terverifikasi pada MariaDB 10.11.19 lokal; konkurensi/staging belum** | SQLite: `lockForUpdate()` no-op **dan** self-FK sengaja dilewati oleh guard driver migrasi → suite SQLite **bukan** bukti. Migrasi sudah `Ran` di MariaDB 10.4.32 lokal, verifikasi FK pada MariaDB 10.11.19 lokal lulus; uji konkurensi dan staging/produksi belum dilakukan — `DECISIONS.md` §20.7, §21.3, §33. |

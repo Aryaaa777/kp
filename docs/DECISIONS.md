@@ -29,7 +29,7 @@ teknis yang sengaja dibuat mudah diubah.
 | --- | --- | --- |
 | Q-008 | **DITERIMA** — field publik: nama, nomor badan hukum, tanggal berdiri, alamat sampai desa/kecamatan, jenis, status operasional; dilarang: NIK/telepon pribadi pengurus, omzet nonpublik, data personal anggota | **SELESAI** untuk field yang datanya tersedia (§28.1, §29). `status_operasional` tersedia sebagai kolom nullable (Tahap 106); teks bebas `alamat` tidak dipublikasikan (alamat = hierarki `regions`, menunggu Q-012). |
 | Q-012 | **DITERIMA** — master data resmi Permendagri/BPS, hierarki wajib | **SEBAGIAN SELESAI** (§30): dataset resmi Kepmendagri 2025 + CSV + importer idempoten + form berjenjang + audit read-only tersedia. `regions` **belum** diimpor ke DB persisten; `region_id` tetap `NULL` dan **belum** `NN` sampai audit/backfill tuntas. |
-| Q-014 | **DITERIMA** — Ubuntu/AlmaLinux LTS, MariaDB 10.11, `.go.id`, HTTPS, backup harian/mingguan ke remote | **TERBLOKIR INFRA** (§28.4): tidak ada akses staging/kredensial; verifikasi runtime MariaDB **belum dilakukan**. Checklist disiapkan. |
+| Q-014 | **DITERIMA** — Ubuntu/AlmaLinux LTS, MariaDB 10.11, `.go.id`, HTTPS, backup harian/mingguan ke remote | **SEBAGIAN TERBLOKIR INFRA** (§28.4): tidak ada akses staging/kredensial; runtime MariaDB 10.11.19 sudah diuji lokal; staging/HTTPS/SMTP/backup belum. Checklist disiapkan. |
 | D-6 | **DITERIMA** — jejak publikasi dipertahankan; catat waktu+aktor publikasi & penarikan | **SELESAI** (§28.2). |
 
 ---
@@ -1191,10 +1191,11 @@ sebagai `Ran`; eksekusi ulang akan berhenti di kolom → migrasi tercatat `Ran` 
 - **Definisi FK yang diminta** (kolom, `references`, `on`, `onDelete = set null`, nama constraint)
   dibuktikan dua cara tanpa MariaDB: (a) **assertion source** pada berkas migrasi, dan (b) **menangkap
   perintah Blueprint** pada jalur `up()`. Keduanya membuktikan **niat/perintah**, **bukan** DDL nyata.
-- **Yang belum terbukti (F-69-08 belum seluruhnya tertutup):** DDL pembuatan FK pada MariaDB
-  (termasuk perilaku `ON DELETE SET NULL` **pada runtime**), eksekusi nyata `dropForeign`/`dropIndex`
-  pada MariaDB, efektivitas `lockForUpdate()` T-1, dan idempotensi pada kondisi skema MariaDB yang belum
-  pernah dijalankan. **Tidak** ada klaim idempotensi sempurna untuk keadaan yang tidak dapat diverifikasi.
+- **Yang belum terbukti saat itu:** DDL pembuatan FK pada MariaDB (termasuk perilaku
+  `ON DELETE SET NULL` **pada runtime**), eksekusi nyata `dropForeign`/`dropIndex` pada MariaDB,
+  efektivitas `lockForUpdate()` T-1, dan idempotensi pada kondisi skema MariaDB yang belum pernah
+  dijalankan. DDL/FK kemudian diuji pada MariaDB 10.11.19 lokal (34.3); efektivitas konkurensi
+  `lockForUpdate()` tetap belum diuji.
 - Catatan teknis: `SQLiteProcessor::processForeignKeys()` mengembalikan `name => null`, sehingga
   penghapusan FK berdasarkan nama memang tidak mungkin pada SQLite — konsisten dengan guard driver.
 
@@ -1578,7 +1579,7 @@ Angka di atas **bukan** bukti kompatibilitas MariaDB (SQLite `:memory:`).
 Menindaklanjuti audit Tahap 86: **dua temuan rendah diperbaiki** (terisolasi, tanpa perubahan
 routing/skema DB), sementara **temuan sedang (benturan slug) hanya dianalisis** — **belum**
 diimplementasikan dan masih menunggu persetujuan pemilik. F6 tetap MENUNGGU PENINJAUAN; MariaDB
-belum terverifikasi; F7 masih berjalan (FR-191 sebagian); F8 belum dimulai.
+belum terverifikasi; F7 masih berjalan (FR-191 sebagian); F8 kemudian selesai secara lokal (33).
 
 ### 25.1 Temuan rendah A — escaping pencarian `LIKE` (DIPERBAIKI)
 
@@ -1603,8 +1604,8 @@ Bindings: ["%100!%%"]
 
 **Perilaku yang ditetapkan:** input kosong/berisi spasi saja → pencarian dilewati (semua hasil tampil);
 `%`, `_`, dan `!` diperlakukan literal; `ESCAPE '!'` adalah SQL standar yang **didukung SQLite dan
-MySQL/MariaDB** — namun **verifikasi runtime MariaDB tetap belum dilakukan** (Q-014/izin terpisah),
-sehingga klaim portabilitas dibatasi pada implementasi + tes lokal SQLite, bukan pada hasil produksi.
+MySQL/MariaDB** - verifikasi runtime kemudian dilakukan pada MariaDB 10.11.19 lokal (34.3),
+tetapi staging/produksi tetap belum diuji.
 
 **Tes:** `DirektoriPublikTest::test_search_treats_like_wildcards_and_the_escape_character_as_literal`
 (`100%`, `%` tunggal → tepat 1 hasil, `A_B` vs "a B", `Satu!Dua` vs `SatuXDua`, pencarian normal,
@@ -1707,7 +1708,7 @@ Dicatat sebagai kandidat tahap terpisah.
 
 Keputusan teknis pemilik: **Opsi 1 + 1b** dari §25.4 disetujui untuk **diimplementasikan**. Persetujuan
 ini **tidak** mencakup perubahan data produksi, migration, deployment, commit, atau push. F6 tetap
-**MENUNGGU PENINJAUAN**; MariaDB belum terverifikasi; F7 **masih berjalan**; F8 belum dimulai.
+**MENUNGGU PENINJAUAN**; MariaDB belum terverifikasi; F7 **masih berjalan**; F8 kemudian selesai secara lokal (33).
 
 ### 26.1 Implementasi `[FAKTA]`
 
@@ -2154,13 +2155,14 @@ Tidak ada migrasi baru untuk wilayah (tabel `regions` sudah ada). Tiga migrasi p
 
 | Migrasi | SQLite | MariaDB 10.11 |
 | --- | --- | --- |
-| `2026_10_19_000001_add_parent_submission_id_to_submissions_table` | kolom + indeks; self-FK sengaja dilewati | kolom + indeks + self-FK; **belum diverifikasi** |
-| `2026_10_24_000001_add_unpublished_tracking_to_cooperatives_table` | kolom; FK dilewati | kolom + FK; **belum diverifikasi** |
-| `2026_10_24_000002_add_status_operasional_to_cooperatives_table` | enum → varchar + CHECK, nullable | enum native, nullable; **belum diverifikasi** |
+| `2026_10_19_000001_add_parent_submission_id_to_submissions_table` | kolom + indeks; self-FK sengaja dilewati | kolom + indeks + self-FK; terverifikasi pada MariaDB 10.11.19 lokal |
+| `2026_10_24_000001_add_unpublished_tracking_to_cooperatives_table` | kolom; FK dilewati | kolom + FK; terverifikasi pada MariaDB 10.11.19 lokal |
+| `2026_10_24_000002_add_status_operasional_to_cooperatives_table` | enum → varchar + CHECK, nullable | enum native, nullable; terverifikasi pada MariaDB 10.11.19 lokal |
 
 Kompatibilitas MariaDB **tidak** boleh disimpulkan dari SQLite. Bukti baca-saja tersedia dari
-MariaDB **10.4.32** dev (audit `region_id`), tetapi **DDL pada MariaDB 10.11 belum dijalankan**.
-Q-014 tetap terbuka.
+MariaDB **10.4.32** dev (audit `region_id`), dan DDL di atas sudah dijalankan pada MariaDB
+**10.11.19** portabel lokal lewat suite penuh. Staging/produksi tetap belum diverifikasi; Q-014
+tetap terbuka.
 
 ### 30.8 Tes `[FAKTA]`
 
@@ -2177,15 +2179,16 @@ Q-014 tetap terbuka.
 - **Suite penuh: 535 tes / 2.375 asersi PASS.**
 
 Seluruh bukti tes berjalan pada SQLite `:memory:`; **bukan** bukti kompatibilitas MariaDB.
-Audit `region_id` dijalankan read-only pada MariaDB 10.4.32 dev; DDL target 10.11 tetap belum diuji.
+Audit `region_id` dijalankan read-only pada MariaDB 10.4.32 dev; DDL target 10.11.19 kemudian diuji
+pada 34.3.
 
 ### 30.9 Batas & blocker `[TERBUKA]`
 
-- Dataset **belum diimpor** ke database persisten; `regions` persisten masih kosong.
+- Dataset sudah diimpor ke database lokal (26 Oktober 2026); database staging/produksi belum.
 - `region_id` tetap nullable; belum ada backfill deterministik.
-- Q-014 (staging/MariaDB 10.11/HTTPS/backup) tetap **terblokir infra**.
+- Q-014 (staging/HTTPS/SMTP/backup) tetap **terblokir infra**; MariaDB 10.11.19 sudah diuji lokal.
 - F6 dan F7 **selesai dari sisi implementasi & pengujian** pada finalisasi 24 Oktober 2026
-  (lihat §31); F8 belum dimulai.
+  (lihat §31); F8 kemudian selesai secara lokal (33).
 - Nama OCR dapat mengandung artefak yang belum terbukti; jangan mengoreksi tanpa sumber.
 - Tidak ada commit/push pada tahap ini.
 
@@ -2294,7 +2297,7 @@ berada pada stack Laravel + Blade + Tailwind + session guard bawaan.
 ### 32.4 FR-191 — pengaturan field publik
 
 - Migrasi **aditif** `2026_10_24_000003_create_settings_table` membuat tabel `settings`
-  (`key` unik, `value` teks). **Belum dijalankan** pada DB persisten.
+  (`key` unik, `value` teks). Sudah dijalankan di DB lokal; staging/produksi belum.
 - `PublicFieldSettings` menyimpan pilihan `public.fields` sebagai JSON: daftar field, alamat wilayah,
   email, dan telepon. Bila tabel/belum ada baris, nilai default dari `config('koperasi.public.*')`
   dipakai agar halaman publik tidak gagal.
@@ -2308,13 +2311,15 @@ berada pada stack Laravel + Blade + Tailwind + session guard bawaan.
 
 ### 32.5 Verifikasi & batas
 
-- Suite penuh: **583 tes / 2.609 asersi PASS** pada SQLite `:memory:`; Pint, `view:cache`,
+- Suite saat itu: **583 tes / 2.609 asersi PASS** pada SQLite `:memory:`; hasil terkini di 34.3.
+  Pint, `view:cache`,
   `npm run build`, dan `git diff --check` dijalankan pada penutupan.
-- **Bukan bukti MariaDB 10.11:** suite SQLite tidak membuktikan kompatibilitas DDL/runtime MariaDB.
-- **Migrasi persisten:** empat migrasi masih `Pending` (tiga lama + `settings`); tidak ada
-  `migrate`, `migrate:fresh`, rollback, atau perubahan data persisten pada pekerjaan ini.
-- Q-014 (staging/MariaDB/HTTPS/backup), Q-012 (impor wilayah/backfill/`NOT NULL`), Q-010 (periode
-  resmi), Q-006/Q-022 (whitelist/format laporan), dan transport email produksi tetap terbuka.
+- **Bukan bukti MariaDB 10.11:** suite SQLite tidak membuktikan kompatibilitas; suite 10.11.19
+  lokal kemudian dijalankan (34.3).
+- **Migrasi persisten saat itu:** empat migrasi masih `Pending`; semuanya sudah `Ran` di DB lokal
+  (33). Tidak ada `migrate:fresh`, rollback, atau perubahan data persisten pada pekerjaan ini.
+- Q-014 (staging/HTTPS/SMTP/backup), Q-012 (backfill/`NOT NULL`), Q-010 (periode resmi),
+  Q-006/Q-022 (whitelist/format laporan), dan transport email produksi tetap terbuka.
 - FR-171 (ekspor) dan FR-183 (statistik publik) tetap FASE-2/F8 dan tidak diimplementasikan.
 
 ---
@@ -2439,8 +2444,9 @@ penghapusan data. Sebelum migrasi dibuat backup lokal di luar repositori.
 
 ### 33.11 Verifikasi
 
-- Suite penuh: **599 tes / 2.687 asersi PASS** pada SQLite `:memory:` (setelah kebijakan wilayah
-  ditambahkan ke Policy). Ini **bukan** bukti kompatibilitas MariaDB 10.11.
+- Suite penuh: **610 tes / 2.728 asersi PASS** pada SQLite `:memory:` (1 skipped khusus
+  MySQL/MariaDB). Suite MariaDB 10.11.19 portabel: **610 tes / 2.733 asersi PASS** (1 skipped
+  khusus SQLite); lihat 34.3.
 - Pemeriksaan lokal MariaDB 10.4.32: `php artisan migrate:status` menunjukkan **30 migrasi `Ran`,
   tidak ada `Pending`**; impor wilayah dan audit dijalankan pada database lokal. Kolom F8
   (`users.region_id`, komponen kesehatan, kepatuhan, versi dokumen) terverifikasi lewat
@@ -2456,6 +2462,91 @@ penghapusan data. Sebelum migrasi dibuat backup lokal di luar repositori.
   **Q-010** definisi periode resmi belum dijawab; semua implementasi di atas berlabel PROVISIONAL.
 - **Q-012** backfill/`NOT NULL` belum selesai karena data koperasi lama tidak memiliki pemetaan
   wilayah yang terverifikasi.
-- **Q-014** staging, MariaDB 10.11, HTTPS, domain, SMTP, dan backup produksi belum tersedia; hanya
-  checklist/konfigurasi yang disiapkan.
+- **Q-014** staging, HTTPS, domain, SMTP, dan backup produksi belum tersedia; MariaDB 10.11.19
+  sudah diuji lokal, tetapi staging tetap diperlukan.
 - Ekspor Excel/PDF, pembatasan wilayah resmi, dan formula resmi memerlukan keputusan/dependency baru.
+
+---
+
+## 34. Pengerasan produksi: header keamanan, preflight, dan verifikasi MariaDB 10.11 (26 Oktober 2026) `[KEPUTUSAN]`
+
+Pemilik proyek meminta pekerjaan wajib sebelum status produksi diselesaikan. Pada saat yang sama,
+staging, domain `.go.id`, HTTPS, SMTP nyata, dan akses backup **belum tersedia**. Karena itu
+pekerjaan ini dibatasi pada pengerasan kode, pemeriksaan kesiapan, dan verifikasi database target
+secara lokal. **Tidak ada klaim bahwa aplikasi sudah siap go-live.**
+
+### 34.1 Header keamanan (NFR-SEC-017)
+
+- Middleware global `App\Http\Middleware\SecurityHeaders` dipasang lewat
+  `$middleware->append(...)` di `bootstrap/app.php`, sehingga header juga berlaku pada respons error.
+- Header yang dipasang: `X-Frame-Options` (default `DENY`), `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, HSTS, dan CSP.
+- HSTS **hanya** dikirim pada request HTTPS. Default `max-age=31536000`; `includeSubDomains` dan
+  `preload` default **nonaktif** sampai domain resmi dikonfirmasi. Bila `preload=true`,
+  `includeSubDomains` otomatis ditambahkan.
+- CSP default **nonaktif** agar Vite HMR lokal tidak terganggu. Produksi wajib mengaktifkan
+  `SECURITY_CSP_ENABLED=true`; `app:production-check` akan gagal bila masih nonaktif.
+- Kebijakan CSP default: `default-src 'self'`, `script-src 'self'`, `style-src 'self'
+  'unsafe-inline'`, `frame-ancestors 'none'`, `object-src 'none'`, `form-action 'self'`.
+  `unsafe-inline` hanya untuk **style** (atribut `style` pada progress bar), bukan script.
+- Seluruh `onsubmit="return confirm(...)"` di Blade diganti dengan atribut `data-confirm` dan
+  listener delegasi di `resources/js/app.js`. Ini memungkinkan `script-src 'self'` tanpa
+  `unsafe-inline`.
+- `TRUSTED_PROXIES` dibaca dari `config/trustedproxy.php` (bukan `bootstrap/app.php`) agar tetap
+  benar saat `config:cache` aktif. Daftar IP/CIDR harus diisi bila aplikasi berada di belakang
+  reverse proxy/load balancer yang menangani HTTPS.
+
+### 34.2 Perintah `app:production-check`
+
+Perintah baru `php artisan app:production-check` bersifat **read-only** dan memeriksa:
+
+- aplikasi: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_URL` HTTPS publik,
+  `APP_TIMEZONE=Asia/Jakarta`, dan locale;
+- sesi: driver `database`, cookie `secure`/`http_only`, `SameSite`, idle timeout, dan enkripsi;
+- email/penyimpanan: mailer bukan `log`/`array`, alamat pengirim sah, cache persisten, queue,
+  serta disk dokumen privat;
+- header keamanan: HSTS, CSP, kebijakan CSP tanpa `script-src unsafe-inline`, dan
+  `X-Frame-Options`;
+- runtime: direktori `storage/`, `bootstrap/cache/`, `public/build/manifest.json`, izin `.env`
+  (Linux), dan status `config:cache`/`route:cache`;
+- database: driver `mysql`/`mariadb`, koneksi, versi server (MariaDB minimal 10.11 atau MySQL 8.0),
+  migrasi tertunda, jumlah `regions`, dan akun `admin_dinas` aktif.
+
+Opsi `--json` menghasilkan keluaran mesin; `--skip-database` dipakai pada pengujian/CI tanpa
+database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan perintah.
+
+### 34.3 Verifikasi MariaDB 10.11 dan perbaikan tes
+
+- MariaDB **10.11.19** portabel dijalankan pada port **3307** dengan data directory terpisah di
+  luar repositori. Database uji `koperasi_jabar_test_1011` dibuat khusus; database
+  `koperasi_jabar` tidak disentuh.
+- Suite penuh pada MariaDB 10.11.19: **610 tes, 609 lulus, 1 skipped, 2.733 asersi**.
+  Suite penuh pada SQLite `:memory:`: **610 tes, 609 lulus, 1 skipped, 2.728 asersi**.
+  Pada MariaDB 10.4.32 lokal: **610 tes, 609 lulus, 1 skipped, 2.733 asersi**.
+- `ParentSubmissionForeignKeyTest` diperbaiki agar **sadar driver**:
+  - tes tanpa self-FK hanya berjalan di SQLite;
+  - tes baru memverifikasi self-FK `submissions.parent_submission_id` dan `ON DELETE SET NULL`
+    pada MySQL/MariaDB;
+  - simulasi skema parsial melepas FK lebih dulu sebelum menghapus indeks, karena MariaDB menolak
+    `DROP INDEX` selama indeks masih dipakai FK (`errno 1553`), lalu memverifikasi FK dibuat ulang.
+- `app:production-check` pada MariaDB 10.11.19 dengan konfigurasi produksi, dataset wilayah
+  (6.612 baris), dan satu akun admin uji: **32 PASS, 2 WARN, 0 FAIL**. Dua WARN adalah
+  `SESSION_ENCRYPT=false` (disarankan true) dan cache konfigurasi/route belum dibuat saat perintah
+  dijalankan. Ini **bukan** pengganti staging.
+- Konfigurasi PHPUnit untuk database uji MySQL/MariaDB disediakan sebagai
+  `phpunit.mariadb.xml.example`. Salin menjadi `phpunit.mariadb.xml` (sudah di-.gitignore), isi
+  kredensial database uji khusus, lalu jalankan
+  `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage`. **Jangan** arahkan ke database
+  staging/produksi berisi data karena `RefreshDatabase` menjalankan migrasi bersih.
+
+### 34.4 Batas yang tetap terbuka
+
+- Verifikasi 10.11 di atas dilakukan pada **MariaDB portabel lokal**, bukan staging resmi. `sql_mode`
+  produksi, konfigurasi web server, HTTPS/domain, SMTP nyata, dan backup/restore **belum** diuji.
+- Uji konkurensi `lockForUpdate()` dan perilaku FK di bawah beban produksi belum dilakukan.
+- Q-005, Q-007, Q-010, Q-012, Q-014, dan pertanyaan resmi lain tetap terbuka. Semua nilai
+  PROVISIONAL tidak berubah.
+- Tidak ada migrasi lama yang diubah, tidak ada `migrate:fresh` pada database berisi data, dan tidak
+  ada data koperasi yang diubah. Database uji 10.11 hanya dipakai untuk verifikasi.
+- Ini adalah status terkini; catatan pada 1-33 adalah historis dan tidak boleh dibaca sebagai
+  status produksi.

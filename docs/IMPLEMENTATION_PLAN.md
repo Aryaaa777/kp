@@ -73,9 +73,10 @@
 > dan diuji. Provisioning awal tetap tersedia lewat `php artisan user:create`; akun berikutnya dapat
 > dibuat admin dari `/admin/akun` dengan tautan reset (tanpa password teks biasa).
 > **Bukti:** `tests/Feature/Auth/SessionSecurityTest.php`, `PasswordResetTest.php`,
-> `tests/Feature/Admin/AdminUserManagementTest.php`; suite penuh **583 tes / 2.609 asersi PASS** pada
+> `tests/Feature/Admin/AdminUserManagementTest.php`; suite penuh saat itu **583 tes / 2.609 asersi PASS** pada
 > SQLite `:memory:`. **Batas:** daftar sesi lintas perangkat hanya untuk `SESSION_DRIVER=database`;
-> transport email produksi dan runtime MariaDB 10.11 belum diverifikasi (Q-014).
+> transport email produksi dan staging MariaDB 10.11 belum diverifikasi; suite 10.11.19 lokal
+> sudah lulus (Q-014).
 
 ### F2 — Data Induk Koperasi & Referensi Wilayah
 **Dependensi:** F1
@@ -234,7 +235,7 @@
 > total). Audit **source** migrasi menemukan **dua hal yang belum diperbaiki**: rasional SQLite di komentar
 > tidak akurat (§20.2) dan `up()` **tidak idempoten** bila FK gagal di statement kedua (§20.3). Audit
 > **T-1**: kedua jalur pembuatan mengunci koperasi lebih dulu di dalam transaksi; tidak ada jalur
-> alternatif — **efektivitas lock belum terbukti** (SQLite no-op, MariaDB belum diuji). Verifikasi Tahap 67:
+> alternatif — **efektivitas lock belum terbukti** (SQLite no-op, konkurensi MariaDB belum diuji). Verifikasi Tahap 67:
 > `php artisan test` **356 tes / 1.312 asersi PASS** (SQLite saja), `pint --test` PASS, `npm run build` PASS,
 > `git diff --check` bersih, `migrate:status` **22 Ran + 1 Pending**. Migrasi **tetap `Pending`**;
 > **Q-006/Q-010/Q-012 tetap terbuka**; F6 **tetap MENUNGGU PENINJAUAN**.
@@ -290,15 +291,14 @@
 > dashboard mempertahankan filter aktif dan setara dengan daftar koperasi. Rekap per periode
 > ditambahkan ke laporan (bukan hanya filter).
 > **Bukti tes final (baseline F6/F7):** `php artisan test --no-coverage` **543 tes / 2.443 asersi PASS**
-> (SQLite `:memory:`). Setelah penutupan gap F1/FR-191, suite yang berlaku adalah **583 tes / 2.609
+> (SQLite `:memory:`). Setelah penutupan gap F1/FR-191, suite saat itu adalah **583 tes / 2.609
 > asersi PASS**. Tes F6 terkait:
 > `AdminDashboardTest`, `AdminReportTest`, `CooperativeRegionFilterTest`, `PengelolaDashboardTest`,
 > `SubmissionQueueAgeFilterTest`, `SubmissionVersioningTest`.
 > **Batas eksternal yang tetap terbuka:** Q-010 (definisi resmi periode) — implementasi memakai
 > definisi sementara dan tidak mengklaimnya final; Q-006 (whitelist field pengajuan) — hanya modul
 > data induk yang aktif; Q-022 (format laporan pimpinan) — laporan masih agregat dasar; verifikasi
-> runtime/DDL **MariaDB 10.11** belum dilakukan (Q-014). Tidak ada migrasi yang dijalankan pada DB
-> persisten pada finalisasi ini.
+> runtime/DDL **MariaDB 10.11.19** sudah diuji lokal; staging belum (Q-014).
 
 ### F7 — Direktori Publik & Kontrol Publikasi
 **Dependensi:** F5
@@ -337,8 +337,8 @@ status verifikasinya tidak lagi memenuhi syarat tampil.
 > `CooperativeStatusOperasionalTest`.
 > **Batas eksternal (diperbarui 26 Oktober 2026):** migrasi `settings` dan migrasi F6/F7 lain
 > **sudah dijalankan di DB lokal**; impor dataset wilayah ke DB lokal juga selesai (6.612 baris).
-> Backfill `region_id`/`NOT NULL` belum (Q-012) dan verifikasi runtime MariaDB 10.11/produksi belum
-> dilakukan (Q-014). F7 tidak dinyatakan sebagai bukti bahwa data wilayah sudah terisi di server
+> Backfill `region_id`/`NOT NULL` belum (Q-012); runtime MariaDB 10.11.19 sudah diuji lokal,
+> staging/produksi belum (Q-014). F7 tidak dinyatakan sebagai bukti bahwa data wilayah sudah terisi di server
 > produksi.
 
 ### F8 — Lanjutan (Post-MVP)
@@ -474,3 +474,22 @@ Rujuk PRD §20. Sorotan:
 - **R-01** format data existing → selesaikan data discovery lebih dulu.
 - **R-02** cakupan besar → jaga MVP & urutan fase.
 - **R-03** aturan resmi tidak tersedia → tetap manual, label NEEDS CONFIRMATION.
+
+---
+
+## 11. Pengerasan Produksi (di luar fase F0-F8)
+
+**Status 26 Oktober 2026:** pengerasan kode dan verifikasi database target lokal selesai; go-live
+tetap menunggu staging/HTTPS/SMTP/backup.
+
+- Header keamanan global (`SecurityHeaders`): HSTS hanya HTTPS, `X-Frame-Options`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, COOP, dan CSP konfigurabel. CSP produksi memakai
+  `script-src 'self'`; inline `onsubmit` diganti `data-confirm` + listener JavaScript.
+- `php artisan app:production-check` (read-only, `--json`, `--skip-database`) memeriksa konfigurasi
+  produksi, header, storage, aset, DB/versi, migrasi, wilayah, dan admin.
+- Suite penuh lulus pada SQLite, MariaDB 10.4.32, dan MariaDB **10.11.19 portabel** (database uji
+  terpisah). Tes FK dibuat sadar driver; simulasi skema parsial menangani `errno 1553`.
+- `phpunit.mariadb.xml.example` disediakan untuk uji MySQL/MariaDB; file salinan
+  `phpunit.mariadb.xml` di-.gitignore.
+- Batas: 10.11.19 portabel bukan staging; `sql_mode` produksi, HTTPS/domain, SMTP, backup/restore,
+  dan uji beban belum dilakukan. Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.

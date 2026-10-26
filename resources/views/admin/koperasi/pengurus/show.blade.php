@@ -98,7 +98,7 @@
             </p>
 
             <form method="POST" action="{{ route('admin.koperasi.pengurus.destroy', [$cooperative, $officer]) }}" class="mt-4"
-                onsubmit="return confirm('Arsipkan pengurus ini?');">
+                data-confirm="Arsipkan pengurus ini?">
                 @csrf
                 @method('DELETE')
 

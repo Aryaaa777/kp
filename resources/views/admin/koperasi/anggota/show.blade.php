@@ -61,7 +61,7 @@
         <h2 class="text-sm font-semibold text-red-800">Arsipkan catatan</h2>
         <p class="mt-1 text-sm text-red-700">Data tidak dihapus permanen (soft delete, BR-011).</p>
         <form method="POST" action="{{ route('admin.koperasi.anggota.destroy', [$cooperative, $history]) }}" class="mt-4"
-            onsubmit="return confirm('Arsipkan catatan keanggotaan ini?');">
+            data-confirm="Arsipkan catatan keanggotaan ini?">
             @csrf
             @method('DELETE')
             <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Arsipkan</button>

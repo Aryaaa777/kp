@@ -10,6 +10,8 @@
 /.idea
 /.nova
 /.phpunit.cache
+/phpunit.mariadb.xml
+/phpunit.mariadb1011.xml
 /.vscode
 /.zed
 /auth.json

@@ -1459,8 +1459,8 @@ Jika waktu terbatas, MVP dapat dipangkas bertahap:
 > FR F8 (012, 022, 072, 082, 091, 171, 183) tersedia dengan aturan **PROVISIONAL** untuk hal yang
 > belum dijawab dinas (Q-005/Q-007/Q-010). PRD ini tetap menjadi kontrak kebutuhan; status
 > implementasi rinci ada di `docs/IMPLEMENTATION_PLAN.md`, `docs/DECISIONS.md` §33, dan
-> `docs/HANDOVER.md`. Verifikasi produksi (MariaDB 10.11, HTTPS, SMTP, backup) belum dilakukan
-> (Q-014).
+> `docs/HANDOVER.md`. Verifikasi staging/produksi (HTTPS, SMTP, backup) belum dilakukan; suite
+> MariaDB 10.11.19 lokal sudah lulus (Q-014).
 
 ### 19.4 Langkah implementasi berikutnya (setelah PRD disetujui)
 
@@ -1567,9 +1567,10 @@ kode, tes, dan `docs/IMPLEMENTATION_PLAN.md`.
 | FR-171 | **Selesai** — ekspor CSV hanya data `approved` + audit ekspor | `AdminReportTest` | Excel/PDF tidak ditambahkan |
 | FR-183 | **Selesai** — `/statistik` agregat hanya data published + approved | `DirektoriPublikTest` | Verifikasi produksi menunggu Q-014 |
 
-Suite penuh pada status ini: **599 tes / 2.687 asersi PASS** (SQLite `:memory:`; bukan bukti
-kompatibilitas MariaDB 10.11). Database lokal MariaDB 10.4.32: **30 migrasi `Ran`, 0 `Pending`**,
-`regions` = 6.612. Verifikasi produksi (MariaDB 10.11, HTTPS, SMTP, backup) belum dilakukan (Q-014).
+Suite penuh pada status ini: **610 tes / 2.728 asersi PASS** (SQLite `:memory:`; 1 skipped khusus
+MySQL/MariaDB). Suite MariaDB 10.11.19 portabel: **610 tes / 2.733 asersi PASS** (1 skipped khusus
+SQLite). Database lokal MariaDB 10.4.32: **30 migrasi `Ran`, 0 `Pending`**, `regions` = 6.612.
+Verifikasi staging/produksi (HTTPS, SMTP, backup) belum dilakukan (Q-014).
 
 ---
 
