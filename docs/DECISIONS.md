@@ -2575,3 +2575,22 @@ database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan per
 - **Batas:** ini bukan bukti backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
   staging/produksi. Checklist tetap mewajibkan uji restore ke staging sebelum go-live. Backup
   `storage/app` dan `.env` terenkripsi tetap merupakan langkah terpisah.
+
+---
+
+## 36. CI MariaDB 10.11 (27 Oktober 2026) `[KEPUTUSAN]`
+
+- Workflow `.github/workflows/ci.yml` ditambahkan untuk push ke `main`, pull request, dan
+  `workflow_dispatch`.
+- Job berjalan pada PHP 8.4 dan Node 22, dengan service **MariaDB 10.11**:
+  - install Composer dan npm;
+  - build aset Vite;
+  - suite SQLite (`php artisan test --no-coverage`);
+  - suite MariaDB memakai `phpunit.mariadb.xml.example` dan database uji terpisah;
+  - `vendor/bin/pint --test` dan `composer audit`.
+- Validasi lokal 27 Oktober 2026: YAML berhasil diparse; suite MariaDB 10.4.32 lulus
+  **610 tes / 609 lulus / 1 skipped / 2.733 asersi**. Workflow GitHub belum diamati berjalan
+  pada saat dokumen ini diperbarui.
+- **Batas:** CI bukan staging. CI tidak membuktikan HTTPS/domain, SMTP nyata, backup remote,
+  restore staging, `sql_mode` produksi, atau uji beban. Jangan menyatakan go-live hanya karena CI
+  hijau.

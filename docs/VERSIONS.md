@@ -91,6 +91,15 @@ belum tersedia.
 - **Batas:** belum menguji backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
   staging/produksi. Uji restore staging tetap wajib sebelum go-live.
 
+## CI MariaDB 10.11 (27 Oktober 2026)
+
+- Workflow `.github/workflows/ci.yml`: PHP 8.4, Node 22, service MariaDB 10.11, suite SQLite +
+  MariaDB, build aset, Pint, dan `composer audit`.
+- YAML tervalidasi; suite MariaDB lokal 10.4.32 lulus **610 tes / 609 lulus / 1 skipped /
+  2.733 asersi**.
+- **Batas:** workflow belum diamati berjalan di GitHub dan bukan pengganti staging/HTTPS/SMTP/
+  backup restore.
+
 ## Kesesuaian dengan PRD
 
 - PRD §13.1 mengusulkan **Laravel 13.x** dan **PHP 8.3–8.5**. Lingkungan ini memakai **Laravel 13.36.0 + PHP 8.4.0** → sesuai.

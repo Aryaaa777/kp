@@ -480,8 +480,9 @@ Rujuk PRD §20. Sorotan:
 
 ## 11. Pengerasan Produksi (di luar fase F0-F8)
 
-**Status 26 Oktober 2026:** pengerasan kode, verifikasi database target lokal, dan verifikasi
-backup/restore lokal selesai; go-live tetap menunggu staging/HTTPS/SMTP dan restore staging.
+**Status 26-27 Oktober 2026:** pengerasan kode, verifikasi database target lokal, verifikasi
+backup/restore lokal, dan CI MariaDB selesai; go-live tetap menunggu staging/HTTPS/SMTP dan
+restore staging.
 
 - Header keamanan global (`SecurityHeaders`): HSTS hanya HTTPS, `X-Frame-Options`, `nosniff`,
   `Referrer-Policy`, `Permissions-Policy`, COOP, dan CSP konfigurabel. CSP produksi memakai
@@ -495,6 +496,8 @@ backup/restore lokal selesai; go-live tetap menunggu staging/HTTPS/SMTP dan rest
 - `scripts/db-backup-verify.sh` membuat dump `.sql.gz`, checksum SHA-256, restore ke database
   scratch, membandingkan daftar tabel/jumlah baris, lalu menghapus scratch. Verifikasi lokal
   26 Oktober 2026: 26 tabel, jumlah baris sama (MariaDB 10.4.32).
+- `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
+  `composer audit` pada push/PR. Workflow belum diamati berjalan di GitHub; CI bukan staging.
 - Batas: 10.11.19 portabel dan verifikasi backup/restore lokal bukan staging; `sql_mode` produksi,
   HTTPS/domain, SMTP, restore staging/produksi, dan uji beban belum dilakukan.
   Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.
