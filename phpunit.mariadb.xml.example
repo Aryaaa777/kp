@@ -7,7 +7,7 @@
     Salin menjadi phpunit.mariadb.xml (sudah di-.gitignore), lalu isi kredensial
     database uji khusus. Contoh:
         Copy-Item phpunit.mariadb.xml.example phpunit.mariadb.xml
-        php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage
+        php vendor/bin/phpunit -c phpunit.mariadb.xml
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
