@@ -104,8 +104,11 @@
       php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage
       ```
       `RefreshDatabase` menjalankan migrasi bersih pada database uji. **Jangan** mengarahkan file ini
-      ke staging/produksi berisi data. Pada 26 Oktober 2026 suite yang sama lulus pada MariaDB
-      10.11.19 portabel lokal (610 tes, 609 lulus, 1 skipped).
+      ke staging/produksi berisi data. Pada 31 Oktober 2026 suite SQLite lulus **612 tes / 611
+      lulus / 1 skipped / 2.795 asersi** dan MariaDB 10.4.32 lokal lulus **612 tes / 611 lulus /
+      1 skipped / 2.800 asersi**. MariaDB 10.11.19 portabel juga sudah diuji lokal sebelumnya.
+- [ ] CI GitHub Actions hijau pada commit yang akan dideploy (SQLite + MariaDB 10.11, build,
+      Pint, audit).
 - [ ] Akun admin pertama: `php artisan user:create` (password diminta interaktif; jangan ditanam di kode).
 
 ## 4. TLS & domain

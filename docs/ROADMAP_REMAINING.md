@@ -343,7 +343,7 @@ Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
 
 ---
 
-## Pengerasan produksi (26-27 Oktober 2026)
+## Pengerasan produksi (26-31 Oktober 2026)
 
 - Header keamanan global (HSTS, CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`,
   `Permissions-Policy`, COOP) dan `app:production-check` sudah ditambahkan.
@@ -352,7 +352,9 @@ Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
 - `scripts/db-backup-verify.sh` dan verifikasi restore lokal 26 tabel (jumlah baris sama) sudah
   tersedia; ini bukan pengganti restore staging/produksi.
 - `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build, Pint, dan audit;
-  CI bukan pengganti staging.
+  run GitHub `c03011b` **sukses**. Dua kegagalan awal menemukan peringatan kompilasi migrasi dan
+  XML contoh yang tidak valid; keduanya diperbaiki dan dijaga tes regresi. CI bukan pengganti
+  staging.
 - **Belum go-live:** staging resmi, HTTPS/domain, SMTP, restore staging/produksi, `sql_mode`
-  produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34-36 dan
+  produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34-37 dan
   `docs/HANDOVER.md` 8.

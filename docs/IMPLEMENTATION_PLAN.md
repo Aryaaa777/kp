@@ -451,7 +451,8 @@ Lihat §22 PRD. Ringkasnya: fungsional ✓, validasi ✓, otorisasi ✓, keamana
 8. Backup DB harian + uji restore berkala dengan `scripts/db-backup-verify.sh`; simpan checksum dan
    catat hasil restore staging.
 
-> Detail infrastruktur dinas **[NEEDS CONFIRMATION]** (Q-014). Jangan mengasumsikan server/domain/CI tertentu.
+> Detail infrastruktur dinas **[NEEDS CONFIRMATION]** (Q-014). Jangan mengasumsikan server/domain
+> dinas; CI repositori memakai GitHub Actions, sedangkan target deployment produksi tetap terbuka.
 
 ---
 
@@ -480,9 +481,9 @@ Rujuk PRD §20. Sorotan:
 
 ## 11. Pengerasan Produksi (di luar fase F0-F8)
 
-**Status 26-27 Oktober 2026:** pengerasan kode, verifikasi database target lokal, verifikasi
-backup/restore lokal, dan CI MariaDB selesai; go-live tetap menunggu staging/HTTPS/SMTP dan
-restore staging.
+**Status 26-31 Oktober 2026:** pengerasan kode, verifikasi database target lokal, verifikasi
+backup/restore lokal, dan CI MariaDB hijau selesai; go-live tetap menunggu staging/HTTPS/SMTP
+dan restore staging.
 
 - Header keamanan global (`SecurityHeaders`): HSTS hanya HTTPS, `X-Frame-Options`, `nosniff`,
   `Referrer-Policy`, `Permissions-Policy`, COOP, dan CSP konfigurabel. CSP produksi memakai
@@ -497,7 +498,9 @@ restore staging.
   scratch, membandingkan daftar tabel/jumlah baris, lalu menghapus scratch. Verifikasi lokal
   26 Oktober 2026: 26 tabel, jumlah baris sama (MariaDB 10.4.32).
 - `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
-  `composer audit` pada push/PR. Workflow belum diamati berjalan di GitHub; CI bukan staging.
+  `composer audit` pada push/PR. Run GitHub `c03011b` **sukses**; CI bukan staging. Dua
+  kegagalan awal menemukan peringatan kompilasi migrasi dan XML contoh yang tidak valid;
+  keduanya diperbaiki dan dijaga tes regresi.
 - Batas: 10.11.19 portabel dan verifikasi backup/restore lokal bukan staging; `sql_mode` produksi,
   HTTPS/domain, SMTP, restore staging/produksi, dan uji beban belum dilakukan.
   Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.

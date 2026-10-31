@@ -2578,7 +2578,7 @@ database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan per
 
 ---
 
-## 36. CI MariaDB 10.11 (27 Oktober 2026) `[KEPUTUSAN]`
+## 36. CI MariaDB 10.11 (27-31 Oktober 2026) `[KEPUTUSAN]`
 
 - Workflow `.github/workflows/ci.yml` ditambahkan untuk push ke `main`, pull request, dan
   `workflow_dispatch`.
@@ -2588,9 +2588,44 @@ database. Exit code `1` bila ada item `FAIL`; item `WARN` tidak menggagalkan per
   - suite SQLite (`php artisan test --no-coverage`);
   - suite MariaDB memakai `phpunit.mariadb.xml.example` dan database uji terpisah;
   - `vendor/bin/pint --test` dan `composer audit`.
-- Validasi lokal 27 Oktober 2026: YAML berhasil diparse; suite MariaDB 10.4.32 lulus
-  **610 tes / 609 lulus / 1 skipped / 2.733 asersi**. Workflow GitHub belum diamati berjalan
-  pada saat dokumen ini diperbarui.
+- Run GitHub:
+  - `094d727` — **gagal** pada suite SQLite karena peringatan kompilasi migrasi;
+  - `08cb194` — **gagal** saat memuat `phpunit.mariadb.xml.example` karena komentar XML memuat
+    `--`;
+  - `c03011b` — **sukses** untuk SQLite, MariaDB 10.11, build, Pint, dan `composer audit`
+    (https://github.com/Aryaaa777/kp/actions/runs/40369698521).
+- Validasi lokal 31 Oktober 2026: SQLite **612 tes / 611 lulus / 1 skipped / 2.795 asersi**;
+  MariaDB 10.4.32 **612 tes / 611 lulus / 1 skipped / 2.800 asersi**.
 - **Batas:** CI bukan staging. CI tidak membuktikan HTTPS/domain, SMTP nyata, backup remote,
   restore staging, `sql_mode` produksi, atau uji beban. Jangan menyatakan go-live hanya karena CI
   hijau.
+
+---
+
+## 37. Perbaikan temuan CI: peringatan migrasi & XML contoh (31 Oktober 2026) `[KEPUTUSAN]`
+
+Dua kegagalan CI pertama adalah cacat yang tidak terlihat pada suite lokal:
+
+1. **Peringatan kompilasi migrasi.** Migrasi
+   `2026_10_19_000001_add_parent_submission_id_to_submissions_table.php` memiliki
+   `use RuntimeException;` di namespace global. PHP memperingatkan bahwa `use` tersebut tidak
+   berefek; Laravel mengubah peringatan itu menjadi `ErrorException` saat migrasi dimuat. CI
+   SQLite gagal, walaupun `php -l` mengembalikan exit code 0. Baris `use` dihapus; referensi
+   `RuntimeException` tetap menunjuk kelas global yang sama. **Tidak ada perubahan skema, data,
+   nama, atau stempel waktu migrasi.**
+2. **XML contoh tidak valid.** Komentar `phpunit.mariadb.xml.example` memuat opsi
+   `--no-coverage`; XML melarang `--` di dalam komentar sehingga PHPUnit gagal memparse berkas
+   yang disalin CI. Opsi tersebut dihapus dari komentar.
+
+Regresi dijaga oleh:
+
+- `tests/Unit/MigrationLintTest.php` — menjalankan `php -l` dengan `error_reporting=E_ALL` pada
+  setiap migrasi dan menolak keluaran `Warning:`;
+- `tests/Unit/PhpUnitConfigTest.php` — memvalidasi `phpunit.xml` dan
+  `phpunit.mariadb.xml.example` sebagai XML.
+
+**Pengecualian sempit terhadap kebijakan migrasi lama.** Perubahan pada migrasi lama di atas
+hanya menghapus peringatan kompilasi; tidak ada DDL, penghapusan data, rollback, atau perubahan
+konstanta. Cacat terverifikasi melalui CI, perbaikan bersifat minimal, dan bukti keberhasilan
+adalah run CI `c03011b` yang sukses. Tidak ada migrasi korektif baru karena tidak ada perubahan
+skema. Pengecualian ini tidak menjadi izin umum untuk mengubah migrasi lama.

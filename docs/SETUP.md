@@ -243,8 +243,12 @@ php vendor\bin\phpunit -c phpunit.mariadb.xml --no-coverage
 ```
 
 `RefreshDatabase` menjalankan migrasi bersih pada database uji. **Jangan** mengarahkan konfigurasi ini
-ke database staging/produksi berisi data. Pada 26 Oktober 2026 suite yang sama lulus pada MariaDB
-10.11.19 portabel lokal dan MariaDB 10.4.32 lokal.
+ke database staging/produksi berisi data. Pada 31 Oktober 2026 suite SQLite lulus **612 tes /
+611 lulus / 1 skipped / 2.795 asersi**, dan suite MariaDB 10.4.32 lokal lulus **612 tes / 611
+lulus / 1 skipped / 2.800 asersi**. MariaDB 10.11.19 portabel juga sudah diuji lokal sebelumnya.
+
+CI `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
+`composer audit` pada push/PR. Run `c03011b` sukses, tetapi CI bukan pengganti staging.
 
 Pemeriksaan kesiapan produksi (read-only):
 

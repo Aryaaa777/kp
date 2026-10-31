@@ -1,7 +1,7 @@
 ﻿# Serah Terima (Handover) MVP — Sistem Informasi Pendataan dan Pemantauan Koperasi Provinsi Jawa Barat
 
-> **Status dokumen:** serah terima teknis untuk finalisasi MVP, diperbarui **27 Oktober 2026**
-> setelah penyelesaian F8, impor wilayah, pengerasan produksi, dan CI MariaDB.
+> **Status dokumen:** serah terima teknis untuk finalisasi MVP, diperbarui **31 Oktober 2026**
+> setelah penyelesaian F8, impor wilayah, pengerasan produksi, dan CI MariaDB yang hijau.
 > **Status go-live:** **BELUM siap go-live.** Pengerasan kode (header keamanan, preflight), suite
 > MariaDB 10.11.19 lokal, dan prosedur backup/restore lokal sudah diverifikasi; staging/HTTPS/SMTP
 > dan uji restore ke staging belum tersedia. Lihat §8. Jangan menafsirkan dokumen ini sebagai
@@ -90,12 +90,12 @@ Perintah dan hasil pada lingkungan lokal:
 
 | Pemeriksaan | Hasil |
 | --- | --- |
-| `php artisan test --no-coverage` | **610 tes, 609 lulus, 1 skipped, 2.728 asersi** (SQLite `:memory:`). |
-| `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3307) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.11.19 portabel, DB uji terpisah). |
-| `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3306) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.4.32 lokal). |
+| `php artisan test --no-coverage` | **612 tes, 611 lulus, 1 skipped, 2.795 asersi** (SQLite `:memory:`). |
+| `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3307) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.11.19 portabel, DB uji terpisah; dijalankan sebelum dua tes regresi CI). |
+| `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3306) | **612 tes, 611 lulus, 1 skipped, 2.800 asersi** (MariaDB 10.4.32 lokal). |
 | `php artisan app:production-check` pada MariaDB 10.11.19 | **32 PASS, 2 WARN, 0 FAIL** dengan konfigurasi produksi, wilayah, dan admin uji. Bukan staging. |
 | Verifikasi backup/restore lokal | **26 tabel** berhasil direstore ke DB scratch; jumlah baris sama; dump 660.646 byte; SHA-256 `a1e5e3fa...`. Bukan staging/produksi. |
-| Workflow CI `.github/workflows/ci.yml` | YAML valid; suite MariaDB lokal lulus; **run GitHub belum diamati**. CI bukan staging. |
+| Workflow CI `.github/workflows/ci.yml` | **Run `c03011b` sukses** (SQLite, MariaDB 10.11, build, Pint, audit). CI bukan staging. |
 | `vendor/bin/pint --test` | PASS. |
 | `npm.cmd run build` | PASS; aset produksi terbentuk. |
 | `git diff --check` | Bersih (tanpa output). |
@@ -315,8 +315,10 @@ backfill deterministik selesai.
 - Batch backup/restore (script `scripts/db-backup-verify.sh`, verifikasi lokal 26 tabel, dokumentasi)
   dikomit setelah pemeriksaan sintaks, `git diff --check`, dan pemeriksaan secret lulus. Belum
   dijalankan sebagai backup/restore staging/produksi.
-- Batch CI MariaDB 10.11 (`.github/workflows/ci.yml`) ditambahkan; YAML divalidasi dan suite
-  MariaDB lokal lulus. Run GitHub belum diamati; CI bukan pengganti staging.
+- Batch CI MariaDB 10.11 (`.github/workflows/ci.yml`) ditambahkan dan run GitHub `c03011b`
+  **sukses** untuk SQLite, MariaDB 10.11, build, Pint, dan audit. Dua kegagalan awal menemukan
+  peringatan kompilasi migrasi dan XML contoh yang tidak valid; keduanya diperbaiki dan dijaga
+  tes regresi. CI bukan pengganti staging.
 - Batch F8 sebelumnya dikomit dan di-push setelah suite, Pint, build, dan pemeriksaan secret lulus.
 - Tidak ada `git reset`, `git clean`, atau penghapusan perubahan pengguna.
 - `.env` tidak dikomit; `.env.example` hanya berisi placeholder. Tidak ada secret di repositori.

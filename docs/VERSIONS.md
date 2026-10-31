@@ -48,15 +48,16 @@ Ekstraksi memerlukan `pypdf` (dependensi skrip, **bukan** dependensi aplikasi). 
 diimpor ke database lokal** MariaDB 10.4.32 (6.612 baris, 26 Oktober 2026); database produksi/staging
 belum tersedia.
 
-## Status suite, migrasi, dan pengerasan produksi (26 Oktober 2026)
+## Status suite, migrasi, dan pengerasan produksi (26-31 Oktober 2026)
 
-- Suite penuh SQLite `:memory:`: **610 tes, 609 lulus, 1 skipped, 2.728 asersi**. Tes yang
+- Suite penuh SQLite `:memory:`: **612 tes, 611 lulus, 1 skipped, 2.795 asersi**. Tes yang
   di-skip adalah tes khusus MySQL/MariaDB (self-FK).
-- Suite penuh MariaDB **10.4.32** lokal: **610 tes, 609 lulus, 1 skipped, 2.733 asersi**.
+- Suite penuh MariaDB **10.4.32** lokal: **612 tes, 611 lulus, 1 skipped, 2.800 asersi**.
   Tes yang di-skip adalah tes khusus SQLite (guard self-FK).
-- Suite penuh MariaDB **10.11.19** portabel (port 3307, database uji terpisah): **610 tes,
-  609 lulus, 1 skipped, 2.733 asersi**. Ini memverifikasi migrasi, DDL/FK, indeks, enum, dan
-  perilaku aplikasi pada versi database target secara lokal. **Bukan** staging/produksi.
+- Suite penuh MariaDB **10.11.19** portabel (port 3307, database uji terpisah, dijalankan
+  26 Oktober 2026 sebelum dua tes regresi CI): **610 tes, 609 lulus, 1 skipped, 2.733 asersi**.
+  Ini memverifikasi migrasi, DDL/FK, indeks, enum, dan perilaku aplikasi pada versi database
+  target secara lokal. **Bukan** staging/produksi.
 - `ParentSubmissionForeignKeyTest` kini sadar driver: tes tanpa self-FK hanya SQLite, tes baru
   memverifikasi self-FK + `ON DELETE SET NULL` pada MySQL/MariaDB, dan simulasi skema parsial
   melepas FK sebelum indeks untuk menghindari `errno 1553`.
@@ -91,14 +92,19 @@ belum tersedia.
 - **Batas:** belum menguji backup remote, enkripsi at-rest, retensi, RPO/RTO, atau restore ke
   staging/produksi. Uji restore staging tetap wajib sebelum go-live.
 
-## CI MariaDB 10.11 (27 Oktober 2026)
+## CI MariaDB 10.11 (27-31 Oktober 2026)
 
 - Workflow `.github/workflows/ci.yml`: PHP 8.4, Node 22, service MariaDB 10.11, suite SQLite +
   MariaDB, build aset, Pint, dan `composer audit`.
-- YAML tervalidasi; suite MariaDB lokal 10.4.32 lulus **610 tes / 609 lulus / 1 skipped /
-  2.733 asersi**.
-- **Batas:** workflow belum diamati berjalan di GitHub dan bukan pengganti staging/HTTPS/SMTP/
-  backup restore.
+- Run GitHub `c03011b` **sukses** untuk seluruh langkah:
+  https://github.com/Aryaaa777/kp/actions/runs/40369698521.
+- Dua run sebelumnya menemukan cacat nyata yang tidak terlihat di lokal: peringatan kompilasi
+  `use RuntimeException;` pada migrasi lama dan komentar XML `--` pada contoh konfigurasi
+  PHPUnit. Keduanya diperbaiki; regresi dijaga oleh `MigrationLintTest` dan
+  `PhpUnitConfigTest`.
+- Validasi lokal: SQLite **612 tes / 611 lulus / 1 skipped / 2.795 asersi**; MariaDB 10.4.32
+  **612 tes / 611 lulus / 1 skipped / 2.800 asersi**.
+- **Batas:** CI bukan pengganti staging/HTTPS/SMTP/backup restore.
 
 ## Kesesuaian dengan PRD
 
