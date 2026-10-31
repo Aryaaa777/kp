@@ -1,7 +1,8 @@
 ﻿# Serah Terima (Handover) MVP — Sistem Informasi Pendataan dan Pemantauan Koperasi Provinsi Jawa Barat
 
 > **Status dokumen:** serah terima teknis untuk finalisasi MVP, diperbarui **31 Oktober 2026**
-> setelah penyelesaian F8, impor wilayah, pengerasan produksi, dan CI MariaDB yang hijau.
+> setelah penyelesaian F8, impor wilayah, pengerasan produksi, remediasi CVE-2026-45070, dan CI
+> MariaDB yang hijau.
 > **Status go-live:** **BELUM siap go-live.** Pengerasan kode (header keamanan, preflight), suite
 > MariaDB 10.11.19 lokal, dan prosedur backup/restore lokal sudah diverifikasi; staging/HTTPS/SMTP
 > dan uji restore ke staging belum tersedia. Lihat §8. Jangan menafsirkan dokumen ini sebagai
@@ -95,7 +96,9 @@ Perintah dan hasil pada lingkungan lokal:
 | `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3306) | **612 tes, 611 lulus, 1 skipped, 2.800 asersi** (MariaDB 10.4.32 lokal). |
 | `php artisan app:production-check` pada MariaDB 10.11.19 | **32 PASS, 2 WARN, 0 FAIL** dengan konfigurasi produksi, wilayah, dan admin uji. Bukan staging. |
 | Verifikasi backup/restore lokal | **26 tabel** berhasil direstore ke DB scratch; jumlah baris sama; dump 660.646 byte; SHA-256 `a1e5e3fa...`. Bukan staging/produksi. |
-| Workflow CI `.github/workflows/ci.yml` | **Run `c03011b` sukses** (SQLite, MariaDB 10.11, build, Pint, audit). CI bukan staging. |
+| Workflow CI `.github/workflows/ci.yml` | **Run `c03011b` sukses** (SQLite, MariaDB 10.11, build, Pint, audit). Matriks PHP 8.3/8.4/8.5 menunggu verifikasi run berikutnya. CI bukan staging. |
+| `composer audit` | Bersih setelah `symfony/mime` diperbaiki ke v7.4.22 (CVE-2026-45070). |
+| `composer why-not php 8.3.0` | Tidak ada paket yang menghalangi; lock memakai `config.platform.php = 8.3.0`. |
 | `vendor/bin/pint --test` | PASS. |
 | `npm.cmd run build` | PASS; aset produksi terbentuk. |
 | `git diff --check` | Bersih (tanpa output). |
@@ -318,7 +321,9 @@ backfill deterministik selesai.
 - Batch CI MariaDB 10.11 (`.github/workflows/ci.yml`) ditambahkan dan run GitHub `c03011b`
   **sukses** untuk SQLite, MariaDB 10.11, build, Pint, dan audit. Dua kegagalan awal menemukan
   peringatan kompilasi migrasi dan XML contoh yang tidak valid; keduanya diperbaiki dan dijaga
-  tes regresi. CI bukan pengganti staging.
+  tes regresi. Run `8294505` kemudian menemukan **CVE-2026-45070** pada `symfony/mime`; dependency
+  diperbaiki ke v7.4.22 dan lock dipatok ke platform PHP 8.3.0. Matriks CI kini mencakup PHP
+  8.3/8.4/8.5. CI bukan pengganti staging.
 - Batch F8 sebelumnya dikomit dan di-push setelah suite, Pint, build, dan pemeriksaan secret lulus.
 - Tidak ada `git reset`, `git clean`, atau penghapusan perubahan pengguna.
 - `.env` tidak dikomit; `.env.example` hanya berisi placeholder. Tidak ada secret di repositori.

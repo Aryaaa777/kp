@@ -2629,3 +2629,30 @@ hanya menghapus peringatan kompilasi; tidak ada DDL, penghapusan data, rollback,
 konstanta. Cacat terverifikasi melalui CI, perbaikan bersifat minimal, dan bukti keberhasilan
 adalah run CI `c03011b` yang sukses. Tidak ada migrasi korektif baru karena tidak ada perubahan
 skema. Pengecualian ini tidak menjadi izin umum untuk mengubah migrasi lama.
+
+---
+
+## 38. Remediasi CVE-2026-45070 dan kompatibilitas PHP 8.3 (31 Oktober 2026) `[KEPUTUSAN]`
+
+- CI run `8294505` gagal pada `composer audit` karena advisory **CVE-2026-45070**
+  (`symfony/mime`, severity medium, *Email Header Injection via Non-Token Characters in Mime
+  Parameter Names*, dilaporkan 28 Oktober 2026). Versi terpasang `symfony/mime` v8.0.15 termasuk
+  rentang terdampak; jalur 8.0.x tidak memiliki rilis perbaikan.
+- Perbaikan yang dipilih: menurunkan `symfony/mime` ke **v7.4.22** (dirilis 28 Oktober 2026),
+  yang sudah diperbaiki dan masih memenuhi constraint Laravel. Komponen Symfony lain diselaraskan
+  ke jalur **7.4.x** agar tidak mencampur mayor 8.0 dengan mime 7.4.
+- **Akar masalah kompatibilitas:** lock lama dibuat pada PHP 8.4 sehingga menarik Symfony 8.0.x
+  yang mensyaratkan PHP >= 8.4. Akibatnya `composer install` pada PHP 8.3 (batas bawah target
+  PRD) akan gagal walaupun `composer.json` menyatakan `php: ^8.3`. `composer.json` sekarang
+  memakai `config.platform.php = 8.3.0`, dan lock dihasilkan ulang untuk platform tersebut.
+- Hasil lokal 31 Oktober 2026:
+  - `composer audit` bersih;
+  - `composer why-not php 8.3.0` tidak menemukan paket yang menghalangi;
+  - SQLite **612 tes / 611 lulus / 1 skipped / 2.795 asersi**;
+  - MariaDB 10.4.32 **612 tes / 611 lulus / 1 skipped / 2.800 asersi**;
+  - `vendor/bin/pint --test` dan `npm run build` lulus.
+- CI diperluas menjadi matriks **PHP 8.3, 8.4, dan 8.5** dengan MariaDB 10.11. Keberhasilan
+  matriks ini membuktikan batas bawah dan atas target runtime, bukan staging/produksi.
+- **Batas:** ini bukan penggantian staging, uji SMTP nyata, atau uji beban. Perubahan dependency
+  harus ditinjau ulang bila ada advisory baru; `composer audit` wajib dijalankan pada commit yang
+  akan dideploy.

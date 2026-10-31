@@ -498,9 +498,10 @@ dan restore staging.
   scratch, membandingkan daftar tabel/jumlah baris, lalu menghapus scratch. Verifikasi lokal
   26 Oktober 2026: 26 tabel, jumlah baris sama (MariaDB 10.4.32).
 - `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
-  `composer audit` pada push/PR. Run GitHub `c03011b` **sukses**; CI bukan staging. Dua
-  kegagalan awal menemukan peringatan kompilasi migrasi dan XML contoh yang tidak valid;
-  keduanya diperbaiki dan dijaga tes regresi.
+  `composer audit` pada push/PR dengan matriks PHP 8.3/8.4/8.5. Run GitHub `c03011b` **sukses**;
+  CI bukan staging. Dua kegagalan awal menemukan peringatan kompilasi migrasi dan XML contoh
+  yang tidak valid; keduanya diperbaiki dan dijaga tes regresi. Run `8294505` menemukan
+  **CVE-2026-45070**; `symfony/mime` diperbaiki ke v7.4.22 dan lock dipatok ke platform PHP 8.3.0.
 - Batas: 10.11.19 portabel dan verifikasi backup/restore lokal bukan staging; `sql_mode` produksi,
   HTTPS/domain, SMTP, restore staging/produksi, dan uji beban belum dilakukan.
   Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.

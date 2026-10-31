@@ -2,7 +2,7 @@
 
 > Dokumen ini mencatat versi yang **benar-benar terpasang** pada lingkungan pengembangan lokal saat F0 diselesaikan (15 Oktober 2026). Ini bukan target/kebijakan; ini hasil verifikasi.
 >
-> Diperbarui **16 Oktober 2026** setelah remediasi **CVE-2026-108082** (commit `6a5fe3a`): `symfony/http-foundation` v8.0.15 → **v7.4.21**. Komponen lain tidak berubah.
+> Diperbarui **31 Oktober 2026** setelah remediasi **CVE-2026-45070**: `symfony/mime` v8.0.15 → **v7.4.22**; komponen Symfony lain diselaraskan ke **7.4.x**. `composer.json` memakai `config.platform.php = 8.3.0` agar lock dapat dipasang pada batas bawah target PHP 8.3.
 
 ## Runtime & Tooling
 
@@ -33,8 +33,12 @@
 | Paket | Versi |
 | --- | --- |
 | laravel/framework | v13.36.0 |
-| symfony/http-foundation | **v7.4.21** — dipatok langsung via constraint `^7.4.21` (remediasi CVE-2026-108082) |
-| symfony/http-kernel | v8.0.15 |
+| symfony/http-foundation | **v7.4.22** — dipatok langsung via constraint `^7.4.21` |
+| symfony/http-kernel | **v7.4.22** — diselaraskan untuk kompatibilitas PHP 8.3 |
+| symfony/mime | **v7.4.22** — remediasi CVE-2026-45070 |
+| symfony/mailer | **v7.4.22** |
+| symfony/console | **v7.4.22** |
+| Platform Composer | **PHP 8.3.0** — `config.platform.php`; runtime lokal tetap PHP 8.4.0 |
 
 ## Sumber Data Wilayah (Tahap 107)
 
@@ -94,21 +98,26 @@ belum tersedia.
 
 ## CI MariaDB 10.11 (27-31 Oktober 2026)
 
-- Workflow `.github/workflows/ci.yml`: PHP 8.4, Node 22, service MariaDB 10.11, suite SQLite +
-  MariaDB, build aset, Pint, dan `composer audit`.
+- Workflow `.github/workflows/ci.yml`: matriks **PHP 8.3, 8.4, dan 8.5**, Node 22, service
+  MariaDB 10.11, suite SQLite + MariaDB, build aset, Pint, dan `composer audit`.
 - Run GitHub `c03011b` **sukses** untuk seluruh langkah:
   https://github.com/Aryaaa777/kp/actions/runs/40369698521.
+- Run `8294505` gagal pada `composer audit` karena **CVE-2026-45070** (`symfony/mime`).
+  Perbaikannya: `symfony/mime` v7.4.22, komponen Symfony diselaraskan ke 7.4.x, dan
+  `config.platform.php = 8.3.0`. Run setelah perbaikan dependency menunggu verifikasi GitHub.
 - Dua run sebelumnya menemukan cacat nyata yang tidak terlihat di lokal: peringatan kompilasi
   `use RuntimeException;` pada migrasi lama dan komentar XML `--` pada contoh konfigurasi
   PHPUnit. Keduanya diperbaiki; regresi dijaga oleh `MigrationLintTest` dan
   `PhpUnitConfigTest`.
 - Validasi lokal: SQLite **612 tes / 611 lulus / 1 skipped / 2.795 asersi**; MariaDB 10.4.32
-  **612 tes / 611 lulus / 1 skipped / 2.800 asersi**.
+  **612 tes / 611 lulus / 1 skipped / 2.800 asersi**; `composer audit` bersih.
 - **Batas:** CI bukan pengganti staging/HTTPS/SMTP/backup restore.
 
 ## Kesesuaian dengan PRD
 
-- PRD §13.1 mengusulkan **Laravel 13.x** dan **PHP 8.3–8.5**. Lingkungan ini memakai **Laravel 13.36.0 + PHP 8.4.0** → sesuai.
+- PRD §13.1 mengusulkan **Laravel 13.x** dan **PHP 8.3–8.5**. Lingkungan ini memakai **Laravel
+  13.36.0 + PHP 8.4.0**; lock Composer kini dihasilkan untuk platform **PHP 8.3.0** agar dapat
+  dipasang pada batas bawah target. CI menguji PHP 8.3, 8.4, dan 8.5.
 - PRD mengusulkan **MySQL 8.x** dan menandainya `[NEEDS CONFIRMATION]`. Server lokal adalah **MariaDB 10.4.32 (XAMPP)**; versi target **10.11.19** juga diuji secara portabel pada 26 Oktober 2026. Keduanya memakai driver `mysql` Laravel. **Keputusan sementara:** gunakan MariaDB lokal; versi server produksi masih perlu dikonfirmasi (Q-014 / §21 PRD).
 - PRD mengasumsikan zona waktu `Asia/Jakarta` dan locale Indonesia. Diterapkan via `APP_TIMEZONE=Asia/Jakarta` dan `APP_LOCALE=id` (fallback `en`).
 
@@ -117,6 +126,7 @@ belum tersedia.
 | Item | Status | Tindakan |
 | --- | --- | --- |
 | `symfony/http-foundation` — **CVE-2026-108082** (ReDoS `HeaderUtils::split()` via header `Cache-Control`) | **DIPERBAIKI** (commit `6a5fe3a`) | Ditangani **tanpa menaikkan PHP**: `symfony/http-foundation` dipatok lewat constraint langsung `^7.4.21` → **v7.4.21**. Jalur v8.0.x yang terdampak tidak memiliki perbaikan; patch v8.1.7+ mensyaratkan PHP >= 8.4.1 sedangkan lingkungan ini PHP 8.4.0. `composer audit` bersih; **angka historis saat patch: 131 tes / 461 assertions lulus** (**bukan** status suite saat ini — status terbaru ada di `DECISIONS.md` §21.8). Penyelarasan seluruh komponen Symfony (mis. ke 8.1.9+) dapat dievaluasi kembali setelah upgrade PHP yang sesuai dan pengujian. |
+| `symfony/mime` — **CVE-2026-45070** (*Email Header Injection via Non-Token Characters in Mime Parameter Names*) | **DIPERBAIKI** (31 Oktober 2026) | `symfony/mime` v8.0.15 → **v7.4.22**; komponen Symfony lain diselaraskan ke 7.4.x. `composer.json` memakai `config.platform.php = 8.3.0`. `composer audit` bersih; rincian di `DECISIONS.md` §38. |
 | `php artisan db:show` gagal di MariaDB 10.4 (XAMPP) karena tabel `performance_schema.session_status` tidak tersedia | Diketahui | Bukan kegagalan koneksi. Gunakan `migrate:status` / query langsung sebagai gantinya. |
 | Laravel Boost | Tidak digunakan | Keputusan proyek: Boost tidak dipakai. Instruksi Boost bawaan scaffold telah dihapus dari `AGENTS.md` & `CLAUDE.md`; jangan dijalankan kecuali diputuskan lain oleh pemilik proyek. |
 | Paket autentikasi | Tidak digunakan | F1 memakai session guard bawaan Laravel. Tidak ada paket autentikasi eksternal yang ditambahkan. |

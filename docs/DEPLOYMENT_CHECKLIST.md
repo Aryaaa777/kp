@@ -107,8 +107,9 @@
       ke staging/produksi berisi data. Pada 31 Oktober 2026 suite SQLite lulus **612 tes / 611
       lulus / 1 skipped / 2.795 asersi** dan MariaDB 10.4.32 lokal lulus **612 tes / 611 lulus /
       1 skipped / 2.800 asersi**. MariaDB 10.11.19 portabel juga sudah diuji lokal sebelumnya.
-- [ ] CI GitHub Actions hijau pada commit yang akan dideploy (SQLite + MariaDB 10.11, build,
-      Pint, audit).
+- [ ] CI GitHub Actions hijau pada commit yang akan dideploy (PHP 8.3/8.4/8.5, SQLite + MariaDB
+      10.11, build, Pint, audit).
+- [ ] `composer audit` bersih pada lock yang akan dideploy; jangan deploy bila ada advisory.
 - [ ] Akun admin pertama: `php artisan user:create` (password diminta interaktif; jangan ditanam di kode).
 
 ## 4. TLS & domain

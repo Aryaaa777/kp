@@ -247,8 +247,13 @@ ke database staging/produksi berisi data. Pada 31 Oktober 2026 suite SQLite lulu
 611 lulus / 1 skipped / 2.795 asersi**, dan suite MariaDB 10.4.32 lokal lulus **612 tes / 611
 lulus / 1 skipped / 2.800 asersi**. MariaDB 10.11.19 portabel juga sudah diuji lokal sebelumnya.
 
+`composer.json` memakai `config.platform.php = 8.3.0` agar lock dapat dipasang pada batas bawah
+target PHP 8.3. Runtime lokal tetap PHP 8.4.0. Jalankan `composer audit` setelah mengubah
+dependency; `symfony/mime` dipatok ke v7.4.22 untuk CVE-2026-45070.
+
 CI `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
-`composer audit` pada push/PR. Run `c03011b` sukses, tetapi CI bukan pengganti staging.
+`composer audit` pada push/PR dengan matriks PHP 8.3/8.4/8.5. Run `c03011b` sukses, tetapi CI
+bukan pengganti staging.
 
 Pemeriksaan kesiapan produksi (read-only):
 
