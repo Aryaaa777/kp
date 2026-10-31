@@ -34,7 +34,40 @@
 set -euo pipefail
 
 usage() {
-    sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
+    cat <<'EOF'
+Backup database lalu verifikasi bahwa hasil backup benar-benar dapat
+direstore ke database scratch.
+
+Script ini TIDAK mengubah database sumber. Database scratch dibuat dengan
+nama yang berbeda, dipakai untuk restore, lalu dihapus (kecuali
+KEEP_VERIFY_DB=1). Script menolak VERIFY_DB yang sudah ada agar tidak
+menghapus database lain secara tidak sengaja.
+
+Contoh backup-only lokal (Git Bash + XAMPP):
+  DB_DATABASE=koperasi_jabar \
+  DB_USERNAME=root \
+  BACKUP_DIR=/c/Users/mocha/AppData/Local/Temp/opencode/backup-test \
+  DUMP_BIN=/c/xampp/mysql/bin/mysqldump.exe \
+  CLIENT_BIN=/c/xampp/mysql/bin/mysql.exe \
+  VERIFY=0 \
+  bash scripts/db-backup-verify.sh
+
+Contoh produksi (kredensial lewat file, bukan argumen):
+  DB_CNF=/etc/koperasi/backup.cnf \
+  DB_DATABASE=koperasi_jabar \
+  BACKUP_DIR=/var/backups/koperasi \
+  bash scripts/db-backup-verify.sh
+
+Variabel:
+  DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+  DB_CNF              File kredensial [client] (disarankan di produksi).
+  BACKUP_DIR          Direktori tujuan backup (wajib).
+  VERIFY              Default 1. Set 0 untuk hanya membuat backup.
+  VERIFY_DB           Nama database scratch. Default <db>_restore_check_<timestamp>.
+                      Harus belum ada; script tidak akan menimpa/menghapusnya.
+  KEEP_VERIFY_DB      Set 1 untuk mempertahankan database scratch.
+  DUMP_BIN/CLIENT_BIN Override binary (mis. mysqldump.exe di Windows).
+EOF
 }
 
 fail() {
@@ -141,15 +174,23 @@ printf 'Membuat backup %s ...\n' "$DB_DATABASE"
 
 if ! "$DUMP_BIN" "${AUTH_ARGS[@]}" \
     --single-transaction \
+    --quick \
     --routines \
     --triggers \
+    --no-tablespaces \
     --default-character-set=utf8mb4 \
     "$DB_DATABASE" | "$GZIP_BIN" -c > "$tmp_file"; then
     rm -f "$tmp_file"
     fail "Backup gagal; file sementara dihapus."
 fi
 
+if ! "$GZIP_BIN" -t "$tmp_file"; then
+    rm -f "$tmp_file"
+    fail "File backup tidak lolos uji integritas gzip."
+fi
+
 mv "$tmp_file" "$backup_file"
+chmod 600 "$backup_file"
 
 if [ "$(basename "$SHA_BIN")" = "shasum" ]; then
     "$SHA_BIN" -a 256 "$backup_file" > "${backup_file}.sha256"
@@ -180,10 +221,16 @@ case "$VERIFY_DB" in
 esac
 
 restore_tmp=""
+scratch_created=0
 
 cleanup() {
     if [ -n "$restore_tmp" ]; then
         rm -f "$restore_tmp"
+    fi
+
+    # Hanya hapus database yang benar-benar dibuat oleh script ini.
+    if [ "$scratch_created" != "1" ]; then
+        return
     fi
 
     if [ "$KEEP_VERIFY_DB" = "1" ]; then
@@ -196,11 +243,26 @@ cleanup() {
 }
 trap cleanup EXIT
 
+printf 'Memeriksa ketersediaan nama database scratch %s ...\n' "$VERIFY_DB"
+
+if ! existing_verify_db="$("$CLIENT_BIN" "${AUTH_ARGS[@]}" -N -B \
+    -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$VERIFY_DB';")"; then
+    fail "Tidak dapat memeriksa INFORMATION_SCHEMA untuk VERIFY_DB."
+fi
+
+if [ -n "$existing_verify_db" ]; then
+    fail "VERIFY_DB sudah ada: $VERIFY_DB. Pilih nama lain; script tidak menghapus database yang sudah ada."
+fi
+
 printf 'Membuat database scratch %s ...\n' "$VERIFY_DB"
 
-"$CLIENT_BIN" "${AUTH_ARGS[@]}" \
-    -e "DROP DATABASE IF EXISTS \`$VERIFY_DB\`; CREATE DATABASE \`$VERIFY_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" \
-    >/dev/null
+if ! "$CLIENT_BIN" "${AUTH_ARGS[@]}" \
+    -e "CREATE DATABASE \`$VERIFY_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" \
+    >/dev/null; then
+    fail "Gagal membuat database scratch $VERIFY_DB."
+fi
+
+scratch_created=1
 
 printf 'Restore ke database scratch ...\n'
 

@@ -6,6 +6,11 @@
 > (lihat `docs/DECISIONS.md` 34), tetapi **tidak ada** klaim bahwa aplikasi sudah siap produksi.
 >
 > Jangan menaruh domain, IP, atau kredensial nyata di repositori. Nilai `<...>` diisi oleh tim IT.
+>
+> **Dokumen pendukung:** `docs/PRODUCTION_CONFIG.md` (environment, rilis, permission, keamanan,
+> monitoring, rollback), `docs/BACKUP_RESTORE.md` (backup/restore/pemulihan), `docs/GO_LIVE_BLOCKERS.md`
+> (blocker eksternal + triage Q-005/Q-007/Q-010/Q-012/Q-014), dan template di `deploy/`.
+> Dokumen ini tetap menjadi checklist utama; dokumen pendukung menjelaskan cara memenuhinya.
 
 ## 1. Target yang disetujui (Q-014)
 
@@ -36,11 +41,17 @@
       proxy, jangan `*` pada host yang dapat diakses langsung. Uji deteksi HTTPS lewat
       `X-Forwarded-Proto`.
 - [ ] Sesi: `SESSION_DRIVER=database` (agar daftar/pengakhiran sesi FR-003 berfungsi),
-      `SESSION_LIFETIME` sesuai kebijakan, dan `SESSION_IDLE_TIMEOUT=30` (atau nilai yang disetujui).
-      Pastikan tabel `sessions` ada setelah migrasi.
+      `SESSION_LIFETIME` sesuai kebijakan, `SESSION_ENCRYPT=true`, `SESSION_HTTP_ONLY=true`, dan
+      `SESSION_IDLE_TIMEOUT=30` (atau nilai yang disetujui). Pastikan tabel `sessions` ada setelah migrasi.
 - [ ] Email: konfigurasi `MAIL_MAILER=smtp`/mailer resmi, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`,
-      `MAIL_PASSWORD`, `MAIL_ENCRYPTION`/scheme, dan `MAIL_FROM_ADDRESS` yang sah. **Jangan** memakai
-      `MAIL_MAILER=log` di produksi. Uji pengiriman tautan reset ke kotak masuk nyata sebelum go-live.
+      `MAIL_PASSWORD`, `MAIL_SCHEME` (atau default penyedia), dan `MAIL_FROM_ADDRESS` yang sah.
+      **Jangan** memakai `MAIL_MAILER=log` di produksi. Uji pengiriman tautan reset ke kotak masuk
+      nyata sebelum go-live.
+- [ ] Antrean: `QUEUE_CONNECTION=database` dan worker berjalan (template
+      `deploy/systemd/koperasi-queue.service.example`), atau `sync` bila tidak ada job antrean.
+      Pantau `failed_jobs`; jangan membiarkan job menumpuk tanpa worker.
+- [ ] Log: `LOG_STACK=daily`, `LOG_LEVEL=warning`/`error`, `LOG_DAILY_DAYS` sesuai kebijakan; rotasi
+      log Nginx/aplikasi dan retensi disetujui tim IT.
 - [ ] Izin: `.env` 640 (pemilik service + group), `storage/` & `bootstrap/cache/` dapat ditulis service.
 - [ ] `php artisan storage:link` bila diperlukan; dokumen disimpan pada disk **privat** (`local`), bukan `public`.
 
@@ -138,20 +149,26 @@
       ```
       `DB_CNF` berisi kredensial `[client]` milik user backup; jangan menaruh password di
       argumen proses. `VERIFY=0` hanya untuk backup cepat tanpa uji restore.
+- [ ] Script menolak `VERIFY_DB` yang sudah ada dan hanya menghapus database scratch yang dibuatnya
+      sendiri. Jangan mengarahkan `VERIFY_DB` ke database aplikasi/staging berisi data.
 - [ ] Alternatif manual:
       ```sh
-      mariadb-dump --defaults-extra-file=<kredensial-backup> --single-transaction --routines --triggers <db> | gzip > <tujuan>/db-YYYYMMDD.sql.gz
+      mariadb-dump --defaults-extra-file=<kredensial-backup> --single-transaction --quick --routines --triggers --no-tablespaces <db> | gzip > <tujuan>/db-YYYYMMDD.sql.gz
       ```
-- [ ] Jadwal harian (cron/systemd timer) pada jam sepi.
+- [ ] Jadwal harian (cron/systemd timer) pada jam sepi. Template:
+      `deploy/systemd/koperasi-backup.service.example` dan `koperasi-backup.timer.example`.
 - [ ] Retensi **ditetapkan & disetujui tim IT** (contoh awal: harian 14 hari, mingguan 8 minggu — wajib
       dikonfirmasi, bukan keputusan proyek).
-- [ ] Checksum disimpan (mis. SHA-256) untuk verifikasi integritas.
+- [ ] Checksum disimpan (mis. SHA-256) untuk verifikasi integritas; uji `gzip -t` dan
+      `sha256sum -c` sebelum menganggap backup valid.
 
 ### 5.2 Filesystem (mingguan)
 
-- [ ] Arsipkan `storage/app` (dokumen privat), `storage/logs` bila diperlukan, dan `.env` **terenkripsi**
-      secara terpisah.
-- [ ] Jangan menyertakan `vendor/`, `node_modules/`, cache build.
+- [ ] Arsipkan `storage/app/private` (dokumen privat), `storage/app/public` bila dipakai, dan `.env`
+      **terenkripsi** secara terpisah. Contoh perintah ada di `docs/BACKUP_RESTORE.md` §6.
+- [ ] Jangan menyertakan `vendor/`, `node_modules/`, cache build, atau log yang tidak diperlukan.
+- [ ] Simpan salinan `.env` terenkripsi di lokasi terpisah; kunci dekripsi tidak boleh berada di host
+      aplikasi.
 
 ### 5.3 Penyimpanan & akses
 
@@ -163,9 +180,12 @@
 ### 5.4 Uji pemulihan (wajib, berkala)
 
 - [ ] Minimal **triwulanan** (dan sebelum go-live) lakukan restore ke database **staging**:
-      1. siapkan DB kosong; 2. jalankan `bash scripts/db-backup-verify.sh` dengan `VERIFY_DB` ke DB
-      staging/scratch; 3. bandingkan jumlah baris tabel utama; 4. jalankan aplikasi staging + smoke
-      test (`/login`, `/koperasi`, buka satu profil).
+      1. siapkan DB kosong; 2. jalankan `bash scripts/db-backup-verify.sh` dengan `VERIFY_DB` unik;
+      3. bandingkan jumlah baris tabel utama; 4. jalankan aplikasi staging + smoke test
+      (`/login`, `/koperasi`, buka satu profil).
+- [ ] Restore **aplikasi lengkap** ke staging (DB + `storage/app/private` + `.env` staging) dan uji
+      login, dokumen, laporan, serta reset password bila SMTP staging tersedia. Prosedur lengkap:
+      `docs/BACKUP_RESTORE.md` §8.
 - [ ] Catat **RPO/RTO** aktual dan hasil uji. Backup yang belum pernah di-restore **belum** dapat dianggap
       layak.
 - [ ] Verifikasi lokal 26 Oktober 2026 sudah lulus untuk 26 tabel (MariaDB 10.4.32, scratch), tetapi
@@ -177,9 +197,15 @@
 - [ ] `APP_DEBUG=false`; halaman error tidak membocorkan stack trace.
 - [ ] `SECURITY_HSTS_ENABLED=true` dan `SECURITY_CSP_ENABLED=true`; CSP tidak memakai
       `script-src 'unsafe-inline'`; tidak ada inline event handler baru di Blade.
-- [ ] Rotasi log + monitoring disk, sertifikat, dan keberhasilan backup (alert bila gagal).
+- [ ] Rotasi log + monitoring disk, sertifikat, `/up`, 5xx, `failed_jobs`, dan keberhasilan backup
+      (alert bila gagal). Tentukan kontak on-call dan eskalasi.
+- [ ] Worker antrean berjalan dan di-restart saat deploy (template
+      `deploy/systemd/koperasi-queue.service.example`). Jika tidak memakai antrean, dokumentasikan
+      `QUEUE_CONNECTION=sync` dan alasan.
 - [ ] Tidak ada akun default berpassword; akun admin dibuat lewat `user:create`.
-- [ ] Audit akses berkala ke server & backup.
+- [ ] Audit akses berkala ke server & backup; kredensial DB/SMTP/backup dirotasi sesuai kebijakan.
+- [ ] Konfigurasi server (Nginx/PHP-FPM/systemd) disimpan di repositori konfigurasi terpisah dan
+      di-review sebelum perubahan.
 
 ## 7. Go-live (setelah semua di atas terpenuhi)
 
@@ -201,3 +227,35 @@
       filter **periode** dashboard/daftar konsisten; tautan “Daftar” mempertahankan filter aktif.
 - [ ] Catat versi MariaDB, `sql_mode`, hasil suite (SQLite default dan uji MariaDB terpisah), serta hasil
       uji restore pada laporan go-live.
+
+## 8. Preflight & bukti
+
+Jalankan **sebelum** mengubah rilis/database dan simpan hasilnya:
+
+- [ ] `php -v`, `composer check-platform-reqs`, `php artisan about`.
+- [ ] `php artisan migrate:status` (tidak ada `Pending` tak terduga).
+- [ ] `php artisan app:production-check --json` (0 FAIL; setiap WARN ditinjau).
+- [ ] Backup database terbaru + checksum yang sudah diverifikasi.
+- [ ] Catat commit, hash `composer.lock`, versi PHP/MariaDB, dan `sql_mode`.
+- [ ] Simpan bukti di direktori terpisah dari aplikasi, dengan akses terbatas.
+
+## 9. Rollback & pemulihan
+
+- [ ] Rollback kode: arahkan symlink `current` ke release sebelumnya, reload PHP-FPM, restart worker,
+      lalu smoke test.
+- [ ] Rollback konfigurasi: kembalikan `.env` dari salinan terkontrol, `optimize:clear` +
+      `config:cache`, reload PHP-FPM.
+- [ ] Rollback database **tidak otomatis**: jangan `migrate:fresh`, `db:wipe`, atau rollback massal.
+      Restore backup terverifikasi ke database baru/staging lebih dahulu; pindahkan aplikasi hanya
+      dengan persetujuan eksplisit. Prosedur: `docs/BACKUP_RESTORE.md` §9–§10.
+- [ ] Uji minimal satu skenario rollback di staging sebelum go-live.
+
+## 10. Sign-off
+
+- [ ] Semua item §2–§9 tercentang atau memiliki pengecualian tertulis.
+- [ ] `docs/GO_LIVE_BLOCKERS.md` §2 (EXT-01…EXT-10) selesai atau diterima sebagai risiko.
+- [ ] Q-005/Q-007/Q-010/Q-012 memiliki keputusan atau label **PROVISIONAL** yang disetujui.
+- [ ] Pemilik proyek/Dinas menandatangani berita acara go-live.
+
+**Jangan menyatakan “siap produksi” selama staging, HTTPS/domain, SMTP, backup/restore staging, atau
+sign-off belum tersedia. CI hijau bukan pengganti staging.**

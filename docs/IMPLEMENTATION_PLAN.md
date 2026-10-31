@@ -453,6 +453,14 @@ Lihat §22 PRD. Ringkasnya: fungsional ✓, validasi ✓, otorisasi ✓, keamana
 
 > Detail infrastruktur dinas **[NEEDS CONFIRMATION]** (Q-014). Jangan mengasumsikan server/domain
 > dinas; CI repositori memakai GitHub Actions, sedangkan target deployment produksi tetap terbuka.
+>
+> **Dokumentasi deployment lengkap (31 Oktober 2026):**
+> - `docs/PRODUCTION_CONFIG.md` — environment, permission, rilis, rollback, monitoring.
+> - `docs/BACKUP_RESTORE.md` — backup/restore/pemulihan, RPO/RTO, verifikasi.
+> - `docs/DEPLOYMENT_CHECKLIST.md` — checklist operasional + preflight + sign-off.
+> - `docs/GO_LIVE_BLOCKERS.md` — blocker eksternal, triage Q-005/Q-007/Q-010/Q-012/Q-014.
+> - `deploy/` — template Nginx, systemd queue/backup/timer, logrotate.
+> - `.env.production.example` — placeholder environment produksi.
 
 ---
 

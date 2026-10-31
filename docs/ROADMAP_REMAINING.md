@@ -357,6 +357,12 @@ Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
   tes regresi. Run `8294505` menemukan **CVE-2026-45070**; `symfony/mime` diperbaiki ke v7.4.22
   dan lock dipatok ke platform PHP 8.3.0. Run `1b87874` sukses pada matriks PHP 8.3/8.4/8.5.
   CI bukan pengganti staging.
+- **Dokumentasi deployment lengkap (31 Oktober 2026):**
+  `docs/PRODUCTION_CONFIG.md`, `docs/BACKUP_RESTORE.md`, `docs/GO_LIVE_BLOCKERS.md`,
+  `deploy/` templates (Nginx, systemd, logrotate), `.env.production.example`.
+  Script backup diperkeras (guard scratch DB, gzip check, `--quick`/`--no-tablespaces`).
+  Triage Q-005/Q-007/Q-010/Q-012/Q-014 ada di `docs/GO_LIVE_BLOCKERS.md` §3.
+  Keputusan: `docs/DECISIONS.md` §39.
 - **Belum go-live:** staging resmi, HTTPS/domain, SMTP, restore staging/produksi, `sql_mode`
-  produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34-38 dan
-  `docs/HANDOVER.md` 8.
+  produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/GO_LIVE_BLOCKERS.md`,
+  `docs/DECISIONS.md` §34-39, dan `docs/HANDOVER.md` §8/§12.

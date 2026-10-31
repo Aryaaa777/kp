@@ -1,0 +1,30 @@
+# Contoh rotasi log aplikasi. Bila LOG_STACK=daily, Laravel sudah merotasi
+# laravel-YYYY-MM-DD.log sendiri; file ini berguna untuk log lain di direktori
+# storage/logs atau log Nginx yang tidak ditangani paket distribusi.
+#
+# Simpan sebagai /etc/logrotate.d/koperasi dan validasi dengan:
+#   logrotate --debug /etc/logrotate.d/koperasi
+
+/var/www/koperasi/current/storage/logs/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su koperasi koperasi
+}
+
+/var/log/nginx/koperasi_*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+        [ -f /run/nginx.pid ] && kill -USR1 "$(cat /run/nginx.pid)"
+    endscript
+}

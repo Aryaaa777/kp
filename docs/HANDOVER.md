@@ -17,6 +17,10 @@
 - Implementasi MVP **F0-F8** untuk cakupan yang disepakati sudah tersedia. Suite penuh lulus pada
   SQLite `:memory:` dan pada MariaDB **10.11.19 portabel lokal** (database uji terpisah). F8
   diselesaikan secara lokal pada 26 Oktober 2026.
+- **Dokumentasi deployment lengkap** (31 Oktober 2026): konfigurasi produksi, backup/restore,
+  template Nginx/systemd/logrotate, `.env.production.example`, daftar blocker eksternal, dan
+  triage Q-005/Q-007/Q-010/Q-012/Q-014. Script backup diperkeras. Seluruh pekerjaan deployment
+  yang dapat dikerjakan developer tanpa akses infrastruktur sudah selesai.
 - **F8 selesai secara implementasi lokal:** FR-012, FR-022, FR-072, FR-082, FR-091, FR-171, FR-183.
   Formula/ambang/pembatasan wilayah tetap **PROVISIONAL** (Q-005/Q-007/Q-010).
 - Empat migrasi yang sebelumnya `Pending` dan empat migrasi F8 **sudah dijalankan pada database
@@ -26,9 +30,11 @@
   sudah ada. Tidak ada backfill `region_id`; koperasi `id = 1` tetap `NULL`.
 - Tidak ada `migrate:fresh`, rollback massal, atau penghapusan data. Backup lokal dibuat sebelum
   migrasi di luar repositori.
-- Satu bug integrasi nyata ditemukan dan diperbaiki: validasi tautan akun pengelola masih menerima
-  koperasi yang sudah **soft-deleted** melalui UI admin dan perintah `user:create`. Perbaikan dan tes
-  regresinya dijelaskan di §2.
+- Satu bug integrasi nyata ditemukan dan diperbaiki sebelumnya: validasi tautan akun pengelola masih menerima
+  koperasi yang sudah **soft-deleted** melalui UI admin dan perintah `user:create`.
+- Bug navigasi menu akun Arya (`admin_dinas`) diperbaiki: sentralisasi navigasi sidebar (`resources/views/layouts/_sidebar.blade.php`)
+  memastikan seluruh menu tetap utuh dan aktif secara dinamis saat berpindah ke subhalaman atau rute detail apa pun.
+  Diverifikasi dengan automated test `tests/Feature/Navigation/NavigationMenuIntegrityTest.php` (613 tes lulus, 3.004 asersi).
 
 ## 2. Bug integrasi yang ditemukan dan diperbaiki
 
@@ -91,7 +97,7 @@ Perintah dan hasil pada lingkungan lokal:
 
 | Pemeriksaan | Hasil |
 | --- | --- |
-| `php artisan test --no-coverage` | **612 tes, 611 lulus, 1 skipped, 2.795 asersi** (SQLite `:memory:`). |
+| `php artisan test --no-coverage` | **613 tes, 612 lulus, 1 skipped, 3.004 asersi** (SQLite `:memory:`). Mencakup tes integritas navigasi sidebar `NavigationMenuIntegrityTest`. |
 | `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3307) | **610 tes, 609 lulus, 1 skipped, 2.733 asersi** (MariaDB 10.11.19 portabel, DB uji terpisah; dijalankan sebelum dua tes regresi CI). |
 | `php vendor/bin/phpunit -c phpunit.mariadb.xml --no-coverage` (DB_PORT=3306) | **612 tes, 611 lulus, 1 skipped, 2.800 asersi** (MariaDB 10.4.32 lokal). |
 | `php artisan app:production-check` pada MariaDB 10.11.19 | **32 PASS, 2 WARN, 0 FAIL** dengan konfigurasi produksi, wilayah, dan admin uji. Bukan staging. |
@@ -301,14 +307,20 @@ backfill deterministik selesai.
 
 ## 12. Blocker eksternal
 
+> Rincian kebutuhan, penyedia, langkah penyelesaian, dan bukti yang diterima ada di
+> `docs/GO_LIVE_BLOCKERS.md` §2. Tabel di bawah adalah ringkasan dampak.
+
 | ID | Blocker | Dampak |
 | --- | --- | --- |
-| Q-014 | Tidak ada akses staging/domain/kredensial; MariaDB 10.11.19 dan backup/restore sudah diuji lokal, tetapi HTTPS, SMTP, dan restore ke staging belum diverifikasi | Go-live tidak dapat dinyatakan. |
-| Q-012 | Impor wilayah **lokal** selesai, tetapi backfill/`region_id NOT NULL` belum; target produksi belum diimpor | Alamat/wilayah publik pada target bergantung pada impor; data lama tanpa wilayah tetap ditandai audit. |
-| Q-010 | Definisi resmi periode belum ada | Filter/laporan memakai definisi sementara. |
-| Q-006 / Q-022 | Whitelist field dan format laporan pimpinan belum final | Cakupan workflow/laporan terbatas. |
-| Q-001 / Q-003 | Identitas dan jenis/bentuk koperasi belum dikonfirmasi | Validasi/taksonomi dapat berubah. |
-| Email produksi | SMTP/TLS resmi belum diuji | Reset password produksi belum dapat diandalkan. |
+| EXT-01 | Tidak ada akses staging/host; MariaDB 10.11.19 dan backup/restore sudah diuji lokal, tetapi HTTPS, SMTP, dan restore ke staging belum diverifikasi. | Go-live tidak dapat dinyatakan. |
+| EXT-02 | Domain `.go.id` + DNS + TLS belum tersedia. | Redirect HTTPS, HSTS, CSP belum diverifikasi browser. |
+| EXT-03 | SMTP produksi belum dikonfigurasi/diuji. | Reset password belum dapat diandalkan. |
+| EXT-04 | Backup remote dan restore staging belum diuji. | RPO/RTO belum terukur. |
+| EXT-09 | Pemetaan wilayah koperasi `id=1` belum; `NOT NULL` tertunda. | Laporan wilayah belum lengkap. |
+| Q-005/Q-007/Q-010 | Kebijakan peran, formula kesehatan, dan periodisasi resmi belum ditetapkan. | Label **PROVISIONAL**; jangan dianggap resmi. |
+| Q-006/Q-022 | Whitelist field dan format laporan pimpinan belum final. | Cakupan workflow/laporan terbatas. |
+| Q-001/Q-003 | Identitas dan jenis/bentuk koperasi belum dikonfirmasi. | Validasi/taksonomi dapat berubah. |
+| EXT-08 | Sign-off go-live belum ada. | Tidak boleh go-live tanpa sign-off. |
 
 ## 13. Status Git dan batas pekerjaan
 
@@ -325,6 +337,11 @@ backfill deterministik selesai.
   diperbaiki ke v7.4.22 dan lock dipatok ke platform PHP 8.3.0. Matriks CI PHP 8.3/8.4/8.5 lulus
   pada run `1b87874`. CI bukan pengganti staging.
 - Batch F8 sebelumnya dikomit dan di-push setelah suite, Pint, build, dan pemeriksaan secret lulus.
+- Batch dokumentasi deployment (31 Oktober 2026): `docs/PRODUCTION_CONFIG.md`,
+  `docs/BACKUP_RESTORE.md`, `docs/GO_LIVE_BLOCKERS.md`, `deploy/` templates,
+  `.env.production.example`, hardening `scripts/db-backup-verify.sh`, update
+  `docs/DEPLOYMENT_CHECKLIST.md`, dan `docs/DECISIONS.md` §39. Tidak ada perubahan kode aplikasi
+  atau migrasi; tidak perlu menjalankan ulang suite.
 - Tidak ada `git reset`, `git clean`, atau penghapusan perubahan pengguna.
 - `.env` tidak dikomit; `.env.example` hanya berisi placeholder. Tidak ada secret di repositori.
 - Database **lokal** dimigrasikan (30 `Ran`) dan diimpor wilayah (6.612 baris) dengan persetujuan
@@ -340,5 +357,10 @@ backfill deterministik selesai.
 - `docs/DECISIONS.md` — keputusan teknis dan batas provisional.
 - `docs/SETUP.md` — setup lokal.
 - `docs/DEPLOYMENT_CHECKLIST.md` — checklist operasional produksi.
+- `docs/PRODUCTION_CONFIG.md` — environment, rilis, permission, keamanan, monitoring, rollback.
+- `docs/BACKUP_RESTORE.md` — backup/restore/pemulihan dan RPO/RTO usulan.
+- `docs/GO_LIVE_BLOCKERS.md` — blocker eksternal dan triage Q-005/Q-007/Q-010/Q-012/Q-014.
 - `docs/REGION_DATA_SOURCES.md` — sumber/checksum data wilayah.
 - `docs/VERSIONS.md` — versi terpasang dan known issues.
+- `deploy/README.md` — template Nginx/systemd/logrotate dan cara memakai.
+- `.env.production.example` — placeholder environment produksi.

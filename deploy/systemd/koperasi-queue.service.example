@@ -1,0 +1,28 @@
+[Unit]
+Description=Koperasi Jabar — Laravel queue worker
+Documentation=file:/var/www/koperasi/current/docs/PRODUCTION_CONFIG.md
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=koperasi
+Group=koperasi
+WorkingDirectory=/var/www/koperasi/current
+ExecStart=/usr/bin/php /var/www/koperasi/current/artisan queue:work --sleep=3 --tries=3 --timeout=90 --max-time=3600
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/www/koperasi/current/storage /var/www/koperasi/current/bootstrap/cache
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

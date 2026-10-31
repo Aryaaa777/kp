@@ -1,0 +1,86 @@
+# =============================================================================
+# Contoh virtual host Nginx untuk Laravel.
+# Ganti koperasi.example.go.id, path sertifikat, dan versi PHP-FPM.
+# Jangan commit sertifikat atau kunci privat.
+#
+# Header keamanan aplikasi (HSTS/CSP/X-Frame-Options/nosniff/Referrer-Policy)
+# dipasang oleh middleware SecurityHeaders. Jangan menambahkan header yang sama
+# di sini agar tidak terjadi duplikasi header pada respons.
+# =============================================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name koperasi.example.go.id;
+
+    # Biarkan ACME challenge tetap dapat diakses sebelum redirect HTTPS.
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    # Nginx >= 1.25: gunakan `http2 on;` dan hapus `http2` dari listen.
+    http2 on;
+    server_name koperasi.example.go.id;
+
+    root /var/www/koperasi/current/public;
+    index index.php index.html;
+    charset utf-8;
+
+    server_tokens off;
+    client_max_body_size 6m;
+
+    access_log /var/log/nginx/koperasi_access.log;
+    error_log  /var/log/nginx/koperasi_error.log warn;
+
+    ssl_certificate     /etc/letsencrypt/live/koperasi.example.go.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/koperasi.example.go.id/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # Bila berada di belakang load balancer, aktifkan dan batasi ke IP LB.
+    # real_ip_header X-Forwarded-For;
+    # set_real_ip_from 10.0.0.0/8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # Sesuaikan dengan versi PHP-FPM yang dipasang (8.3/8.4/8.5).
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_read_timeout 60s;
+    }
+
+    # Jangan pernah menyajikan file tersembunyi (termasuk .env).
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # Dokumen privat berada di storage/app/private dan tidak boleh diakses
+    # langsung. Hanya storage/app/public yang boleh diekspos lewat public/storage.
+    location ^~ /storage/ {
+        try_files $uri =404;
+    }
+}

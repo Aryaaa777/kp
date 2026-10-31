@@ -1,0 +1,13 @@
+[Unit]
+Description=Jadwal backup database Koperasi Jabar
+Documentation=file:/var/www/koperasi/current/docs/BACKUP_RESTORE.md
+
+[Timer]
+# Sesuaikan jam dengan kebijakan tim IT dan jam sepi trafik.
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=15m
+Unit=koperasi-backup.service
+
+[Install]
+WantedBy=timers.target

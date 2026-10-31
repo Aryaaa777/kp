@@ -2658,3 +2658,85 @@ skema. Pengecualian ini tidak menjadi izin umum untuk mengubah migrasi lama.
 - **Batas:** ini bukan penggantian staging, uji SMTP nyata, atau uji beban. Perubahan dependency
   harus ditinjau ulang bila ada advisory baru; `composer audit` wajib dijalankan pada commit yang
   akan dideploy.
+
+---
+
+## 39. Kesiapan deployment mandiri & triage Q-005/Q-007/Q-010/Q-012/Q-014 (31 Oktober 2026) `[KEPUTUSAN]`
+
+Batch ini menyelesaikan pekerjaan deployment yang **tidak membutuhkan** akses staging,
+domain, SMTP, atau infrastruktur Dinas. Tidak ada klaim bahwa aplikasi sudah go-live.
+
+### 39.1 Artefak baru
+
+- `docs/PRODUCTION_CONFIG.md` - environment produksi, struktur rilis, permission, deployment,
+  keamanan, monitoring, dan rollback.
+- `docs/BACKUP_RESTORE.md` - backup database/filesystem/`.env`, restore scratch/staging/produksi,
+  pemulihan host, RPO/RTO usulan, dan bukti restore.
+- `docs/GO_LIVE_BLOCKERS.md` - daftar blocker eksternal (EXT-01...EXT-10) beserta kebutuhan,
+  penyedia, langkah, bukti, dan triage Q-005/Q-007/Q-010/Q-012/Q-014.
+- `deploy/` - contoh Nginx, systemd queue/backup/timer, logrotate, dan README.
+- `.env.production.example` - placeholder produksi; sengaja membuat `app:production-check`
+  gagal sampai diisi dengan nilai nyata.
+- `scripts/db-backup-verify.sh` diperkeras:
+  - menolak `VERIFY_DB` yang sudah ada;
+  - hanya menghapus database scratch yang benar-benar dibuat script;
+  - memeriksa integritas gzip sebelum menyimpan backup;
+  - memakai `--quick` dan `--no-tablespaces`;
+  - tetap tidak mengubah database sumber.
+
+### 39.2 Keputusan yang dapat ditetapkan developer
+
+1. **Q-005** - mekanisme `AdminRegionScope` tetap ada, tetapi `ADMIN_REGION_SCOPE_ENABLED=false`.
+   Akun `admin_wilayah` tidak boleh dibuat di produksi sebelum aturan resmi dan backfill
+   `region_id` siap. Ini adalah default teknis aman, bukan keputusan kewenangan.
+2. **Q-007** - formula kesehatan/kepatuhan tetap **PROVISIONAL** dan konfigurabel di
+   `config/koperasi.php` (5 komponen, bobot 0,20, ambang 85/70/55/0). Tidak ada klaim formula
+   resmi dan tidak ada migrasi baru.
+3. **Q-010** - periodisitas tetap default sementara: kesehatan/tata kelola tahunan, keanggotaan
+   berbasis peristiwa, aset tahunan, laporan memakai tahun `created_at`. Semua label tetap
+   **PROVISIONAL** sampai Dinas menetapkan definisi resmi.
+4. **Q-012** - dataset Kepmendagri 2025 dan importer tetap menjadi acuan; `region_id` tetap
+   nullable; backfill hanya dengan pemetaan deterministik dan persetujuan. Perubahan ke
+   `NOT NULL` menunggu audit bersih.
+5. **Q-014** - target MariaDB 10.11, PHP 8.3-8.5, domain `.go.id`, HTTPS, SMTP, dan backup
+   remote tetap menjadi target; artefak teknis disiapkan, tetapi penyediaan akses tetap milik
+   Dinas.
+
+### 39.3 Keputusan yang tetap membutuhkan pemilik proyek/Dinas
+
+- Q-005: matriks peran, kewenangan, cakupan wilayah, dan hak approval/publikasi.
+- Q-007: formula, komponen, bobot, ambang, sumber data, dan verifikator resmi.
+- Q-010: definisi periode, cut-off, keterlambatan, dan pengarsipan resmi.
+- Q-012: kode wilayah untuk setiap koperasi yang belum terpetakan (saat ini `id=1`) dan
+  persetujuan backfill/`NOT NULL`.
+- Q-014: host staging/produksi, domain/DNS/TLS, SMTP, backup remote, monitoring, uji beban, dan
+  sign-off.
+
+### 39.4 Batas verifikasi
+
+- Tidak ada pengujian ulang suite penuh, audit keamanan baru, atau CI baru karena tidak ada
+  perubahan kode aplikasi; perubahan hanya dokumentasi/template dan hardening script backup.
+- Validasi script: `bash -n scripts/db-backup-verify.sh` dan `--help` (tanpa koneksi database).
+- Verifikasi lokal 26 tabel sebelumnya **bukan** pengganti restore staging.
+- Status go-live tetap **belum siap** selama EXT-01...EXT-08 dan keputusan Q terkait belum
+  selesai. CI hijau bukan izin go-live.
+
+## 40. Sentralisasi navigasi sidebar terpadu & perbaikan menu akun Arya (31 Oktober 2026) `[KEPUTUSAN]`
+
+### 40.1 Investigasi akar masalah menu akun Arya
+- Akun pengguna `arya` (`id=2`, `arya123@gmail.com`) memiliki peran `admin_dinas`.
+- Di antarmuka internal (`resources/views/layouts/internal.blade.php`), sidebar sebelumnya menggunakan `@yield('sidebar')` yang diisi secara manual per-halaman Blade (`@section('sidebar')`).
+- Halaman detail dan submenu (misalnya detail/edit koperasi, izin, tata kelola, aset, kesehatan, anggota) hanya mendefinisikan 2 link (Dashboard & Data Koperasi), sedangkan halaman dashboard/akun mendefinisikan 7 link lengkap.
+- Akibatnya, saat pengguna berada di dashboard lalu mengklik salah satu menu atau masuk ke submenu/detail, menu-menu lainnya seolah "menghilang".
+
+### 40.2 Solusi teknis
+- Memisahkan navigasi sidebar ke partial view sentral `resources/views/layouts/_sidebar.blade.php`.
+- Menyesuaikan `resources/views/layouts/internal.blade.php` untuk merender `@include('layouts._sidebar')` secara konsisten di seluruh halaman internal.
+- Menentukan status `:active` pada tautan secara dinamis berbasis prefix rute (`str_starts_with($routeName, 'admin.koperasi.')`, dsb.), sehingga menu tetap lengkap dan indikator aktif tetap presisi di seluruh subhalaman.
+- Navigasi tetap mempertahankan hak akses sesuai peran (`admin_dinas` melihat 7 menu admin, `pengelola_koperasi` melihat 10 menu pengelola, dan tautan keamanan akun muncul jika berada di rute akun).
+
+### 40.3 Verifikasi otomatis
+- Dibuat automated test `tests/Feature/Navigation/NavigationMenuIntegrityTest.php` yang memverifikasi seluruh menu navigasi tetap utuh dan lengkap ketika Admin (termasuk akun Arya) dan Pengelola berpindah ke seluruh rute halaman terkait.
+- Seluruh 613 pengujian (3.004 asersi) lulus tanpa regresi (1 skipped PDO test).
+- Build aset `npm run build` sukses dan `./vendor/bin/pint --test` lulus.
+
