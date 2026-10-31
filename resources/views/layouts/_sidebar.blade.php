@@ -7,103 +7,120 @@
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.dashboard')"
         :href="route('admin.dashboard')">
-        Dashboard
+        <span class="material-symbols-outlined text-[18px]">dashboard</span>
+        <span>Dashboard</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.koperasi.')"
         :href="route('admin.koperasi.index')">
-        Data Koperasi
+        <span class="material-symbols-outlined text-[18px]">domain</span>
+        <span>Data Koperasi</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.akun.')"
         :href="route('admin.akun.index')">
-        Akun Pengelola
+        <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+        <span>Akun Pengelola</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.pengaturan.')"
         :href="route('admin.pengaturan.publik')">
-        Pengaturan Publik
+        <span class="material-symbols-outlined text-[18px]">tune</span>
+        <span>Pengaturan Publik</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.laporan.')"
         :href="route('admin.laporan.index')">
-        Laporan
+        <span class="material-symbols-outlined text-[18px]">description</span>
+        <span>Laporan</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.pengajuan.')"
         :href="route('admin.pengajuan.index')">
-        Pengajuan
+        <span class="material-symbols-outlined text-[18px]">fact_check</span>
+        <span>Pengajuan</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'admin.audit-log.')"
         :href="route('admin.audit-log.index')">
-        Audit Log
+        <span class="material-symbols-outlined text-[18px]">history</span>
+        <span>Audit Log</span>
     </x-nav-link>
 @elseif ($user?->hasRole('pengelola_koperasi'))
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.dashboard')"
         :href="route('pengelola.dashboard')">
-        Dashboard
+        <span class="material-symbols-outlined text-[18px]">dashboard</span>
+        <span>Dashboard</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.profil')"
         :href="route('pengelola.profil')">
-        Profil Koperasi
+        <span class="material-symbols-outlined text-[18px]">store</span>
+        <span>Profil Koperasi</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.izin.')"
         :href="route('pengelola.izin.index')">
-        Perizinan &amp; Dokumen
+        <span class="material-symbols-outlined text-[18px]">badge</span>
+        <span>Perizinan &amp; Dokumen</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.pengurus.')"
         :href="route('pengelola.pengurus.index')">
-        Pengurus
+        <span class="material-symbols-outlined text-[18px]">badge</span>
+        <span>Pengurus</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.kesehatan.')"
         :href="route('pengelola.kesehatan.index')">
-        Kesehatan
+        <span class="material-symbols-outlined text-[18px]">ecg_heart</span>
+        <span>Kesehatan</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.tata-kelola.')"
         :href="route('pengelola.tata-kelola.index')">
-        Tata Kelola
+        <span class="material-symbols-outlined text-[18px]">policy</span>
+        <span>Tata Kelola</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.aset.')"
         :href="route('pengelola.aset.index')">
-        Aset
+        <span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+        <span>Aset</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.anggota.')"
         :href="route('pengelola.anggota.index')">
-        Anggota
+        <span class="material-symbols-outlined text-[18px]">group</span>
+        <span>Anggota</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.pengajuan.')"
         :href="route('pengelola.pengajuan.index')">
-        Pengajuan
+        <span class="material-symbols-outlined text-[18px]">send</span>
+        <span>Pengajuan</span>
     </x-nav-link>
 
     <x-nav-link
         :active="str_starts_with($routeName, 'pengelola.notifikasi.')"
         :href="route('pengelola.notifikasi.index')">
-        Pemberitahuan
+        <span class="material-symbols-outlined text-[18px]">notifications</span>
+        <span>Pemberitahuan</span>
     </x-nav-link>
 @endif
 
@@ -111,6 +128,7 @@
     <x-nav-link
         :active="str_starts_with($routeName, 'account.security')"
         :href="route('account.security')">
-        Keamanan
+        <span class="material-symbols-outlined text-[18px]">security</span>
+        <span>Keamanan</span>
     </x-nav-link>
 @endif

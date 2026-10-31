@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Sistem Informasi Koperasi Jawa Barat</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface":"#f8f9ff","primary-fixed":"#d1e4ff","outline-variant":"#c3c6ce","tertiary":"#220e00","surface-container-high":"#dce9ff","on-background":"#0b1c30","on-error":"#ffffff","on-secondary-container":"#fefcff","surface-container-low":"#eff4ff","on-error-container":"#93000a","secondary-fixed-dim":"#b4c5ff","surface-bright":"#f8f9ff","on-primary-fixed":"#011d35","on-surface":"#0b1c30","tertiary-fixed-dim":"#ffb77d","tertiary-container":"#401f00","error":"#ba1a1a","surface-container-highest":"#d3e4fe","surface-container":"#e5eeff","background":"#f8f9ff","on-secondary":"#ffffff","surface-tint":"#49607c","inverse-on-surface":"#eaf1ff","tertiary-fixed":"#ffdcc3","on-secondary-fixed":"#00174b","on-primary-container":"#7991af","on-tertiary-fixed-variant":"#6e3900","secondary-container":"#316bf3","on-tertiary":"#ffffff","surface-container-lowest":"#ffffff","on-tertiary-container":"#d77503","inverse-primary":"#b0c9e8","on-primary":"#ffffff","surface-variant":"#d3e4fe","inverse-surface":"#213145","primary":"#001428","surface-dim":"#cbdbf5","primary-fixed-dim":"#b0c9e8","secondary-fixed":"#dbe1ff","on-primary-fixed-variant":"#314863","on-secondary-fixed-variant":"#003ea8","on-surface-variant":"#43474d","outline":"#74777e","error-container":"#ffdad6","secondary":"#0051d5","on-tertiary-fixed":"#2f1500","primary-container":"#0f2942"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xs":"0.25rem","space-lg":"1.5rem","gutter":"1.5rem","margin-mobile":"1rem","space-xl":"2rem","space-sm":"0.5rem","margin":"2rem","space-md":"1rem","gutter-mobile":"0.75rem"},fontFamily:{"body-sm":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"title-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"]},fontSize:{"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"title-md":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"title-sm":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"30px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.025em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-margin flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-secondary shadow-sm"><span class="material-symbols-outlined text-[24px]">account_balance</span></div><div class="flex flex-col"><span class="font-title-md text-title-md text-on-surface leading-tight tracking-tight">SIM-KOP JAWA BARAT</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Dinas Koperasi &amp; Usaha Kecil Prov. Jabar</span></div></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-on-surface font-title-sm rounded-lg"><a aria-current="page" class="px-space-md py-space-sm transition-colors bg-surface-container-high text-on-surface font-title-sm rounded-lg" data-path="beranda" href="#">Beranda</a><a class="px-space-md py-space-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-body-md text-body-md transition-colors" data-path="direktori-koperasi" href="#">Direktori Koperasi</a><a class="px-space-md py-space-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-body-md text-body-md transition-colors" data-path="statistik" href="#">Statistik</a></nav><div class="flex items-center gap-space-md"><a class="hidden sm:inline-flex items-center justify-center px-space-lg py-space-sm rounded bg-primary text-on-primary font-title-sm text-title-sm hover:bg-primary-container transition-colors shadow-sm" data-path="login" href="#">Masuk Portal</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-20rem)]"><div class="flex flex-col w-full">
+<!-- Status Strip Bar (Development Preview) -->
+<div class="w-full bg-surface-container border-b border-surface-container-high/60 px-margin py-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-tertiary-fixed text-on-tertiary-fixed">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+        Pratinjau pengembangan — belum rilis resmi
+      </span>
+<span class="hidden md:inline font-body-sm text-body-sm text-on-surface-variant">
+        Pembaruan modul terpadu versi internal • Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat
+      </span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+<span>Lingkungan Verifikasi Data</span>
+</div>
+</div>
+<!-- Hero Content Section -->
+<section class="w-full px-margin py-space-xl relative overflow-hidden bg-gradient-to-b from-surface via-surface-container-low to-surface">
+<!-- Ambient Provincial Backdrop Graphics -->
+<div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-secondary-fixed/40 blur-3xl pointer-events-none"></div>
+<div class="absolute left-1/3 top-1/2 w-64 h-64 rounded-full bg-surface-container-high/50 blur-2xl pointer-events-none"></div>
+<div class="relative max-w-5xl mx-auto flex flex-col items-center text-center">
+<!-- Institutional Emblem Badge -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface shadow-sm mb-space-md">
+<span class="material-symbols-outlined text-secondary text-[20px]">account_balance</span>
+<span class="font-label-md text-label-md text-primary tracking-wide uppercase">Dinas Koperasi dan Usaha Kecil Prov. Jabar</span>
+</div>
+<!-- Main Headline -->
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight max-w-4xl text-balance">
+        Sistem Informasi Pendataan dan Pemantauan Koperasi
+      </h1>
+<!-- Subtext -->
+<p class="mt-space-md font-body-lg text-body-lg text-on-surface-variant max-w-3xl leading-relaxed">
+        Platform terpusat untuk pendataan, pemutakhiran, verifikasi, dan pemantauan data koperasi di lingkungan Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat.
+      </p>
+<!-- Primary Action CTA Buttons -->
+<div class="mt-space-lg flex flex-wrap items-center justify-center gap-space-md">
+<a class="inline-flex items-center justify-center gap-space-sm px-space-lg py-space-sm rounded bg-primary text-on-primary font-title-sm text-title-sm hover:bg-primary-container shadow-md transition-all group" href="/direktori">
+<span class="material-symbols-outlined text-[20px] text-primary-fixed-dim transition-transform group-hover:translate-x-0.5">manage_search</span>
+<span>Lihat direktori koperasi</span>
+</a>
+<a class="inline-flex items-center justify-center gap-space-sm px-space-lg py-space-sm rounded bg-surface text-primary font-title-sm text-title-sm shadow-sm hover:bg-surface-container-high transition-all" data-path="login" href="#">
+<span class="material-symbols-outlined text-[20px] text-secondary">login</span>
+<span>Masuk ke sistem</span>
+</a>
+</div>
+<!-- Open Access Notice Box (Banner Keterbukaan Data) -->
+<div class="mt-space-xl w-full text-left bg-surface-container-lowest shadow-sm rounded-lg p-space-md flex flex-col sm:flex-row items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[24px]">info</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-title-sm text-title-sm text-on-surface">Informasi Akses Terbuka &amp; Tahapan Peluncuran</span>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Direktori dan profil koperasi yang telah dipublikasikan dapat diakses publik tanpa masuk. Modul untuk Admin Dinas dan Pengelola Koperasi masih dalam penyempurnaan serta peninjauan sebelum digunakan secara resmi.
+          </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Architectural Showcase Preview Banner -->
+<section class="w-full px-margin pb-space-lg">
+<div class="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-lg bg-surface-container-lowest">
+<div class="w-full flex items-center justify-between px-space-md py-space-xs bg-primary text-on-primary">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+<span class="ml-space-sm font-label-sm text-label-sm text-surface-tint">Pratinjau Antarmuka • SIM-KOP Jabar</span>
+</div>
+<span class="font-label-sm text-label-sm text-surface-dim">diskuk.jabarprov.go.id/portal</span>
+</div>
+<img alt="Pratinjau Beranda Sistem Informasi Koperasi Jawa Barat" class="w-full h-auto object-cover max-h-[460px]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeNjl0s9Q7t5NFLpO_dxf61H9BD26uKS0NRs-CTk5p9csvN-iWY7BW2ZgBdL_9Xp1v4D-8SxhmAx7gadYMQaVv3CENOtX021BIcEQ9ot1IxwIXcL9s6ELlDmdYvd-mLXKoMVnUYOCZsSsp01t8fuT9Wat4sZGxE07wNn4GozHqHBIhPv5Vk8wBhz3UkLdgFfuiHG4ut5vcSyi76NeZJE_U2AHUu77qvaN8knZLEM7e_yp9xGxzdYmv-w"/>
+</div>
+</section>
+<!-- Section 3 Structured System Summary Cards -->
+<section class="w-full px-margin py-space-lg bg-surface-container-low">
+<div class="max-w-6xl mx-auto flex flex-col gap-space-lg">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md uppercase tracking-wider text-secondary">Fondasi &amp; Standarisasi</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Struktur Operasional Sistem Aktual</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1: Teknologi -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">Spesifikasi</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Teknologi</h3>
+<div class="flex flex-col gap-2 pt-2">
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2.5 rounded">
+<span class="font-label-md text-label-md text-on-surface-variant">Backend</span>
+<span class="font-title-sm text-title-sm text-primary">Laravel v11/v13</span>
+</div>
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2.5 rounded">
+<span class="font-label-md text-label-md text-on-surface-variant">Tampilan</span>
+<span class="font-title-sm text-title-sm text-primary">Blade + Tailwind CSS</span>
+</div>
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2.5 rounded">
+<span class="font-label-md text-label-md text-on-surface-variant">Basis Data</span>
+<span class="font-title-sm text-title-sm text-primary">MariaDB / MySQL</span>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Dirancang untuk pemantauan data terstruktur dan terstandar.
+            </p>
+</div>
+</div>
+<!-- Card 2: Kelompok Pengguna -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">groups</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">Multi-Peran</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Kelompok Pengguna</h3>
+<ul class="flex flex-col gap-space-xs pt-1">
+<li class="flex items-start gap-2 bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-[18px] text-secondary shrink-0 mt-0.5">verified</span>
+<div>
+<span class="font-title-sm text-title-sm text-on-surface block">Admin Dinas</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Verifikasi, peninjauan, dan pengawasan berkala.</span>
+</div>
+</li>
+<li class="flex items-start gap-2 bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">corporate_fare</span>
+<div>
+<span class="font-title-sm text-title-sm text-on-surface block">Pengelola Koperasi</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Pembaruan profil, data pengurus, dan pelaporan.</span>
+</div>
+</li>
+<li class="flex items-start gap-2 bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container shrink-0 mt-0.5">public</span>
+<div>
+<span class="font-title-sm text-title-sm text-on-surface block">Masyarakat (Akses Publik)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Akses direktori dan ringkasan data koperasi.</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="mt-space-md pt-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> 3 Jenjang Hak Akses Terisolasi
+            </span>
+</div>
+</div>
+<!-- Card 3: Catatan Resmi -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[24px]">assignment_turned_in</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-medium">Dinas Terkait</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Catatan</h3>
+<div class="p-space-md bg-surface-container-low rounded-lg">
+<p class="font-body-md text-body-md text-on-surface italic leading-relaxed">
+                “Sistem masih dalam pengembangan bertahap. Fitur yang belum selesai belum ditampilkan, dan kebijakan resmi dari dinas tetap menjadi acuan.”
+              </p>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Disiapkan untuk mendukung keterpaduan data dan akuntabilitas koperasi di Jawa Barat.
+            </p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Direktori Koperasi Mini / Pratinjau Terverifikasi -->
+<section class="w-full px-margin py-space-xl">
+<div class="max-w-6xl mx-auto flex flex-col gap-space-md">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md uppercase tracking-wider text-secondary">Akses Terbuka</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Pratinjau Direktori Koperasi</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            Data primer koperasi aktif dan terverifikasi di wilayah Provinsi Jawa Barat yang terbuka untuk publik.
+          </p>
+</div>
+<a class="inline-flex items-center gap-1 font-title-sm text-title-sm text-secondary hover:underline self-start md:self-auto" href="/direktori">
+<span>Buka Direktori Lengkap</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Search & Filtering Form Controls -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm flex flex-col md:flex-row items-center gap-space-sm">
+<div class="relative flex-1 w-full">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2">search</span>
+<input class="w-full h-10 pl-10 pr-space-md bg-surface-container-low text-on-surface rounded font-body-md text-body-md focus:bg-surface focus:outline-none focus:ring-2 focus:ring-secondary/20 transition-all" id="searchInput" placeholder="Cari nama koperasi, nomor legalitas badan hukum, atau wilayah..." type="text"/>
+</div>
+<div class="flex items-center gap-space-xs w-full md:w-auto">
+<select class="h-10 px-space-md bg-surface-container-low text-on-surface rounded font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/20" id="kabupatenFilter">
+<option value="">Semua Wilayah Kota/Kabupaten</option>
+<option value="Bandung">Kota Bandung</option>
+<option value="Bogor">Kabupaten Bogor</option>
+<option value="Bekasi">Kota Bekasi</option>
+<option value="Cirebon">Kabupaten Cirebon</option>
+<option value="Garut">Kabupaten Garut</option>
+</select>
+<button class="h-10 px-space-lg rounded bg-primary text-on-primary font-title-sm text-title-sm hover:bg-primary-container transition-all shrink-0" id="btnTerapkan" type="button">
+            Terapkan
+          </button>
+</div>
+</div>
+<!-- Data Table Representation -->
+<div class="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="px-space-md py-space-sm">Nama Koperasi</th>
+<th class="px-space-md py-space-sm">Nomor Registrasi / AHU</th>
+<th class="px-space-md py-space-sm">Jenis Koperasi</th>
+<th class="px-space-md py-space-sm">Wilayah Operasional</th>
+<th class="px-space-md py-space-sm text-center">Status Verifikasi</th>
+<th class="px-space-md py-space-sm text-right">Rincian</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container" id="directoryTableBody">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="px-space-md py-space-md">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-on-surface">Koperasi Simpan Pinjam Sejahtera Bersama Jabar</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar sejak 2018</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  AHU-0019241.AH.01.26.TAHUN 2018
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Simpan Pinjam
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Kota Bandung
+                </td>
+<td class="px-space-md py-space-md text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="px-space-md py-space-md text-right">
+<a class="inline-flex items-center justify-center p-1.5 text-secondary hover:bg-surface-container rounded transition-colors" href="/direktori" title="Lihat Profil">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="px-space-md py-space-md">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-on-surface">Koperasi Produsen Kopi Parahyangan Lestari</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar sejak 2020</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  AHU-0004812.AH.01.26.TAHUN 2020
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Produsen
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Kabupaten Garut
+                </td>
+<td class="px-space-md py-space-md text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="px-space-md py-space-md text-right">
+<a class="inline-flex items-center justify-center p-1.5 text-secondary hover:bg-surface-container rounded transition-colors" href="/direktori" title="Lihat Profil">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="px-space-md py-space-md">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-on-surface">Koperasi Pemasaran UMKM Juara Jawa Barat</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar sejak 2021</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  AHU-0033109.AH.01.26.TAHUN 2021
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Pemasaran
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Kota Bekasi
+                </td>
+<td class="px-space-md py-space-md text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="px-space-md py-space-md text-right">
+<a class="inline-flex items-center justify-center p-1.5 text-secondary hover:bg-surface-container rounded transition-colors" href="/direktori" title="Lihat Profil">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="px-space-md py-space-md">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-on-surface">Koperasi Konsumen Pegawai Republik Indonesia Wibawa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar sejak 2015</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  AHU-0001200.AH.01.26.TAHUN 2015
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Konsumen
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Kabupaten Bogor
+                </td>
+<td class="px-space-md py-space-md text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="px-space-md py-space-md text-right">
+<a class="inline-flex items-center justify-center p-1.5 text-secondary hover:bg-surface-container rounded transition-colors" href="/direktori" title="Lihat Profil">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="px-space-md py-space-md">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-on-surface">Koperasi Jasa Nelayan Pantai Pantura Mandiri</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar sejak 2019</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  AHU-0028711.AH.01.26.TAHUN 2019
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Jasa
+                </td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">
+                  Kabupaten Cirebon
+                </td>
+<td class="px-space-md py-space-md text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="px-space-md py-space-md text-right">
+<a class="inline-flex items-center justify-center p-1.5 text-secondary hover:bg-surface-container rounded transition-colors" href="/direktori" title="Lihat Profil">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Menampilkan 5 entitas koperasi sampel hasil validasi wilayah.</span>
+<a class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded bg-surface text-primary font-title-sm text-title-sm shadow-sm hover:bg-surface-container transition-all" href="/direktori">
+<span>Lihat Seluruh Direktori</span>
+<span class="material-symbols-outlined text-[16px]">north_east</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Pelayanan & Standar Kebijakan Accordion Mini -->
+<section class="w-full px-margin pb-space-xl">
+<div class="max-w-6xl mx-auto rounded-lg bg-surface-container-lowest p-space-lg shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-on-secondary shrink-0">
+<span class="material-symbols-outlined text-[28px]">policy</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface">Pusat Bantuan &amp; Konsultasi Koperasi Jabar</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Butuh bantuan pendaftaran atau verifikasi berkas administrasi? Hubungi tim pendamping Dinas KUK Provinsi Jawa Barat.</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<a class="px-space-md py-2 rounded bg-surface-container text-on-surface font-title-sm text-title-sm hover:bg-surface-container-high transition-colors inline-flex items-center gap-2" href="mailto:diskuk@jabarprov.go.id">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+<span>Bantuan Teknis</span>
+</a>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Simple Table Search & Filter Micro-Interaction
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const kabupatenFilter = document.getElementById('kabupatenFilter');
+    const btnTerapkan = document.getElementById('btnTerapkan');
+    const tableBody = document.getElementById('directoryTableBody');
+
+    if (!tableBody) return;
+    const rows = tableBody.querySelectorAll('tr');
+
+    function filterTable() {
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const selectedKab = (kabupatenFilter ? kabupatenFilter.value : '').toLowerCase();
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const matchesQuery = query === '' || text.includes(query);
+        const matchesKab = selectedKab === '' || text.includes(selectedKab);
+
+        if (matchesQuery && matchesKab) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    if (btnTerapkan) {
+      btnTerapkan.addEventListener('click', filterTable);
+    }
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter') filterTable();
+      });
+    }
+    if (kabupatenFilter) {
+      kabupatenFilter.addEventListener('change', filterTable);
+    }
+  });
+</script></main><footer class="w-full bg-surface-container-low mt-space-xl"><div class="w-full px-margin py-space-xl"><div class="grid grid-cols-1 md:grid-cols-12 gap-gutter"><div class="md:col-span-5 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-secondary"><span class="material-symbols-outlined text-[18px]">shield</span></div><span class="font-title-md text-title-md text-on-surface">Pemerintah Daerah Provinsi Jawa Barat</span></div><p class="font-body-md text-body-md text-on-surface-variant max-w-md">Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat. Sistem Informasi Pendataan, Akreditasi, dan Pemantauan Kinerja Koperasi Terpadu Jawa Barat.</p><p class="font-label-md text-label-md text-on-surface-variant">Jl. Kawaluyaan No.2, Jatisari, Kec. Buahbatu, Kota Bandung, Jawa Barat 40286</p></div><div class="md:col-span-3 flex flex-col gap-space-xs"><span class="font-title-sm text-title-sm text-on-surface mb-space-xs">Navigasi Publik</span><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="beranda" href="#">Beranda Utama</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="direktori-koperasi" href="#">Direktori Koperasi Aktif</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="statistik" href="#">Statistik &amp; Peta Persebaran</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="login" href="#">Autentikasi Petugas</a></div><div class="md:col-span-4 flex flex-col gap-space-xs"><span class="font-title-sm text-title-sm text-on-surface mb-space-xs">Layanan &amp; Pengaduan</span><p class="font-body-md text-body-md text-on-surface-variant">Pusat Bantuan &amp; Helpdesk Verifikasi Koperasi Regional:</p><div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[16px]">call</span><span>(022) 7302775 / 7302776</span></div><div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[16px]">mail</span><span>diskuk@jabarprov.go.id</span></div></div></div><div class="mt-space-xl pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm"><span class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat. Hak Cipta Dilindungi Undang-Undang.</span><span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-sm py-space-xs rounded">Klaster A • Portal Publik v2.4</span></div></div></footer></body></html>

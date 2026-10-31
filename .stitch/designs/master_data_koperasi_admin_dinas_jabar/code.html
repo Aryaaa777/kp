@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-primary":"#ffffff","on-tertiary-fixed":"#2f1500","on-tertiary-fixed-variant":"#6e3900","surface-container-low":"#eff4ff","inverse-on-surface":"#eaf1ff","secondary-container":"#316bf3","on-primary-fixed-variant":"#314863","secondary":"#0051d5","surface-container-highest":"#d3e4fe","on-secondary":"#ffffff","surface-container":"#e5eeff","on-error":"#ffffff","outline-variant":"#c3c6ce","surface-bright":"#f8f9ff","surface-tint":"#49607c","on-secondary-container":"#fefcff","on-tertiary":"#ffffff","primary":"#001428","on-primary-fixed":"#011d35","outline":"#74777e","on-secondary-fixed":"#00174b","primary-fixed-dim":"#b0c9e8","surface-variant":"#d3e4fe","inverse-primary":"#b0c9e8","tertiary-fixed":"#ffdcc3","surface-dim":"#cbdbf5","tertiary-container":"#401f00","on-surface-variant":"#43474d","surface":"#f8f9ff","on-tertiary-container":"#d77503","on-primary-container":"#7991af","secondary-fixed-dim":"#b4c5ff","surface-container-high":"#dce9ff","error-container":"#ffdad6","tertiary-fixed-dim":"#ffb77d","primary-container":"#0f2942","background":"#f8f9ff","error":"#ba1a1a","on-background":"#0b1c30","on-error-container":"#93000a","tertiary":"#220e00","inverse-surface":"#213145","primary-fixed":"#d1e4ff","on-secondary-fixed-variant":"#003ea8","surface-container-lowest":"#ffffff","secondary-fixed":"#dbe1ff","on-surface":"#0b1c30"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-md":"1rem","space-lg":"1.5rem","margin":"2rem","gutter-mobile":"0.75rem","space-xl":"2rem","gutter":"1.5rem","space-sm":"0.5rem","margin-mobile":"1rem","space-xs":"0.25rem"},"fontFamily":{"headline-lg-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"title-sm":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"]},"fontSize":{"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"700"}],"title-sm":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"headline-md":["22px",{"lineHeight":"30px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.025em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"title-md":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center gap-space-sm bg-surface-container-lowest"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary shrink-0 shadow-sm"><span class="material-symbols-outlined text-[20px]">account_balance</span></div><div class="flex flex-col min-w-0"><span class="font-title-sm text-title-sm text-primary tracking-tight truncate">SIM-KOP JABAR</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Dinas KUK Prov. Jawa Barat</span></div></div><div class="px-space-md py-space-sm"><div class="px-space-sm py-space-xs text-[11px] font-semibold uppercase tracking-wider text-outline">Menu Utama Admin</div></div><nav class="flex flex-col gap-1 px-space-md" data-active-classes="bg-primary-container text-on-primary font-title-sm shadow-sm"><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-body-md text-body-md">Dashboard</span></a><a aria-current="page" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all bg-primary-container text-on-primary font-title-sm shadow-sm" data-path="data-koperasi" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span class="font-body-md text-body-md">Data Koperasi</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="akun-pengelola" href="#"><span class="material-symbols-outlined text-[20px]">manage_accounts</span><span class="font-body-md text-body-md">Akun Pengelola</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="pengaturan-publik" href="#"><span class="material-symbols-outlined text-[20px]">public</span><span class="font-body-md text-body-md">Pengaturan Publik</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="laporan" href="#"><span class="material-symbols-outlined text-[20px]">description</span><span class="font-body-md text-body-md">Laporan</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="pengajuan" href="#"><span class="material-symbols-outlined text-[20px]">fact_check</span><span class="font-body-md text-body-md">Pengajuan</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="audit-log" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-body-md text-body-md">Audit Log</span></a></nav></div><div class="p-space-md mx-space-md mb-space-md rounded-xl bg-surface-container-low"><div class="flex items-center gap-2 mb-1.5"><span class="material-symbols-outlined text-secondary text-[16px]">verified</span><span class="font-label-sm text-label-sm text-primary uppercase tracking-wide">Versi Portal v2.4.0 Jabar</span></div><p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Dinas Koperasi &amp; UKM Prov. Jabar</p><p class="font-label-sm text-[10px] text-outline mt-1">Sistem Resmi Pemerintah Provinsi</p></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-2"><span class="font-title-sm text-title-sm text-primary tracking-tight font-bold">SIM-KOP JABAR</span><span class="text-outline-variant">|</span><span class="font-body-sm text-body-sm text-on-surface-variant hidden sm:inline">Dinas KUK Jabar</span></div><div class="hidden md:flex items-center gap-2"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Sesi Terverifikasi</span><span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-on-surface-variant">Pemda Prov. Jabar</span></div></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><button aria-label="Notifikasi" class="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all relative" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-container-lowest"></span></button></div><div class="h-6 w-px bg-surface-container-high"></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden lg:flex flex-col text-left"><span class="font-title-sm text-title-sm text-primary leading-tight">Arya</span><span class="font-label-sm text-[11px] text-on-surface-variant leading-tight">Administrator Instansi</span></div></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low text-error hover:bg-error-container hover:text-on-error-container transition-all text-label-md font-label-md" type="button"><span class="material-symbols-outlined text-[16px]">logout</span><span class="hidden sm:inline">Keluar</span></button></div></header><main class="w-full pt-16 flex-1 bg-background px-space-lg py-space-lg"><div class="flex flex-col w-full gap-space-lg">
+<!-- Operational Notice Banner (Provincial Governance) -->
+<div class="flex items-start justify-between gap-space-md p-space-md rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-title-sm text-title-sm text-primary">Sinkronisasi Data ODS Kemenkop UKM &amp; Perizinan Berusaha Terpadu</span>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-secondary">Integrasi Aktif</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Sesuai Pergub Jabar No. 44/2023, seluruh entitas primer provinsi wajib merampungkan pelaporan RAT Buku 2024 dan sertifikat NIK sebelum 31 Juli. Verifikasi mandiri pengawas terhubung otomatis ke sistem Online Data System (ODS).
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary text-label-md font-label-md shadow-sm hover:bg-surface-container transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+        Sinkronkan ODS
+      </button>
+<button aria-label="Tutup pemberitahuan" class="p-1 rounded-lg text-outline hover:text-primary transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<!-- Page Header & Global Actions -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+<div class="flex flex-col">
+<!-- Breadcrumb -->
+<nav aria-label="Breadcrumb" class="flex items-center gap-1.5 mb-2 font-label-sm text-label-sm text-on-surface-variant">
+<span class="hover:text-primary cursor-pointer transition-colors">Admin Dinas</span>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<span class="hover:text-primary cursor-pointer transition-colors">Master Data</span>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<span class="text-primary font-bold">Data Koperasi</span>
+</nav>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Master Data Koperasi Jawa Barat</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 max-w-3xl">
+        Basis data induk seluruh koperasi berbadan hukum terdaftar, terakreditasi, dan dalam pemantauan pengawas dinas lintas 27 kabupaten/kota.
+      </p>
+</div>
+<!-- Primary Actions -->
+<div class="flex items-center gap-space-sm flex-wrap shrink-0">
+<div class="relative inline-block text-left" id="exportMenuWrapper">
+<button class="px-3.5 py-2 rounded-lg bg-surface-container-lowest text-primary text-label-md font-label-md shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-2" id="exportBtn" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">file_download</span>
+          Ekspor Master (.xlsx / .csv)
+          <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-1.5 w-48 rounded-xl bg-surface-container-lowest shadow-md py-1.5 z-20" id="exportDropdown">
+<a class="flex items-center gap-2 px-3 py-2 text-body-sm font-body-sm text-on-surface hover:bg-surface-container-low" href="#">
+<span class="material-symbols-outlined text-[18px] text-secondary">table_view</span>
+            Format Microsoft Excel (.xlsx)
+          </a>
+<a class="flex items-center gap-2 px-3 py-2 text-body-sm font-body-sm text-on-surface hover:bg-surface-container-low" href="#">
+<span class="material-symbols-outlined text-[18px] text-secondary">description</span>
+            Format CSV Terkompresi (.csv)
+          </a>
+<a class="flex items-center gap-2 px-3 py-2 text-body-sm font-body-sm text-on-surface hover:bg-surface-container-low" href="#">
+<span class="material-symbols-outlined text-[18px] text-secondary">picture_as_pdf</span>
+            Ringkasan Eksekutif (.pdf)
+          </a>
+</div>
+</div>
+<button class="px-4 py-2 rounded-lg bg-primary-container text-on-primary text-label-md font-label-md shadow-sm hover:bg-primary transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+        Tambah Koperasi Baru
+      </button>
+</div>
+</div>
+<!-- Metric Summary Cards Bento Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Card 1: Total Entitas -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Entitas Terdaftar</span>
+<span class="font-headline-lg text-headline-lg text-primary font-bold mt-1">25.842</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">corporate_fare</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          27 Kab/Kota Jawa Barat
+        </span>
+<span class="text-secondary font-title-sm text-title-sm">100%</span>
+</div>
+<!-- Decorative faint sparkline -->
+<div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
+<svg fill="none" height="60" viewbox="0 0 120 60" width="120">
+<path class="text-primary" d="M0 45L20 40L40 50L60 30L80 35L100 15L120 20V60H0Z" fill="currentColor"></path>
+</svg>
+</div>
+</div>
+<!-- Card 2: Berstatus Aktif -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Berstatus Aktif</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">17.108</span>
+<span class="font-title-sm text-title-sm text-secondary font-semibold">66,2%</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">check_circle</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between">
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden mr-3">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 66.2%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">+312 Bln ini</span>
+</div>
+</div>
+<!-- Card 3: Dalam Pembinaan -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Dalam Pembinaan</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">7.476</span>
+<span class="font-title-sm text-title-sm text-on-tertiary-container font-semibold">28,9%</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-on-tertiary-container shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">healing</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between">
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden mr-3">
+<div class="bg-on-tertiary-container h-1.5 rounded-full" style="width: 28.9%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">Evaluasi RAT</span>
+</div>
+</div>
+<!-- Card 4: Proses Kurasi / Revisi -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Proses Kurasi &amp; Revisi</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">1.258</span>
+<span class="font-title-sm text-title-sm text-error font-semibold">4,9%</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-error shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">pending_actions</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-error font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">priority_high</span>
+          84 Berkas Mendesak
+        </span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Verifikator Wilayah</span>
+</div>
+</div>
+</div>
+<!-- Advanced Search & Multi-Filter Control Panel -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+<!-- Search Input with Leading Icon -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px] text-outline pointer-events-none">search</span>
+<input class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-surface-container-low text-primary placeholder-on-surface-variant text-body-md font-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-secondary/20 transition-all outline-none" id="searchMaster" placeholder="Cari nama koperasi, nomor NIK, nomor AHU, atau nama ketua..." type="text"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary" title="Bersihkan" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<!-- Quick status counter pill -->
+<div class="flex items-center gap-2 text-label-md font-label-md text-on-surface-variant shrink-0">
+<span class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary">Ditemukan: <strong class="font-bold">25.842</strong> Hasil</span>
+</div>
+</div>
+<!-- Dropdown Filter Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+<!-- Dropdown: Wilayah Kab/Kota -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="filterWilayah">Kabupaten / Kota</label>
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 rounded-lg bg-surface-container-low text-primary text-body-sm font-body-sm focus:ring-2 focus:ring-secondary/20 outline-none cursor-pointer" id="filterWilayah">
+<option value="">Semua Wilayah (27 Kab/Kota)</option>
+<option value="3273">Kota Bandung</option>
+<option value="3271">Kota Bogor</option>
+<option value="3274">Kota Cirebon</option>
+<option value="3275">Kota Bekasi</option>
+<option value="3276">Kota Depok</option>
+<option value="3277">Kota Cimahi</option>
+<option value="3278">Kota Tasikmalaya</option>
+<option value="3279">Kota Banjar</option>
+<option value="3272">Kota Sukabumi</option>
+<option value="3204">Kab. Bandung</option>
+<option value="3217">Kab. Bandung Barat</option>
+<option value="3201">Kab. Bogor</option>
+<option value="3202">Kab. Sukabumi</option>
+<option value="3203">Kab. Cianjur</option>
+<option value="3205">Kab. Garut</option>
+<option value="3206">Kab. Tasikmalaya</option>
+<option value="3207">Kab. Ciamis</option>
+<option value="3208">Kab. Kuningan</option>
+<option value="3209">Kab. Cirebon</option>
+<option value="3210">Kab. Majalengka</option>
+<option value="3211">Kab. Sumedang</option>
+<option value="3212">Kab. Indramayu</option>
+<option value="3213">Kab. Subang</option>
+<option value="3214">Kab. Purwakarta</option>
+<option value="3215">Kab. Karawang</option>
+<option value="3216">Kab. Bekasi</option>
+<option value="3218">Kab. Pangandaran</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Dropdown: Bentuk Koperasi -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="filterBentuk">Bentuk Koperasi</label>
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 rounded-lg bg-surface-container-low text-primary text-body-sm font-body-sm focus:ring-2 focus:ring-secondary/20 outline-none cursor-pointer" id="filterBentuk">
+<option value="">Semua Bentuk</option>
+<option value="primer-kab">Primer Kabupaten/Kota</option>
+<option value="primer-prov">Primer Provinsi</option>
+<option value="sekunder">Sekunder Provinsi / Induk</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Dropdown: Jenis Koperasi -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="filterJenis">Jenis Usaha Pokok</label>
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 rounded-lg bg-surface-container-low text-primary text-body-sm font-body-sm focus:ring-2 focus:ring-secondary/20 outline-none cursor-pointer" id="filterJenis">
+<option value="">Semua Jenis Usaha</option>
+<option value="ksp">Simpan Pinjam (KSP / USP)</option>
+<option value="produsen">Koperasi Produsen</option>
+<option value="konsumen">Koperasi Konsumen</option>
+<option value="pemasaran">Koperasi Pemasaran</option>
+<option value="jasa">Koperasi Jasa</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Dropdown: Status Keaktifan -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="filterStatus">Status Keaktifan</label>
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 rounded-lg bg-surface-container-low text-primary text-body-sm font-body-sm focus:ring-2 focus:ring-secondary/20 outline-none cursor-pointer" id="filterStatus">
+<option value="">Semua Status Keaktifan</option>
+<option value="aktif">Aktif Terverifikasi</option>
+<option value="pembinaan">Dalam Pembinaan Khusus</option>
+<option value="revisi">Perlu Revisi Dokumen</option>
+<option value="nonaktif">Tidak Aktif / Pembekuan</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Filter Action Buttons & Active Chips -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-sm pt-2">
+<!-- Active filters tags -->
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Filter Terpasang:</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary">
+          Provinsi Jawa Barat
+          <button class="hover:text-error" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-on-surface-variant">
+          Tahun Buku 2024
+          <button class="hover:text-error" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</span>
+</div>
+<!-- Apply & Reset Controls -->
+<div class="flex items-center gap-2 justify-end">
+<button class="px-3.5 py-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all text-label-md font-label-md flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+          Reset Filter
+        </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container transition-all text-label-md font-label-md flex items-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">filter_alt</span>
+          Terapkan Filter
+        </button>
+</div>
+</div>
+</div>
+<!-- Master Data Table Section with Tabular Ledger -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header Info Bar -->
+<div class="px-space-md py-3.5 bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="font-title-sm text-title-sm text-primary">Daftar Entitas Koperasi Terakreditasi</span>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-secondary font-bold">Terbaru 2024</span>
+</div>
+<div class="flex items-center gap-3 text-label-sm font-label-sm text-on-surface-variant">
+<span>Menampilkan 10 dari 25.842 Baris</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<div class="flex items-center gap-1">
+<span>Tampilkan:</span>
+<select class="bg-surface-container-lowest rounded px-1.5 py-0.5 text-primary outline-none">
+<option>10</option>
+<option>25</option>
+<option>50</option>
+<option>100</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Table Responsive Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/60 text-outline text-label-sm font-label-sm uppercase tracking-wider">
+<th class="py-3 px-space-md">KODE &amp; NAMA KOPERASI</th>
+<th class="py-3 px-space-md">NOMOR AHU / NIK</th>
+<th class="py-3 px-space-md">DOMISILI WILAYAH</th>
+<th class="py-3 px-space-md">JENIS USAHA</th>
+<th class="py-3 px-space-md">KESEHATAN &amp; TATA KELOLA</th>
+<th class="py-3 px-space-md">STATUS LEGALITAS</th>
+<th class="py-3 px-space-md text-right">AKSI</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-body-sm font-body-sm text-on-surface">
+<!-- PHP Foreach Loop Mulai Dari Sini -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary font-bold">KSP Sejahtera Bersama Jabar</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono mt-0.5">ID: KOP-JB-000491</span>
+<span class="inline-flex items-center gap-1 text-[11px] text-secondary mt-1">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+                  Primer Provinsi
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top font-mono">
+<div class="flex flex-col">
+<span class="text-primary font-semibold">AHU-0004912.AH.01.26.2018</span>
+<span class="text-on-surface-variant text-[12px] mt-0.5">NIK: 3273010020001</span>
+<span class="text-[11px] text-outline font-sans">Kemenkumham RI</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary">Kota Bandung</span>
+<span class="text-on-surface-variant text-[12px] line-clamp-1 mt-0.5">Jl. Soekarno Hatta No. 41</span>
+<span class="text-[11px] text-outline">Kec. Batununggal</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary font-medium">
+                Simpan Pinjam
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-secondary font-semibold w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Sehat (Predikat A)
+                </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">check</span>
+                  RAT 2024 Terpenuhi
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-primary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                Aktif / Terverifikasi
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" title="Lihat Profil Lengkap" type="button">
+                  Detail
+                </button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" title="Sunting Data Koperasi" type="button">
+                  Sunting
+                </button>
+</div>
+</td>
+</tr>
+<!-- PHP Foreach Loop Selesai (Berikut Baris Simulasi Data Representatif Provinsi) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary font-bold">Koperasi Produsen Kopi Manglayang</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono mt-0.5">ID: KOP-JB-001882</span>
+<span class="inline-flex items-center gap-1 text-[11px] text-outline mt-1">
+<span class="material-symbols-outlined text-[13px]">domain</span>
+                  Primer Kabupaten
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top font-mono">
+<div class="flex flex-col">
+<span class="text-primary font-semibold">AHU-0012984.AH.01.27.2020</span>
+<span class="text-on-surface-variant text-[12px] mt-0.5">NIK: 3204120090014</span>
+<span class="text-[11px] text-outline font-sans">Kemenkumham RI</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary">Kab. Bandung</span>
+<span class="text-on-surface-variant text-[12px] line-clamp-1 mt-0.5">Jl. Raya Cimenyan No. 88</span>
+<span class="text-[11px] text-outline">Kec. Cimenyan</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary font-medium">
+                Produsen Agribisnis
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-secondary font-semibold w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Cukup Sehat (B)
+                </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">check</span>
+                  RAT 2024 Terpenuhi
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-primary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                Aktif / Terverifikasi
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Detail</button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Sunting</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary font-bold">Koperasi Konsumen Pegawai Pemda Bogor</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono mt-0.5">ID: KOP-JB-002104</span>
+<span class="inline-flex items-center gap-1 text-[11px] text-outline mt-1">
+<span class="material-symbols-outlined text-[13px]">domain</span>
+                  Primer Kabupaten
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top font-mono">
+<div class="flex flex-col">
+<span class="text-primary font-semibold">AHU-0001099.AH.01.26.2016</span>
+<span class="text-on-surface-variant text-[12px] mt-0.5">NIK: 3201080030029</span>
+<span class="text-[11px] text-outline font-sans">Kemenkumham RI</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary">Kab. Bogor</span>
+<span class="text-on-surface-variant text-[12px] line-clamp-1 mt-0.5">Kompleks Pemda Cibinong</span>
+<span class="text-[11px] text-outline">Kec. Cibinong</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary font-medium">
+                Konsumen Retail
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-tertiary-container font-semibold w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                  Dalam Pengawasan (C)
+                </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-on-tertiary-container">warning</span>
+                  RAT Terlambat 45 Hari
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-tertiary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                Dalam Pembinaan
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Detail</button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Sunting</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary font-bold">Koperasi Pemasaran Batik Trusmi Pantura</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono mt-0.5">ID: KOP-JB-003401</span>
+<span class="inline-flex items-center gap-1 text-[11px] text-secondary mt-1">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+                  Primer Provinsi
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top font-mono">
+<div class="flex flex-col">
+<span class="text-primary font-semibold">AHU-0005721.AH.01.26.2021</span>
+<span class="text-on-surface-variant text-[12px] mt-0.5">NIK: 3209210040008</span>
+<span class="text-[11px] text-outline font-sans">Kemenkumham RI</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary">Kab. Cirebon</span>
+<span class="text-on-surface-variant text-[12px] line-clamp-1 mt-0.5">Sentra Batik Trusmi No. 12</span>
+<span class="text-[11px] text-outline">Kec. Plered</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary font-medium">
+                Pemasaran Kerajinan
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-secondary font-semibold w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Sehat (Predikat A)
+                </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">check</span>
+                  RAT 2024 Terpenuhi
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-highest text-primary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                Aktif / Terverifikasi
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Detail</button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Sunting</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary font-bold">Koperasi Jasa Angkutan Parahyangan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono mt-0.5">ID: KOP-JB-005112</span>
+<span class="inline-flex items-center gap-1 text-[11px] text-outline mt-1">
+<span class="material-symbols-outlined text-[13px]">domain</span>
+                  Primer Kota
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top font-mono">
+<div class="flex flex-col">
+<span class="text-primary font-semibold">AHU-0008910.AH.01.26.2019</span>
+<span class="text-on-surface-variant text-[12px] mt-0.5">NIK: 3277020080005</span>
+<span class="text-[11px] text-outline font-sans">Kemenkumham RI</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-primary">Kota Cimahi</span>
+<span class="text-on-surface-variant text-[12px] line-clamp-1 mt-0.5">Jl. Amir Machmud No. 204</span>
+<span class="text-[11px] text-outline">Kec. Cimahi Tengah</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-primary font-medium">
+                Jasa Logistik / Trans
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-error-container text-error font-semibold w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                  Kurang Sehat (D)
+                </span>
+<span class="text-[11px] text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">cancel</span>
+                  Revisi Berkas Izin
+                </span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-top">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-error-container text-error font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                Proses Revisi
+              </span>
+</td>
+<td class="py-3.5 px-space-md align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Detail</button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container text-label-sm font-label-sm transition-all" type="button">Sunting</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Administrative Pagination Bar -->
+<div class="px-space-md py-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-3">
+<div class="text-body-sm font-body-sm text-on-surface-variant">
+        Menampilkan data <strong class="text-primary font-bold">1</strong> sampai <strong class="text-primary font-bold">10</strong> dari <strong class="text-primary font-bold">25.842</strong> data koperasi terdaftar
+      </div>
+<div class="flex items-center gap-1.5">
+<button aria-label="Halaman Pertama" class="p-2 rounded-lg bg-surface-container-low text-outline hover:text-primary disabled:opacity-40 transition-all" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">first_page</span>
+</button>
+<button aria-label="Sebelumnya" class="p-2 rounded-lg bg-surface-container-low text-outline hover:text-primary disabled:opacity-40 transition-all" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-title-sm text-title-sm">1</span>
+<a class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container font-title-sm text-title-sm transition-all" href="#">2</a>
+<a class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container font-title-sm text-title-sm transition-all" href="#">3</a>
+<span class="px-1 text-outline">...</span>
+<a class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container font-title-sm text-title-sm transition-all" href="#">2.585</a>
+<button aria-label="Selanjutnya" class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<button aria-label="Halaman Terakhir" class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">last_page</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Operational Field Auditor Dispatch & Guidance Drawer Note -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
+</div>
+<span class="font-title-sm text-title-sm text-primary">Standar Penilaian Kesehatan (KUK)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Audit tahun buku mengacu pada Permenkop UKM No. 9/2020. Kategori C &amp; D diwajibkan menyertakan Rencana Tindak Lanjut (RTL) tertulis dari Pengawas Wilayah.
+      </p>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">cloud_sync</span>
+</div>
+<span class="font-title-sm text-title-sm text-primary">Protokol NIK Terbuka Kemendagri</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Pengecekan NIK pengurus menggunakan API SIAK Dukcapil. Ketidaksinkronan data kependudukan akan ditandai dengan badge proses kurasi secara otomatis.
+      </p>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[18px]">support_agent</span>
+</div>
+<span class="font-title-sm text-title-sm text-primary">Pusat Bantuan Pengawas Cabang</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Kendala verifikasi nomor AHU AH.01.26 dapat diteruskan melalui Helpdesk Tim Pokja Badan Hukum Dinas KUK Prov. Jabar ext. 402 / hotline resmi.
+      </p>
+</div>
+</div>
+</div>
+<script>
+  // Simple dropdown toggle logic for Export menu
+  document.addEventListener('DOMContentLoaded', function () {
+    const exportBtn = document.getElementById('exportBtn');
+    const exportDropdown = document.getElementById('exportDropdown');
+    const exportWrapper = document.getElementById('exportMenuWrapper');
+
+    if (exportBtn && exportDropdown) {
+      exportBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        exportDropdown.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!exportWrapper.contains(e.target)) {
+          exportDropdown.classList.add('hidden');
+        }
+      });
+    }
+  });
+</script></main></div></body></html>

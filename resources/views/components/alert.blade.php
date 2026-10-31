@@ -2,13 +2,13 @@
 
 @php
     $styles = [
-        'info' => 'border-slate-200 bg-slate-50 text-slate-700',
-        'success' => 'border-emerald-200 bg-emerald-50 text-emerald-800',
-        'warning' => 'border-amber-200 bg-amber-50 text-amber-800',
-        'danger' => 'border-red-200 bg-red-50 text-red-700',
-    ][$type] ?? 'border-slate-200 bg-slate-50 text-slate-700';
+        'info' => 'border-l-4 border-l-[#0051d5] border-[#dce9ff] bg-[#eff4ff] text-[#00174b]',
+        'success' => 'border-l-4 border-l-emerald-600 border-emerald-200 bg-emerald-50 text-emerald-900',
+        'warning' => 'border-l-4 border-l-[#d77503] border-[#ffdcc3] bg-[#fff8f2] text-[#401f00]',
+        'danger' => 'border-l-4 border-l-[#ba1a1a] border-[#ffdad6] bg-[#fff5f5] text-[#93000a]',
+    ][$type] ?? 'border-l-4 border-l-[#0051d5] border-[#dce9ff] bg-[#eff4ff] text-[#00174b]';
 @endphp
 
-<div {{ $attributes->merge(['class' => "rounded-md border px-3 py-2 text-sm {$styles}"]) }} role="alert">
+<div {{ $attributes->merge(['class' => "rounded-xl border p-4 text-xs sm:text-sm font-medium {$styles} shadow-2xs"]) }} role="alert">
     {{ $slot }}
 </div>

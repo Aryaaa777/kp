@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System & Style Guide - SIM-KOP Jabar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            gov: {
+              navy: '#0f2942',
+              deep: '#001428',
+              surface: '#f8f9ff',
+              container: '#ffffff',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8f9ff;
+    }
+  </style>
+</head>
+<body class="bg-[#f8f9ff] text-slate-800 antialiased min-h-screen p-6 md:p-10">
+
+  <!-- Top Hero Header -->
+  <div class="max-w-7xl mx-auto mb-10">
+    <div class="bg-gradient-to-r from-[#001428] via-[#0f2942] to-[#1e3a5f] rounded-2xl p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-slate-700/50">
+      <div class="space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-300 text-xs font-semibold tracking-wide border border-white/15">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          OFFICIAL UI DESIGN SYSTEM & STYLE GUIDE
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+          Sistem Desain Visual SIM-KOP Jabar
+        </h1>
+        <p class="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed">
+          Kamus visual resmi, token warna, tipografi, geometri komponen, dan status audit untuk antarmuka Pemerintah Provinsi Jawa Barat (Dinas Koperasi dan Usaha Kecil).
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-center">
+          <div class="text-xs uppercase text-slate-300 font-medium">Font Primer</div>
+          <div class="text-lg font-bold text-white mt-0.5">Plus Jakarta Sans</div>
+        </div>
+        <div class="bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 rounded-xl p-4 text-center">
+          <div class="text-xs uppercase text-emerald-200 font-medium">Aksen Utama</div>
+          <div class="text-lg font-bold text-emerald-300 mt-0.5">Navy & Emerald</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto space-y-12">
+
+    <!-- 1. Color Palette Section -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h2 class="text-xl md:text-2xl font-bold text-[#0f2942] flex items-center gap-2.5">
+            <span class="w-3 h-6 bg-[#0f2942] rounded-full"></span>
+            1. Visualisasi Palet Warna (Color Palette)
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">Hierarki visual warna formal, interaktif, status operasional, dan kontainer netral.</p>
+        </div>
+        <span class="text-xs font-bold text-slate-500 bg-slate-200/70 px-3 py-1.5 rounded-lg uppercase">HEX + Utility CSS</span>
+      </div>
+
+      <!-- Color Category Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- A. Provincial Navy (Primary) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">Identitas Kedinasan</h3>
+            <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Primary</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Swatch 1 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-20 bg-[#001428] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Deepest Navy</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#001428</span>
+                <span class="text-slate-400">Sidebar / Shell</span>
+              </div>
+            </div>
+
+            <!-- Swatch 2 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-16 bg-[#0f2942] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Provincial Navy</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#0F2942</span>
+                <span class="text-slate-400">Header / Navbar</span>
+              </div>
+            </div>
+
+            <!-- Swatch 3 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#1e3a5f] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Medium Slate Blue</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#1E3A5F</span>
+                <span class="text-slate-400">Card Header Tint</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Koperasi Emerald Green (Secondary / Positive) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">Ekonomi & Koperasi</h3>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Secondary</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Swatch 1 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-20 bg-[#047857] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Emerald Dark</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#047857</span>
+                <span class="text-slate-400">Button Hover</span>
+              </div>
+            </div>
+
+            <!-- Swatch 2 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-16 bg-[#059669] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Emerald Primary</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#059669</span>
+                <span class="text-slate-400">Aksi / Status Aktif</span>
+              </div>
+            </div>
+
+            <!-- Swatch 3 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#ecfdf5] flex items-end p-3 border-b border-emerald-100">
+                <span class="text-emerald-800 text-xs font-bold tracking-wider">Emerald Surface</span>
+              </div>
+              <div class="p-3 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#ECFDF5</span>
+                <span class="text-slate-400">Badge Background</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C. Semantic Status (Alerts, Pending, Error, Info) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">Status & Verifikasi</h3>
+            <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Feedback</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Warning/Pembinaan -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#d97706] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Amber (Pembinaan)</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#D97706</span>
+                <span class="text-slate-400">Warning / Revisi</span>
+              </div>
+            </div>
+
+            <!-- Danger/Tolak -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#dc2626] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Crimson Red</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#DC2626</span>
+                <span class="text-slate-400">Ditolak / SLA Over</span>
+              </div>
+            </div>
+
+            <!-- Interactive Blue -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#2563eb] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Action Blue</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#2563EB</span>
+                <span class="text-slate-400">Link / Regulasi F5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D. Neutral & Surface (Background & Typography) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">Permukaan & Netral</h3>
+            <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Surface</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- App Background -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#f8f9ff] flex items-end p-3 border-b border-slate-200">
+                <span class="text-slate-700 text-xs font-bold tracking-wider">Canvas Soft Blue</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#F8F9FF</span>
+                <span class="text-slate-400">Body Background</span>
+              </div>
+            </div>
+
+            <!-- Slate 900 Heading -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#0f172a] flex items-end p-3">
+                <span class="text-white text-xs font-bold tracking-wider drop-shadow">Slate 900 Text</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#0F172A</span>
+                <span class="text-slate-400">Judul & Angka Metrik</span>
+              </div>
+            </div>
+
+            <!-- Slate 200 Border -->
+            <div class="rounded-xl overflow-hidden border border-slate-200">
+              <div class="h-14 bg-[#e2e8f0] flex items-end p-3 border-b border-slate-300">
+                <span class="text-slate-700 text-xs font-bold tracking-wider">Slate 200 Border</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">#E2E8F0</span>
+                <span class="text-slate-400">Border Card & Tabel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. Typography Scale Section -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h2 class="text-xl md:text-2xl font-bold text-[#0f2942] flex items-center gap-2.5">
+            <span class="w-3 h-6 bg-[#2563eb] rounded-full"></span>
+            2. Tipografi & Skala Teks (Typography Scale)
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">Font resmi: Plus Jakarta Sans dengan skala proporsional untuk dashboard dan dokumen legal.</p>
+        </div>
+        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg">Sans-Serif Modern</span>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+        <div class="space-y-6 divide-y divide-slate-100">
+          
+          <!-- H1 Display -->
+          <div class="pt-4 first:pt-0 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div class="w-48 shrink-0">
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Heading 1 (H1)</span>
+              <p class="text-xs text-slate-400 mt-0.5">32px / 2rem • Bold (700)</p>
+            </div>
+            <div class="grow">
+              <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Master Data Koperasi Jawa Barat</h1>
+              <p class="text-xs text-slate-400 mt-1">Digunakan untuk judul utama halaman portal & dashboard.</p>
+            </div>
+          </div>
+
+          <!-- H2 Section -->
+          <div class="pt-5 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div class="w-48 shrink-0">
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Heading 2 (H2)</span>
+              <p class="text-xs text-slate-400 mt-0.5">24px / 1.5rem • Bold (700)</p>
+            </div>
+            <div class="grow">
+              <h2 class="text-2xl font-bold text-slate-900">Verifikasi Pengajuan Perubahan Data</h2>
+              <p class="text-xs text-slate-400 mt-1">Digunakan untuk judul section besar dan judul kartu utama.</p>
+            </div>
+          </div>
+
+          <!-- H3 Card Title -->
+          <div class="pt-5 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div class="w-48 shrink-0">
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Heading 3 (H3)</span>
+              <p class="text-xs text-slate-400 mt-0.5">18px / 1.125rem • SemiBold (600)</p>
+            </div>
+            <div class="grow">
+              <h3 class="text-lg font-semibold text-slate-800">Distribusi Koperasi Berdasarkan Wilayah Kerja</h3>
+              <p class="text-xs text-slate-400 mt-1">Digunakan untuk sub-header, widget ringkasan, dan panel samping.</p>
+            </div>
+          </div>
+
+          <!-- Body Regular -->
+          <div class="pt-5 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div class="w-48 shrink-0">
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Body Regular</span>
+              <p class="text-xs text-slate-400 mt-0.5">14px / 0.875rem • Regular (400)</p>
+            </div>
+            <div class="grow">
+              <p class="text-sm text-slate-600 leading-relaxed max-w-3xl">
+                Berdasarkan Peraturan Gubernur Jawa Barat No. 24/2023, setiap telaah memerlukan pemeriksaan otentisitas Berita Acara RAT, Akta Notaris Perubahan, serta validasi domisili fisik.
+              </p>
+            </div>
+          </div>
+
+          <!-- Metadata / Table Label -->
+          <div class="pt-5 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div class="w-48 shrink-0">
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Label & Table Th</span>
+              <p class="text-xs text-slate-400 mt-0.5">12px / 0.75rem • SemiBold (600)</p>
+            </div>
+            <div class="grow flex flex-wrap items-center gap-3">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded">NOMOR AHU / NIK</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded">STATUS LEGALITAS</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded">KESEHATAN & TATA KELOLA</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Component Kit & Status Badges -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h2 class="text-xl md:text-2xl font-bold text-[#0f2942] flex items-center gap-2.5">
+            <span class="w-3 h-6 bg-emerald-600 rounded-full"></span>
+            3. Komponen UI & Status Pills Resmi
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">Pola tombol, status badge verifikasi, form input, dan metrik cards yang teruji.</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg">Atomic Components</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- A. Badges & Status Chips -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Status & Akreditasi Pills</h3>
+          
+          <div class="flex flex-col gap-2.5">
+            <!-- Aktif / Terverifikasi -->
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+              <span class="text-xs text-slate-500 font-medium">Status Terdaftar</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif / Terverifikasi
+              </span>
+            </div>
+
+            <!-- Predikat Kesehatan A -->
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+              <span class="text-xs text-slate-500 font-medium">Akreditasi KUK</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                Sehat (Predikat A)
+              </span>
+            </div>
+
+            <!-- Dalam Pembinaan -->
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+              <span class="text-xs text-slate-500 font-medium">Evaluasi Pengawas</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Dalam Pembinaan
+              </span>
+            </div>
+
+            <!-- Menunggu Verifikasi -->
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+              <span class="text-xs text-slate-500 font-medium">Antrean Berkas</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                Menunggu Telaah Dinas
+              </span>
+            </div>
+
+            <!-- Ditolak / SLA Over -->
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+              <span class="text-xs text-slate-500 font-medium">Klarifikasi</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Lewat SLA (4 Hari)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Button System -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Sistem Tombol Aksi (Buttons)</h3>
+          
+          <div class="space-y-3">
+            <!-- Primary Emerald -->
+            <div>
+              <button class="w-full py-2.5 px-4 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Simpan Perubahan (Primary Positive)
+              </button>
+              <span class="text-[10px] text-slate-400 block mt-1">Digunakan untuk submit form & persetujuan izin.</span>
+            </div>
+
+            <!-- Primary Navy Admin -->
+            <div>
+              <button class="w-full py-2.5 px-4 rounded-xl bg-[#0f2942] hover:bg-[#001428] text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Tambah Koperasi Baru (Admin Primary)
+              </button>
+              <span class="text-[10px] text-slate-400 block mt-1">Digunakan untuk header action admin.</span>
+            </div>
+
+            <!-- Secondary Outline -->
+            <div>
+              <button class="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Ekspor Master Data (.xlsx / .csv)
+              </button>
+              <span class="text-[10px] text-slate-400 block mt-1">Digunakan untuk filter, ekspor, dan unduh rekapan.</span>
+            </div>
+
+            <!-- Danger Action -->
+            <div>
+              <button class="w-full py-2 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center justify-center gap-2">
+                Tolak Usulan & Catat Disposisi
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- C. Form Input & Controls -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Elemen Formulir (Form Controls)</h3>
+          
+          <div class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Nama Koperasi <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" value="KOPDES BABAKAN MANDIRI" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <span class="text-[10px] text-slate-400 mt-1 block">Sesuai Akta Notaris & SK Kemenkumham.</span>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Bentuk Kelembagaan
+              </label>
+              <div class="relative">
+                <select class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>Primer Provinsi (Lembaga Mandiri)</option>
+                  <option>Primer Kabupaten/Kota</option>
+                  <option>Sekunder Tingkat Wilayah</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Banner Regulasi Preview -->
+            <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-2.5 text-xs text-blue-900">
+              <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div>
+                <span class="font-bold">Prosedur Regulasi F5:</span> Perubahan data hanya resmi di-update setelah persetujuan Tim Pengawas Wilayah.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. Interactive Live Metric Card Example -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h2 class="text-xl md:text-2xl font-bold text-[#0f2942] flex items-center gap-2.5">
+            <span class="w-3 h-6 bg-purple-600 rounded-full"></span>
+            4. Standar Stat Card & Card Elevation
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">Komposisi kartu metrik angka dengan elevasi halus <code>border-slate-200</code> dan <code>shadow-sm</code>.</p>
+        </div>
+        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg">Card Geometry</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Stat Card 1 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Koperasi</span>
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-slate-900">25.842</div>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-emerald-600 font-semibold">
+            <span>+324 sejak 2024</span>
+            <span class="text-slate-400">• 27 Kab/Kota</span>
+          </div>
+        </div>
+
+        <!-- Stat Card 2 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Berstatus Aktif</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-emerald-600">17.108</div>
+          <div class="mt-2.5">
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 66.2%"></div>
+            </div>
+            <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1 font-medium">
+              <span>66.2% Operasional</span>
+              <span>8.734 Nonaktif</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Card 3 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Dalam Pembinaan</span>
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-amber-600">7.476</div>
+          <div class="mt-2.5">
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-amber-500 h-1.5 rounded-full" style="width: 28.9%"></div>
+            </div>
+            <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1 font-medium">
+              <span>28.9% dari total</span>
+              <span>Evaluasi RAT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Card 4 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Antrean Verifikasi</span>
+            <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-purple-600">18 <span class="text-xs font-medium text-slate-400">Berkas</span></div>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-rose-600 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            <span>6 Berkas mendesak (SLA)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Summary -->
+    <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-700">SIM-KOP JABAR</span>
+        <span>•</span>
+        <span>Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat</span>
+      </div>
+      <div>
+        Spesifikasi UI: Tailwind CSS v3.4 + Plus Jakarta Sans • Standar SPBE Jawa Barat
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

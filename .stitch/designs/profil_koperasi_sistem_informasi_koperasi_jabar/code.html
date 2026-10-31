@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "error-container": "#ffdad6",
+        "tertiary-fixed": "#ffdcc3",
+        "on-tertiary": "#ffffff",
+        "surface-container-high": "#dce9ff",
+        "secondary-container": "#316bf3",
+        "on-secondary": "#ffffff",
+        "primary-fixed": "#d1e4ff",
+        "surface-bright": "#f8f9ff",
+        "on-primary-fixed": "#011d35",
+        "on-error-container": "#93000a",
+        "on-background": "#0b1c30",
+        "error": "#ba1a1a",
+        "on-primary-fixed-variant": "#314863",
+        "inverse-surface": "#213145",
+        "tertiary-container": "#401f00",
+        "secondary-fixed": "#dbe1ff",
+        "on-surface-variant": "#43474d",
+        "surface": "#f8f9ff",
+        "surface-tint": "#49607c",
+        "on-error": "#ffffff",
+        "on-primary": "#ffffff",
+        "primary-container": "#0f2942",
+        "on-tertiary-container": "#d77503",
+        "tertiary-fixed-dim": "#ffb77d",
+        "outline-variant": "#c3c6ce",
+        "tertiary": "#220e00",
+        "surface-container-lowest": "#ffffff",
+        "primary": "#001428",
+        "secondary-fixed-dim": "#b4c5ff",
+        "on-surface": "#0b1c30",
+        "on-secondary-fixed-variant": "#003ea8",
+        "outline": "#74777e",
+        "on-primary-container": "#7991af",
+        "primary-fixed-dim": "#b0c9e8",
+        "on-secondary-fixed": "#00174b",
+        "surface-variant": "#d3e4fe",
+        "inverse-primary": "#b0c9e8",
+        "surface-dim": "#cbdbf5",
+        "inverse-on-surface": "#eaf1ff",
+        "on-tertiary-fixed": "#2f1500",
+        "on-tertiary-fixed-variant": "#6e3900",
+        "background": "#f8f9ff",
+        "surface-container-highest": "#d3e4fe",
+        "on-secondary-container": "#fefcff",
+        "surface-container": "#e5eeff",
+        "surface-container-low": "#eff4ff",
+        "secondary": "#0051d5"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      "spacing": {
+        "space-xl": "2rem",
+        "gutter": "1.5rem",
+        "space-lg": "1.5rem",
+        "space-md": "1rem",
+        "margin-mobile": "1rem",
+        "space-xs": "0.25rem",
+        "space-sm": "0.5rem",
+        "gutter-mobile": "0.75rem",
+        "margin": "2rem"
+      },
+      "fontFamily": {
+        "title-md": ["Plus Jakarta Sans"],
+        "headline-xl": ["Plus Jakarta Sans"],
+        "label-sm": ["Plus Jakarta Sans"],
+        "body-md": ["Plus Jakarta Sans"],
+        "headline-lg-mobile": ["Plus Jakarta Sans"],
+        "body-lg": ["Plus Jakarta Sans"],
+        "headline-lg": ["Plus Jakarta Sans"],
+        "body-sm": ["Plus Jakarta Sans"],
+        "label-md": ["Plus Jakarta Sans"],
+        "headline-xl-mobile": ["Plus Jakarta Sans"],
+        "headline-sm": ["Plus Jakarta Sans"],
+        "headline-md": ["Plus Jakarta Sans"],
+        "title-sm": ["Plus Jakarta Sans"]
+      },
+      "fontSize": {
+        "title-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}],
+        "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+        "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400"}],
+        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+        "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400"}],
+        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.025em", "fontWeight": "600"}],
+        "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "headline-sm": ["18px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600"}],
+        "headline-md": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "title-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}]
+      }
+    }
+  }
+}</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between"><div class="flex flex-col flex-1 overflow-y-auto"><div class="h-16 px-space-md flex items-center gap-space-sm bg-surface-container-low"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">account_balance</span></div><div class="flex flex-col overflow-hidden"><span class="font-title-sm text-title-sm text-primary leading-tight font-bold truncate">SIM-KOP JABAR</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Dinas KUK Jabar</span></div></div><div class="px-space-md py-space-sm"><div class="px-space-sm py-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Menu Pengelola</div></div><nav class="flex-1 px-space-sm space-y-1 pb-space-md" data-active-classes="bg-primary-container text-on-primary font-title-sm shadow-sm"><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl transition-all bg-primary-container text-on-primary font-title-sm shadow-sm" data-path="profil-koperasi" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span>Profil Koperasi</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="perizinan-dokumen" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Perizinan &amp; Dokumen</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="data-pengurus" href="#"><span class="material-symbols-outlined text-[20px]">groups</span><span>Data Pengurus</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="riwayat-kesehatan" href="#"><span class="material-symbols-outlined text-[20px]">monitor_heart</span><span>Riwayat Kesehatan</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="tata-kelola-rat" href="#"><span class="material-symbols-outlined text-[20px]">gavel</span><span>Tata Kelola &amp; RAT</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="data-aset" href="#"><span class="material-symbols-outlined text-[20px]">savings</span><span>Data Aset</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="riwayat-anggota" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>Riwayat Anggota</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="pengajuan-mandiri" href="#"><span class="material-symbols-outlined text-[20px]">send</span><span>Pengajuan Mandiri</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="pemberitahuan" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span>Pemberitahuan</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="keamanan-akun" href="#"><span class="material-symbols-outlined text-[20px]">security</span><span>Keamanan Akun</span></a></nav></div><div class="p-space-md bg-surface-container-low"><div class="flex items-center justify-between text-on-surface-variant"><span class="font-label-sm text-label-sm">Versi Portal</span><span class="font-label-sm text-label-sm font-semibold text-secondary">v2.4.0 Jabar</span></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-title-sm text-title-sm text-primary font-bold tracking-tight">SIM-KOP JABAR</span><span class="font-body-sm text-body-sm text-outline">|</span><span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Provinsi Jawa Barat</span></div></div><div class="hidden lg:flex items-center gap-space-xs"><span class="inline-flex items-center px-space-sm py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface"><span class="material-symbols-outlined text-[14px] mr-1 text-secondary">domain</span>Dinas Koperasi &amp; UKM Jabar</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>KOPDES - Disetujui</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm pl-space-md"><div class="flex flex-col text-right hidden sm:flex"><span class="font-title-sm text-title-sm text-primary font-semibold leading-snug">dedeng / arya</span><span class="font-label-sm text-label-sm text-on-surface-variant">Sesi Pengelola Aktif</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors font-label-md text-label-md" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Keluar</span></a></div></div></header><main class="w-full pt-16 bg-background flex-1 px-gutter py-space-lg"><div class="flex flex-col w-full">
+<div class="max-w-6xl mx-auto w-full space-y-space-lg">
+<!-- Top Action & Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-md">
+<div class="space-y-1">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
+<span>Arsip Legalitas Provinsi Jawa Barat</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-background tracking-tight">Profil Koperasi</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Data resmi koperasi Anda (hanya baca).</p>
+</div>
+<!-- Quick Action Badges -->
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all shadow-sm font-label-md text-label-md" onclick="window.print()">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span>Cetak Dokumen</span>
+</button>
+<div class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-surface-container-low text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-secondary">lock</span>
+<span>Status Akses: Read-Only</span>
+</div>
+</div>
+</div>
+<!-- Main Profile Identity Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<!-- Card Top Bar -->
+<div class="px-space-xl py-space-lg bg-surface-container-low/70 flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center font-headline-sm text-headline-sm font-bold shadow-sm">
+            KD
+          </div>
+<div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">KOPDES</h2>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                Disetujui
+              </span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Kode Registrasi Dinas: <span class="font-mono text-primary font-semibold">KOP-JB-2026-0819</span></p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-secondary">domain_verification</span>
+<span class="font-label-sm text-label-sm font-medium">Terverifikasi Dinas KUK Jawa Barat</span>
+</div>
+</div>
+<!-- Detail Grid Section -->
+<div class="p-space-xl">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+<!-- Column 1 -->
+<div class="space-y-6">
+<!-- NOMOR IDENTITAS -->
+<div class="group">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Nomor Identitas</div>
+<div class="mt-1 flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-primary font-bold font-mono tracking-tight" id="nikVal">12931283123</span>
+<button class="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" onclick="navigator.clipboard.writeText('12931283123'); this.innerHTML='&lt;span class=\'material-symbols-outlined text-[16px] text-emerald-600\'&gt;done&lt;/span&gt;'; setTimeout(() =&gt; this.innerHTML='&lt;span class=\'material-symbols-outlined text-[16px]\'&gt;content_copy&lt;/span&gt;', 1500);" title="Salin Nomor">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- BENTUK -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Bentuk</div>
+<div class="mt-1 font-body-lg text-body-lg text-primary font-medium">KOTAK</div>
+</div>
+<!-- KABUPATEN/KOTA -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Kabupaten / Kota</div>
+<div class="mt-1 font-body-lg text-body-lg text-outline">—</div>
+</div>
+<!-- EMAIL -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Email</div>
+<div class="mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">mail</span>
+<a class="font-body-lg text-body-lg text-secondary hover:underline font-medium" href="mailto:awdawdaw@gmail.com">awdawdaw@gmail.com</a>
+</div>
+</div>
+<!-- ALAMAT -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Alamat Lengkap</div>
+<div class="mt-1 flex items-start gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mt-0.5">location_on</span>
+<span class="font-body-lg text-body-lg text-primary capitalize">babakan</span>
+</div>
+</div>
+</div>
+<!-- Column 2 -->
+<div class="space-y-6">
+<!-- JENIS -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Jenis</div>
+<div class="mt-1 font-body-lg text-body-lg text-primary font-medium tracking-wide">MERAH PUTIH</div>
+</div>
+<!-- TANGGAL BERDIRI -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Tanggal Berdiri</div>
+<div class="mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_today</span>
+<span class="font-body-lg text-body-lg text-primary font-medium">15 Oktober 2026</span>
+</div>
+</div>
+<!-- TELEPON -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Telepon</div>
+<div class="mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">call</span>
+<a class="font-body-lg text-body-lg text-primary font-mono font-medium hover:text-secondary" href="tel:081231231312">081231231312</a>
+</div>
+</div>
+<!-- WEBSITE -->
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Website</div>
+<div class="mt-1 font-body-lg text-body-lg text-outline">—</div>
+</div>
+<!-- STATUS TATA KELOLA KOPERASI -->
+<div class="pt-2">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold mb-2">Tingkat Akreditasi Wilayah</div>
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container font-label-md text-label-md text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified</span>
+<span>Tingkat Kelurahan / Desa (KOPDES)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro Audit Ledger Strip -->
+<div class="px-space-xl py-space-sm bg-surface-container-low/50 flex flex-wrap items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">history</span>
+<span>Pembaruan sistem terakhir: 15 Okt 2026, 09:30 WIB</span>
+</div>
+<div class="flex items-center gap-2">
+<span>Pengesahan SK Kemenkumham RI: Valid</span>
+<span>•</span>
+<span class="text-secondary font-medium">Arsip Jawa Barat</span>
+</div>
+</div>
+</div>
+<!-- Official Policy Notice Banner -->
+<div class="rounded-xl bg-surface-container-low p-space-md flex items-start gap-space-md shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">info</span>
+</div>
+<div class="flex-1 space-y-0.5">
+<span class="font-title-sm text-title-sm text-primary font-bold block">Pemberitahuan Prosedur Pembaruan Data</span>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+          Pengajuan perubahan data oleh pengelola akan tersedia pada fase verifikasi (F5). Data resmi hanya berubah setelah disetujui admin dinas.
+        </p>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

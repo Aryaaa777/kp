@@ -1,0 +1,449 @@
+{
+  "version": "1.0",
+  "stitch": {
+    "projectId": "18275620612700760215",
+    "referenceScreen": {
+      "id": "14451368305478276086",
+      "route": "/koperasi/pengajuan/1/edit",
+      "title": "Edit Pengajuan Pengelola Koperasi",
+      "deviceType": "DESKTOP",
+      "extractedAt": "2026-10-31T14:38:04.608Z"
+    },
+    "referenceScreens": [
+      {
+        "id": "17843800467980324294",
+        "route": "/",
+        "title": "Halaman Utama Publik",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:24:34.807Z"
+      },
+      {
+        "id": "6897498974996849302",
+        "route": "/admin/dashboard",
+        "title": "Dashboard Admin Dinas",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:28:47.633Z"
+      },
+      {
+        "id": "10884105078852527579",
+        "route": "/admin/koperasi",
+        "title": "Data Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:33:06.868Z"
+      },
+      {
+        "id": "16994155903021337926",
+        "route": "/admin/koperasi/1",
+        "title": "Detail Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:35:24.635Z"
+      },
+      {
+        "id": "4663367581211349594",
+        "route": "/admin/pengajuan",
+        "title": "Pengajuan Admin Dinas",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:42:18.783Z"
+      },
+      {
+        "id": "15771239643875328872",
+        "route": "/admin/akun",
+        "title": "Manajemen Akun Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:43:25.889Z"
+      },
+      {
+        "id": "3109714775734770321",
+        "route": "/koperasi/dashboard",
+        "title": "Dashboard Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:46:37.604Z"
+      },
+      {
+        "id": "8981293641832899932",
+        "route": "/koperasi/pengajuan",
+        "title": "Pengajuan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:47:58.032Z"
+      },
+      {
+        "id": "8677777230061108358",
+        "route": "/koperasi",
+        "title": "Direktori Koperasi Publik",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:48:43.628Z"
+      },
+      {
+        "id": "11713458012506317454",
+        "route": "/statistik",
+        "title": "Statistik Koperasi Publik",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:49:17.461Z"
+      },
+      {
+        "id": "3549822911703924302",
+        "route": "/login",
+        "title": "Login Sistem Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:49:58.104Z"
+      },
+      {
+        "id": "1986795287429200506",
+        "route": "/admin/koperasi/1/anggota",
+        "title": "Daftar Anggota Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:51:06.129Z"
+      },
+      {
+        "id": "17636032963789570888",
+        "route": "/admin/koperasi/1/aset",
+        "title": "Data Aset Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:51:45.599Z"
+      },
+      {
+        "id": "10104460310065648249",
+        "route": "/admin/koperasi/1/pengurus",
+        "title": "Data Pengurus Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:52:24.246Z"
+      },
+      {
+        "id": "4302766764296280121",
+        "route": "/admin/koperasi/1/izin",
+        "title": "Data Perizinan Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:53:06.246Z"
+      },
+      {
+        "id": "332486298136247384",
+        "route": "/admin/koperasi/1/kesehatan",
+        "title": "Penilaian Kesehatan Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:53:46.346Z"
+      },
+      {
+        "id": "17904032504731408857",
+        "route": "/admin/koperasi/1/tata-kelola",
+        "title": "Data Tata Kelola Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:54:27.334Z"
+      },
+      {
+        "id": "15826610162493679170",
+        "route": "/admin/audit-log",
+        "title": "Audit Log Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:55:00.518Z"
+      },
+      {
+        "id": "2610972110380359377",
+        "route": "/admin/laporan",
+        "title": "Laporan Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:55:37.407Z"
+      },
+      {
+        "id": "17475959437073863425",
+        "route": "/admin/pengaturan/publik",
+        "title": "Pengaturan Publik Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:56:08.178Z"
+      },
+      {
+        "id": "2983876579954393967",
+        "route": "/koperasi/anggota",
+        "title": "Data Anggota Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:57:09.645Z"
+      },
+      {
+        "id": "5141662866041505615",
+        "route": "/koperasi/aset",
+        "title": "Data Aset Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:57:46.058Z"
+      },
+      {
+        "id": "2880911986498016608",
+        "route": "/koperasi/izin",
+        "title": "Perizinan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:58:14.289Z"
+      },
+      {
+        "id": "8603183292195357472",
+        "route": "/koperasi/kesehatan",
+        "title": "Kesehatan Koperasi Pengelola",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:58:45.230Z"
+      },
+      {
+        "id": "8183345427910507206",
+        "route": "/koperasi/pengurus",
+        "title": "Data Pengurus Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T13:59:37.028Z"
+      },
+      {
+        "id": "6878623306079621874",
+        "route": "/koperasi/tata-kelola",
+        "title": "Tata Kelola Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:00:08.430Z"
+      },
+      {
+        "id": "3232026438343662861",
+        "route": "/koperasi/notifikasi",
+        "title": "Notifikasi Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:00:43.062Z"
+      },
+      {
+        "id": "13811364182900774408",
+        "route": "/koperasi/pengajuan/1",
+        "title": "Detail Pengajuan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:03:44.128Z"
+      },
+      {
+        "id": "108005873578855037",
+        "route": "/koperasi/pengajuan/create",
+        "title": "Formulir Pengajuan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:04:31.360Z"
+      },
+      {
+        "id": "5858323130607935695",
+        "route": "/admin/koperasi/create",
+        "title": "Formulir Tambah Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:09:29.964Z"
+      },
+      {
+        "id": "10388220585072316003",
+        "route": "/admin/koperasi/1/anggota/create",
+        "title": "Formulir Tambah Anggota Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:10:05.189Z"
+      },
+      {
+        "id": "7194894356771180372",
+        "route": "/admin/koperasi/1/aset/create",
+        "title": "Formulir Tambah Aset Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:10:40.675Z"
+      },
+      {
+        "id": "15060697063850162264",
+        "route": "/admin/koperasi/1/pengurus/create",
+        "title": "Formulir Tambah Pengurus Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:14:12.490Z"
+      },
+      {
+        "id": "3148211637191579058",
+        "route": "/admin/koperasi/1/izin/create",
+        "title": "Formulir Tambah Perizinan Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:14:38.636Z"
+      },
+      {
+        "id": "15171800658148251749",
+        "route": "/admin/koperasi/1/kesehatan/create",
+        "title": "Formulir Penilaian Kesehatan Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:15:19.942Z"
+      },
+      {
+        "id": "15071138800228877604",
+        "route": "/admin/koperasi/1/tata-kelola/create",
+        "title": "Formulir Tambah Tata Kelola Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:15:45.980Z"
+      },
+      {
+        "id": "15438280287566513394",
+        "route": "/admin/akun/create",
+        "title": "Formulir Tambah Akun Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:16:10.883Z"
+      },
+      {
+        "id": "12375595859185332901",
+        "route": "/lupa-password",
+        "title": "Lupa Password",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:16:44.691Z"
+      },
+      {
+        "id": "12375595859185334051",
+        "route": "/admin/koperasi/1/edit",
+        "title": "Edit Data Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:17:38.137Z"
+      },
+      {
+        "id": "11497255294183070173",
+        "route": "/koperasi/profil",
+        "title": "Profil Koperasi Pengelola",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:18:57.169Z"
+      },
+      {
+        "id": "14009474805028296531",
+        "route": "/admin/koperasi/1/anggota/1",
+        "title": "Detail Anggota Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:20:21.210Z"
+      },
+      {
+        "id": "14936597566779425227",
+        "route": "/admin/koperasi/1/aset/1",
+        "title": "Detail Aset Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:21:24.489Z"
+      },
+      {
+        "id": "14297275424651712820",
+        "route": "/admin/koperasi/1/pengurus/1",
+        "title": "Detail Pengurus Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:22:03.065Z"
+      },
+      {
+        "id": "1149964093361246119",
+        "route": "/admin/koperasi/1/izin/1",
+        "title": "Detail Perizinan Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:22:34.520Z"
+      },
+      {
+        "id": "5666095871785385887",
+        "route": "/admin/koperasi/1/kesehatan/1",
+        "title": "Detail Penilaian Kesehatan Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:24:07.283Z"
+      },
+      {
+        "id": "3076187130154994974",
+        "route": "/admin/koperasi/1/tata-kelola/1",
+        "title": "Detail Tata Kelola Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:25:01.659Z"
+      },
+      {
+        "id": "8590879918065855771",
+        "route": "/admin/pengajuan/1",
+        "title": "Detail Pengajuan Admin Dinas",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:25:35.817Z"
+      },
+      {
+        "id": "1566643082425273575",
+        "route": "/koperasi/anggota/1",
+        "title": "Detail Anggota Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:27:13.490Z"
+      },
+      {
+        "id": "15664933240458479414",
+        "route": "/koperasi/aset/1",
+        "title": "Detail Aset Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:28:15.248Z"
+      },
+      {
+        "id": "11170613854538535935",
+        "route": "/koperasi/izin/1",
+        "title": "Detail Perizinan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:28:40.569Z"
+      },
+      {
+        "id": "17488188736563561173",
+        "route": "/koperasi/kesehatan/1",
+        "title": "Detail Kesehatan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:29:14.810Z"
+      },
+      {
+        "id": "15112496933476290499",
+        "route": "/koperasi/pengurus/1",
+        "title": "Detail Pengurus Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:29:39.771Z"
+      },
+      {
+        "id": "13651809702886118307",
+        "route": "/koperasi/tata-kelola/1",
+        "title": "Detail Tata Kelola Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:30:02.538Z"
+      },
+      {
+        "id": "17922928735265818328",
+        "route": "/admin/akun/1/edit",
+        "title": "Edit Akun Admin Dinas",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:33:18.883Z"
+      },
+      {
+        "id": "16820954007223283359",
+        "route": "/admin/akun/2/edit",
+        "title": "Edit Akun Admin Dinas",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:33:42.007Z"
+      },
+      {
+        "id": "1916585858491725553",
+        "route": "/admin/koperasi/1/anggota/1/edit",
+        "title": "Edit Anggota Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:34:43.760Z"
+      },
+      {
+        "id": "5872653784639956056",
+        "route": "/admin/koperasi/1/aset/1/edit",
+        "title": "Edit Aset Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:35:18.308Z"
+      },
+      {
+        "id": "8339758162925085857",
+        "route": "/admin/koperasi/1/pengurus/1/edit",
+        "title": "Edit Pengurus Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:35:41.129Z"
+      },
+      {
+        "id": "15194136599552006639",
+        "route": "/admin/koperasi/1/izin/1/edit",
+        "title": "Edit Perizinan Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:36:06.524Z"
+      },
+      {
+        "id": "5051874342409647338",
+        "route": "/admin/koperasi/1/kesehatan/1/edit",
+        "title": "Edit Penilaian Kesehatan Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:36:38.446Z"
+      },
+      {
+        "id": "17494523449029674994",
+        "route": "/admin/koperasi/1/tata-kelola/1/edit",
+        "title": "Edit Tata Kelola Koperasi Admin",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:37:13.677Z"
+      },
+      {
+        "id": "14451368305478276086",
+        "route": "/koperasi/pengajuan/1/edit",
+        "title": "Edit Pengajuan Pengelola Koperasi",
+        "deviceType": "DESKTOP",
+        "extractedAt": "2026-10-31T14:38:04.608Z"
+      }
+    ]
+  }
+}

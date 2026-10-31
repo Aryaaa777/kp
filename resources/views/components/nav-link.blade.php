@@ -2,9 +2,9 @@
 
 <a href="{{ $href }}"
     @class([
-        'block shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition',
-        'bg-emerald-50 text-emerald-700' => $active,
-        'text-slate-600 hover:bg-slate-100 hover:text-slate-900' => ! $active,
+        'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold tracking-wide transition-all duration-150',
+        'bg-[#001428] text-white shadow-xs font-bold' => $active,
+        'text-[#43474d] hover:bg-[#eff4ff] hover:text-[#001428]' => ! $active,
     ])
     @if ($active) aria-current="page" @endif
     {{ $attributes }}>

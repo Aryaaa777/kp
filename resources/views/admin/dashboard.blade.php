@@ -26,11 +26,12 @@
     @endphp
 
     {{-- FR-020 "Data Masukan": filter wilayah/periode/status (konsisten dengan daftar koperasi). --}}
-    <form method="GET" action="{{ route('admin.dashboard') }}" class="mb-3 flex flex-wrap items-end gap-3">
+    <form method="GET" action="{{ route('admin.dashboard') }}"
+        class="mb-4 flex flex-wrap items-end gap-3 rounded-2xl border border-[#dce9ff] bg-white p-4 shadow-xs">
         <div>
-            <label for="region_id" class="block text-xs font-medium text-slate-600">Wilayah</label>
+            <label for="region_id" class="block text-xs font-bold text-[#001428] uppercase tracking-wider">Wilayah</label>
             <select id="region_id" name="region_id"
-                class="mt-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
+                class="mt-1.5 rounded-xl border border-[#c3c6ce] bg-white px-3 py-2 text-xs sm:text-sm shadow-2xs focus:border-[#0051d5] focus:outline-none">
                 <option value="">Semua wilayah</option>
                 <option value="{{ \App\Services\Reporting\CooperativeFilters::REGION_NONE }}"
                     @selected($filters['region_id'] === \App\Services\Reporting\CooperativeFilters::REGION_NONE)>
@@ -43,9 +44,9 @@
         </div>
 
         <div>
-            <label for="jenis_koperasi" class="block text-xs font-medium text-slate-600">Jenis</label>
+            <label for="jenis_koperasi" class="block text-xs font-bold text-[#001428] uppercase tracking-wider">Jenis</label>
             <select id="jenis_koperasi" name="jenis_koperasi"
-                class="mt-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
+                class="mt-1.5 rounded-xl border border-[#c3c6ce] bg-white px-3 py-2 text-xs sm:text-sm shadow-2xs focus:border-[#0051d5] focus:outline-none">
                 <option value="">Semua jenis</option>
                 @foreach ($jenisOptions as $jenis)
                     <option value="{{ $jenis }}" @selected($filters['jenis_koperasi'] === $jenis)>{{ $jenis }}</option>
@@ -54,9 +55,9 @@
         </div>
 
         <div>
-            <label for="status_verifikasi" class="block text-xs font-medium text-slate-600">Status</label>
+            <label for="status_verifikasi" class="block text-xs font-bold text-[#001428] uppercase tracking-wider">Status</label>
             <select id="status_verifikasi" name="status_verifikasi"
-                class="mt-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
+                class="mt-1.5 rounded-xl border border-[#c3c6ce] bg-white px-3 py-2 text-xs sm:text-sm shadow-2xs focus:border-[#0051d5] focus:outline-none">
                 <option value="">Semua status</option>
                 @foreach ($statusLabels as $value => $label)
                     <option value="{{ $value }}" @selected($filters['status_verifikasi'] === $value)>{{ $label }}</option>
@@ -65,9 +66,9 @@
         </div>
 
         <div>
-            <label for="tahun" class="block text-xs font-medium text-slate-600">Tahun Periode</label>
+            <label for="tahun" class="block text-xs font-bold text-[#001428] uppercase tracking-wider">Tahun Periode</label>
             <select id="tahun" name="tahun"
-                class="mt-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
+                class="mt-1.5 rounded-xl border border-[#c3c6ce] bg-white px-3 py-2 text-xs sm:text-sm shadow-2xs focus:border-[#0051d5] focus:outline-none">
                 <option value="">Semua tahun</option>
                 @foreach ($yearOptions as $tahun)
                     <option value="{{ $tahun }}" @selected($filters['tahun'] === (string) $tahun)>{{ $tahun }}</option>
@@ -75,13 +76,14 @@
             </select>
         </div>
 
-        <button type="submit" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700">
+        <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#001428] px-4 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0f2942] shadow-xs transition-all">
+            <span class="material-symbols-outlined text-[16px]">filter_alt</span>
             Terapkan
         </button>
 
         @if ($hasFilters)
             <a href="{{ route('admin.dashboard') }}"
-                class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Reset</a>
+                class="rounded-xl border border-[#c3c6ce] px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#001428] hover:bg-[#eff4ff] transition-all">Reset</a>
         @endif
     </form>
 

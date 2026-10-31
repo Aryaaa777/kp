@@ -1,11 +1,16 @@
 @props(['title' => 'Belum ada data', 'message' => null])
 
-<div class="rounded-lg border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
-    <p class="text-sm font-medium text-slate-700">{{ $title }}</p>
+<div class="rounded-2xl border-2 border-dashed border-[#c3c6ce] bg-white px-6 py-12 text-center shadow-xs">
+    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eff4ff] text-[#0051d5] mb-3">
+        <span class="material-symbols-outlined text-[26px]">folder_open</span>
+    </div>
+    <p class="text-sm font-bold text-[#001428]">{{ $title }}</p>
 
     @if ($message)
-        <p class="mt-1 text-sm text-slate-500">{{ $message }}</p>
+        <p class="mt-1.5 text-xs text-[#43474d] max-w-sm mx-auto leading-relaxed">{{ $message }}</p>
     @endif
 
-    {{ $slot }}
+    <div class="mt-4">
+        {{ $slot }}
+    </div>
 </div>

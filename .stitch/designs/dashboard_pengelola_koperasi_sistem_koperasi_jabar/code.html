@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "error-container": "#ffdad6",
+        "tertiary-fixed": "#ffdcc3",
+        "on-tertiary": "#ffffff",
+        "surface-container-high": "#dce9ff",
+        "secondary-container": "#316bf3",
+        "on-secondary": "#ffffff",
+        "primary-fixed": "#d1e4ff",
+        "surface-bright": "#f8f9ff",
+        "on-primary-fixed": "#011d35",
+        "on-error-container": "#93000a",
+        "on-background": "#0b1c30",
+        "error": "#ba1a1a",
+        "on-primary-fixed-variant": "#314863",
+        "inverse-surface": "#213145",
+        "tertiary-container": "#401f00",
+        "secondary-fixed": "#dbe1ff",
+        "on-surface-variant": "#43474d",
+        "surface": "#f8f9ff",
+        "surface-tint": "#49607c",
+        "on-error": "#ffffff",
+        "on-primary": "#ffffff",
+        "primary-container": "#0f2942",
+        "on-tertiary-container": "#d77503",
+        "tertiary-fixed-dim": "#ffb77d",
+        "outline-variant": "#c3c6ce",
+        "tertiary": "#220e00",
+        "surface-container-lowest": "#ffffff",
+        "primary": "#001428",
+        "secondary-fixed-dim": "#b4c5ff",
+        "on-surface": "#0b1c30",
+        "on-secondary-fixed-variant": "#003ea8",
+        "outline": "#74777e",
+        "on-primary-container": "#7991af",
+        "primary-fixed-dim": "#b0c9e8",
+        "on-secondary-fixed": "#00174b",
+        "surface-variant": "#d3e4fe",
+        "inverse-primary": "#b0c9e8",
+        "surface-dim": "#cbdbf5",
+        "inverse-on-surface": "#eaf1ff",
+        "on-tertiary-fixed": "#2f1500",
+        "on-tertiary-fixed-variant": "#6e3900",
+        "background": "#f8f9ff",
+        "surface-container-highest": "#d3e4fe",
+        "on-secondary-container": "#fefcff",
+        "surface-container": "#e5eeff",
+        "surface-container-low": "#eff4ff",
+        "secondary": "#0051d5"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      "spacing": {
+        "space-xl": "2rem",
+        "gutter": "1.5rem",
+        "space-lg": "1.5rem",
+        "space-md": "1rem",
+        "margin-mobile": "1rem",
+        "space-xs": "0.25rem",
+        "space-sm": "0.5rem",
+        "gutter-mobile": "0.75rem",
+        "margin": "2rem"
+      },
+      "fontFamily": {
+        "title-md": ["Plus Jakarta Sans"],
+        "headline-xl": ["Plus Jakarta Sans"],
+        "label-sm": ["Plus Jakarta Sans"],
+        "body-md": ["Plus Jakarta Sans"],
+        "headline-lg-mobile": ["Plus Jakarta Sans"],
+        "body-lg": ["Plus Jakarta Sans"],
+        "headline-lg": ["Plus Jakarta Sans"],
+        "body-sm": ["Plus Jakarta Sans"],
+        "label-md": ["Plus Jakarta Sans"],
+        "headline-xl-mobile": ["Plus Jakarta Sans"],
+        "headline-sm": ["Plus Jakarta Sans"],
+        "headline-md": ["Plus Jakarta Sans"],
+        "title-sm": ["Plus Jakarta Sans"]
+      },
+      "fontSize": {
+        "title-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}],
+        "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+        "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400"}],
+        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+        "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400"}],
+        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.025em", "fontWeight": "600"}],
+        "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "headline-sm": ["18px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600"}],
+        "headline-md": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "title-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}]
+      }
+    }
+  }
+}</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between"><div class="flex flex-col flex-1 overflow-y-auto"><div class="h-16 px-space-md flex items-center gap-space-sm bg-surface-container-low"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">account_balance</span></div><div class="flex flex-col overflow-hidden"><span class="font-title-sm text-title-sm text-primary leading-tight font-bold truncate">SIM-KOP JABAR</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Dinas KUK Jabar</span></div></div><div class="px-space-md py-space-sm"><div class="px-space-sm py-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Menu Pengelola</div></div><nav class="flex-1 px-space-sm space-y-1 pb-space-md" data-active-classes="bg-primary-container text-on-primary font-title-sm shadow-sm"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl transition-all bg-primary-container text-on-primary font-title-sm shadow-sm" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="profil-koperasi" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span>Profil Koperasi</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="perizinan-dokumen" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Perizinan &amp; Dokumen</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="data-pengurus" href="#"><span class="material-symbols-outlined text-[20px]">groups</span><span>Data Pengurus</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="riwayat-kesehatan" href="#"><span class="material-symbols-outlined text-[20px]">monitor_heart</span><span>Riwayat Kesehatan</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="tata-kelola-rat" href="#"><span class="material-symbols-outlined text-[20px]">gavel</span><span>Tata Kelola &amp; RAT</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="data-aset" href="#"><span class="material-symbols-outlined text-[20px]">savings</span><span>Data Aset</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="riwayat-anggota" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>Riwayat Anggota</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="pengajuan-mandiri" href="#"><span class="material-symbols-outlined text-[20px]">send</span><span>Pengajuan Mandiri</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="pemberitahuan" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span>Pemberitahuan</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="keamanan-akun" href="#"><span class="material-symbols-outlined text-[20px]">security</span><span>Keamanan Akun</span></a></nav></div><div class="p-space-md bg-surface-container-low"><div class="flex items-center justify-between text-on-surface-variant"><span class="font-label-sm text-label-sm">Versi Portal</span><span class="font-label-sm text-label-sm font-semibold text-secondary">v2.4.0 Jabar</span></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-title-sm text-title-sm text-primary font-bold tracking-tight">SIM-KOP JABAR</span><span class="font-body-sm text-body-sm text-outline">|</span><span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Provinsi Jawa Barat</span></div></div><div class="hidden lg:flex items-center gap-space-xs"><span class="inline-flex items-center px-space-sm py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface"><span class="material-symbols-outlined text-[14px] mr-1 text-secondary">domain</span>Dinas Koperasi &amp; UKM Jabar</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>KOPDES - Disetujui</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm pl-space-md"><div class="flex flex-col text-right hidden sm:flex"><span class="font-title-sm text-title-sm text-primary font-semibold leading-snug">dedeng / arya</span><span class="font-label-sm text-label-sm text-on-surface-variant">Sesi Pengelola Aktif</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors font-label-md text-label-md" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Keluar</span></a></div></div></header><main class="w-full pt-16 bg-background flex-1 px-gutter py-space-lg"><div class="flex flex-col w-full space-y-space-lg">
+<!-- Header Section with Metropolitan West Java Administrative Banner -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-1.5">
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container font-label-sm text-label-sm text-secondary uppercase tracking-wider font-semibold">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+        Klaster B — Pengelola Terdaftar
+      </div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Dashboard Pengelola Koperasi</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Status kelengkapan data dan pengajuan koperasi Anda.</p>
+</div>
+<!-- Cooperative Identity Ribbon -->
+<div class="flex flex-wrap items-center gap-space-sm bg-surface-container-lowest px-space-md py-2.5 rounded-xl shadow-sm">
+<div class="flex items-center gap-1.5 text-on-surface font-title-sm text-title-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">Koperasi tertaut:</span>
+<span class="font-bold text-primary px-2 py-0.5 rounded bg-surface-container font-mono text-[13px]">KOPDES</span>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+        Disetujui
+      </span>
+<span class="font-body-sm text-body-sm text-outline-variant">|</span>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-outline">location_on</span>
+<span>Wilayah: <strong class="font-semibold text-on-surface">Belum ditetapkan</strong></span>
+</div>
+</div>
+</div>
+<!-- 4 KPI Stat Cards Metric Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Stat 1: Kelengkapan Profil -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between group">
+<div class="flex items-start justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Kelengkapan Profil</span>
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">pie_chart</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">88%</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">7 dari 8 field profil terisi</p>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-emerald-600 h-full rounded-full transition-all duration-700" style="width: 88%"></div>
+</div>
+</div>
+<!-- Stat 2: Field Wajib Pengelola -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between group">
+<div class="flex items-start justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Field Wajib Pengelola</span>
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">rule</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">2/2</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Field wajib dalam wewenang pengelola</p>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-700" style="width: 100%"></div>
+</div>
+</div>
+<!-- Stat 3: Pengajuan Disetujui -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between group">
+<div class="flex items-start justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Pengajuan Disetujui</span>
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[18px]">task_alt</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">0</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Status pengajuan = Disetujui</p>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-3">
+<div class="bg-outline h-full rounded-full" style="width: 0%"></div>
+</div>
+</div>
+<!-- Stat 4: Butuh Perbaikan -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between group">
+<div class="flex items-start justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Butuh Perbaikan</span>
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[18px]">build_circle</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">0</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 line-clamp-1" title="Perlu Perbaikan (belum digantikan versi baru) / Ditolak">Perlu Perbaikan (belum digantikan versi baru) / Ditolak</p>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-3">
+<div class="bg-error h-full rounded-full" style="width: 0%"></div>
+</div>
+</div>
+</div>
+<!-- Primary Ledger Block: Kelengkapan Data Profil Koperasi -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-6">
+<div class="space-y-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-5 bg-secondary rounded-full"></div>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Kelengkapan Data Profil Koperasi</h2>
+</div>
+<div class="text-right">
+<span class="font-title-md text-title-md font-bold text-primary">88%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">(7/8 field wewenang pengelola)</span>
+</div>
+</div>
+<!-- Vivid Emerald Progress Bar Track -->
+<div class="w-full bg-surface-container-high h-3 rounded-full overflow-hidden p-0.5">
+<div class="bg-emerald-600 h-full rounded-full transition-all duration-1000" style="width: 88%"></div>
+</div>
+</div>
+<!-- Data Induk Koperasi Status Line -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container font-label-md text-label-md text-on-surface-variant font-semibold">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          Belum lengkap
+        </span>
+<span class="font-title-md text-title-md text-primary font-bold">Data Induk Koperasi</span>
+</div>
+<div class="font-title-sm text-title-sm text-on-surface-variant font-medium">
+        7/8 field profil terisi
+      </div>
+</div>
+<!-- Explanatory Statutory Notice (Q-006 Context) -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-3.5 items-start text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm leading-relaxed">
+        Kelengkapan dihitung dari field yang dapat diisi/diusulkan pengelola (8 field; 2 di antaranya wajib). Daftar field masih menunggu konfirmasi dinas (Q-006) sehingga rumusnya bersifat [ASUMSI].
+      </p>
+</div>
+<!-- Sub-Section: DATA LAIN (DIKELOLA ADMIN DINAS — INFORMASI) -->
+<div class="pt-4 space-y-4">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">DATA LAIN (DIKELOLA ADMIN DINAS — INFORMASI)</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+<!-- Item 1: Perizinan & Dokumen -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">verified</span>
+<span class="font-body-md text-body-md text-primary font-medium">Perizinan &amp; Dokumen</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1 catatan · dikelola admin dinas</span>
+</div>
+<!-- Item 2: Pengurus -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">group</span>
+<span class="font-body-md text-body-md text-primary font-medium">Pengurus</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1 catatan · dikelola admin dinas</span>
+</div>
+<!-- Item 3: Penilaian Kesehatan -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">monitor_heart</span>
+<span class="font-body-md text-body-md text-primary font-medium">Penilaian Kesehatan</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">0 catatan · dikelola admin dinas</span>
+</div>
+<!-- Item 4: Tata Kelola -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">gavel</span>
+<span class="font-body-md text-body-md text-primary font-medium">Tata Kelola</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">0 catatan · dikelola admin dinas</span>
+</div>
+<!-- Item 5: Aset -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">savings</span>
+<span class="font-body-md text-body-md text-primary font-medium">Aset</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">0 catatan · dikelola admin dinas</span>
+</div>
+<!-- Item 6: Riwayat Keanggotaan -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px]">how_to_reg</span>
+<span class="font-body-md text-body-md text-primary font-medium">Riwayat Keanggotaan</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">0 catatan · dikelola admin dinas</span>
+</div>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant pt-2">
+        Modul di atas berada di luar persentase kelengkapan pengelola karena diisi oleh admin dinas.
+      </p>
+</div>
+</div>
+<!-- Permintaan Perbaikan & Penolakan Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-[20px]">assignment_late</span>
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">PERMINTAAN PERBAIKAN &amp; PENOLAKAN</h3>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant font-medium">
+        0 Tiket
+      </span>
+</div>
+<!-- Soft Neutral Empty State Card -->
+<div class="bg-surface-container-low/60 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-2">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline-variant mb-1">
+<span class="material-symbols-outlined text-[26px]">task</span>
+</div>
+<div class="font-title-sm text-title-sm text-primary font-semibold">Tidak ada permintaan perbaikan</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">Pengajuan yang perlu diperbaiki atau ditolak akan tampil di sini.</p>
+</div>
+</div>
+<!-- Pengajuan Terbaru Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">history_edu</span>
+<h3 class="font-title-sm text-title-sm text-primary font-bold">Pengajuan Terbaru</h3>
+</div>
+<a class="text-secondary hover:text-secondary-container font-label-md text-label-md font-semibold flex items-center gap-1 transition-colors" data-path="pengajuan-mandiri" href="#">
+<span>Lihat Semua</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<!-- Clean Empty Action Ledger -->
+<div class="bg-surface-container-low/40 rounded-xl p-5 flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[20px]">post_add</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface">
+        Belum ada pengajuan. Anda dapat <a class="font-semibold text-secondary hover:underline cursor-pointer" data-path="pengajuan-mandiri" href="#">membuat pengajuan perubahan data</a>.
+      </div>
+</div>
+</div>
+</div></main></div></body></html>
