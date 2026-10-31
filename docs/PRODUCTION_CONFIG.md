@@ -119,8 +119,10 @@ dikonfigurasi.
 | `CACHE_STORE` | `database` | Jangan `array`/`null` di produksi. |
 | `QUEUE_CONNECTION` | `database` | Jalankan worker; lihat template systemd. |
 | `MAIL_MAILER` | `smtp` | Jangan `log`/`array` di produksi. |
-| `MAIL_HOST/PORT/USERNAME/PASSWORD` | dari penyedia SMTP resmi | Jangan gunakan kredensial pribadi. |
-| `MAIL_FROM_ADDRESS` | alamat resmi dinas | Bukan `@example.com`. |
+| `MAIL_SCHEME` | `null` atau `smtps` | `null` untuk STARTTLS (port 587); `smtps` untuk TLS langsung (port 465). |
+| `MAIL_HOST/PORT/USERNAME/PASSWORD` | dari penyedia SMTP resmi | Jangan gunakan kredensial pribadi. Mode file `.env` wajib `640`. |
+| `MAIL_FROM_ADDRESS` | alamat resmi dinas | Bukan `@example.com`. Wajib match domain SPF/DKIM dinas. |
+| `MAIL_FROM_NAME` | nama aplikasi resmi | Default `${APP_NAME}`. |
 | `SECURITY_HSTS_ENABLED` | `true` | Hanya dikirim pada HTTPS. |
 | `SECURITY_CSP_ENABLED` | `true` | Verifikasi tidak ada pelanggaran CSP. |
 | `SECURITY_CSP_REPORT_ONLY` | `false` | Gunakan `true` hanya saat uji CSP. |
@@ -139,6 +141,49 @@ port=3306
 user=koperasi_backup
 password=CHANGE_ME
 ```
+
+### 5.1 Panduan Integrasi SMTP & Email Dinas
+
+Aplikasi menggunakan sistem pengiriman email native Laravel untuk fitur keamanan dan operasional (khususnya reset password terproteksi hash `FR-004`). Pengiriman email menggunakan konfigurasi SMTP dinas yang terpusat pada file lingkungan (`.env`).
+
+#### A. Parameter Konfigurasi SMTP
+Pada server produksi (`/var/www/koperasi/shared/.env`), atur nilai-nilai berikut sesuai kredensial resmi dari administrator email dinas:
+
+```env
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=smtp.mail.jabarprov.go.id
+MAIL_PORT=587
+MAIL_USERNAME=noreply-koperasi@jabarprov.go.id
+MAIL_PASSWORD="RAHASIA_DARI_ADMIN_DINAS"
+MAIL_FROM_ADDRESS="noreply-koperasi@jabarprov.go.id"
+MAIL_FROM_NAME="Sistem Informasi Koperasi Jabar"
+```
+
+*Catatan Enkripsi / Skema:*
+- Jika menggunakan port `587` (STARTTLS): `MAIL_SCHEME=null`.
+- Jika penyedia mewajibkan TLS langsung pada port `465` (SMTPS): `MAIL_SCHEME=smtps`.
+
+#### B. Daftar Informasi yang Harus Diminta ke Administrator Email Dinas
+Sebelum rilis produksi atau pengujian SMTP staging, mintakan lembar data integrasi berikut ke tim pengelola email Pemprov Jabar / Diskominfo:
+
+1. **SMTP Server Host**: Nama FQDN mail server (contoh: `smtp.jabarprov.go.id`).
+2. **SMTP Port & Tipe Enkripsi**: Port yang dibuka (biasanya 587 STARTTLS atau 465 SSL/TLS).
+3. **Akun Autentikasi**: Username dan Password khusus aplikasi (hindari menggunakan akun personal ASN/pejabat).
+4. **Alamat Pengirim Resmi (Envelope From)**: Alamat email pengirim resmi (misal `noreply.koperasi@jabarprov.go.id`).
+5. **Koneksi Jaringan & Firewall Whitelist**: Izin akses port SMTP outbound (egress port 587/465) dari IP server aplikasi/staging.
+6. **Batas Kuota Pengiriman (Rate Limit)**: Batasan jumlah pengiriman email per menit / per jam / per hari.
+7. **Reputasi Domain & Catatan DNS (SPF, DKIM, DMARC)**:
+   - Pastikan IP server aplikasi terdaftar pada SPF record domain pengirim (`v=spf1 ...`).
+   - Pastikan DKIM signature valid untuk domain pengirim.
+   - Kebijakan DMARC tidak me-reject email resmi aplikasi.
+
+#### C. Penanganan Kegagalan Pengiriman Email
+- Alur reset password (`PasswordResetLinkController` dan `AdminUserController`) dibungkus blok `try-catch` terpusat:
+  - Kegagalan transport SMTP akan dicatat ke log aplikasi via `report($exception)`.
+  - Sistem tidak membocorkan pesan error atau jejak stack trace SMTP ke pengguna akhir (pesan tetap generik guna mencegah enumerasi akun).
+- Antrean latar belakang (`queue:work`) menangani kegagalan melalui tabel `failed_jobs` tanpa menghilangkan notifikasi database in-app.
+
 
 ## 6. Deployment rilis
 
