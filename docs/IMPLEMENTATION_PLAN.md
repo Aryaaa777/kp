@@ -502,6 +502,7 @@ dan restore staging.
   CI bukan staging. Dua kegagalan awal menemukan peringatan kompilasi migrasi dan XML contoh
   yang tidak valid; keduanya diperbaiki dan dijaga tes regresi. Run `8294505` menemukan
   **CVE-2026-45070**; `symfony/mime` diperbaiki ke v7.4.22 dan lock dipatok ke platform PHP 8.3.0.
+  Run `1b87874` sukses pada matriks PHP 8.3/8.4/8.5.
 - Batas: 10.11.19 portabel dan verifikasi backup/restore lokal bukan staging; `sql_mode` produksi,
   HTTPS/domain, SMTP, restore staging/produksi, dan uji beban belum dilakukan.
   Q-005/Q-007/Q-010/Q-012/Q-014 tetap terbuka.

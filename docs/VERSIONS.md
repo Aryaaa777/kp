@@ -104,7 +104,8 @@ belum tersedia.
   https://github.com/Aryaaa777/kp/actions/runs/40369698521.
 - Run `8294505` gagal pada `composer audit` karena **CVE-2026-45070** (`symfony/mime`).
   Perbaikannya: `symfony/mime` v7.4.22, komponen Symfony diselaraskan ke 7.4.x, dan
-  `config.platform.php = 8.3.0`. Run setelah perbaikan dependency menunggu verifikasi GitHub.
+  `config.platform.php = 8.3.0`. Run `1b87874` **sukses** pada matriks PHP 8.3/8.4/8.5:
+  https://github.com/Aryaaa777/kp/actions/runs/41173784466.
 - Dua run sebelumnya menemukan cacat nyata yang tidak terlihat di lokal: peringatan kompilasi
   `use RuntimeException;` pada migrasi lama dan komentar XML `--` pada contoh konfigurasi
   PHPUnit. Keduanya diperbaiki; regresi dijaga oleh `MigrationLintTest` dan

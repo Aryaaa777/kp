@@ -355,7 +355,8 @@ Rujuk `docs/IMPLEMENTATION_PLAN.md` untuk detail task & DoD per fase.
   dengan matriks PHP 8.3/8.4/8.5; run GitHub `c03011b` **sukses**. Dua kegagalan awal menemukan
   peringatan kompilasi migrasi dan XML contoh yang tidak valid; keduanya diperbaiki dan dijaga
   tes regresi. Run `8294505` menemukan **CVE-2026-45070**; `symfony/mime` diperbaiki ke v7.4.22
-  dan lock dipatok ke platform PHP 8.3.0. CI bukan pengganti staging.
+  dan lock dipatok ke platform PHP 8.3.0. Run `1b87874` sukses pada matriks PHP 8.3/8.4/8.5.
+  CI bukan pengganti staging.
 - **Belum go-live:** staging resmi, HTTPS/domain, SMTP, restore staging/produksi, `sql_mode`
   produksi, dan uji beban masih menjadi blocker eksternal. Lihat `docs/DECISIONS.md` 34-38 dan
   `docs/HANDOVER.md` 8.

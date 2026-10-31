@@ -252,7 +252,7 @@ target PHP 8.3. Runtime lokal tetap PHP 8.4.0. Jalankan `composer audit` setelah
 dependency; `symfony/mime` dipatok ke v7.4.22 untuk CVE-2026-45070.
 
 CI `.github/workflows/ci.yml` menjalankan suite SQLite + MariaDB 10.11, build aset, Pint, dan
-`composer audit` pada push/PR dengan matriks PHP 8.3/8.4/8.5. Run `c03011b` sukses, tetapi CI
+`composer audit` pada push/PR dengan matriks PHP 8.3/8.4/8.5. Run `1b87874` sukses, tetapi CI
 bukan pengganti staging.
 
 Pemeriksaan kesiapan produksi (read-only):

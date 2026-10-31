@@ -2651,8 +2651,10 @@ skema. Pengecualian ini tidak menjadi izin umum untuk mengubah migrasi lama.
   - SQLite **612 tes / 611 lulus / 1 skipped / 2.795 asersi**;
   - MariaDB 10.4.32 **612 tes / 611 lulus / 1 skipped / 2.800 asersi**;
   - `vendor/bin/pint --test` dan `npm run build` lulus.
-- CI diperluas menjadi matriks **PHP 8.3, 8.4, dan 8.5** dengan MariaDB 10.11. Keberhasilan
-  matriks ini membuktikan batas bawah dan atas target runtime, bukan staging/produksi.
+- CI diperluas menjadi matriks **PHP 8.3, 8.4, dan 8.5** dengan MariaDB 10.11. Run `1b87874`
+  **sukses** untuk ketiga versi PHP:
+  https://github.com/Aryaaa777/kp/actions/runs/41173784466. Keberhasilan matriks ini membuktikan
+  batas bawah dan atas target runtime, bukan staging/produksi.
 - **Batas:** ini bukan penggantian staging, uji SMTP nyata, atau uji beban. Perubahan dependency
   harus ditinjau ulang bila ada advisory baru; `composer audit` wajib dijalankan pada commit yang
   akan dideploy.
