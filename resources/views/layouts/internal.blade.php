@@ -39,7 +39,7 @@
             <aside class="w-full shrink-0 lg:w-56">
                 <nav class="flex gap-1 overflow-x-auto pb-2 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0"
                     aria-label="Navigasi utama">
-                    @yield('sidebar')
+                    @include('layouts._sidebar')
                 </nav>
             </aside>
 
